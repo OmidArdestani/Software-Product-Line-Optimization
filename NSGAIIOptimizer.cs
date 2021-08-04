@@ -14,6 +14,7 @@ namespace MyPLAOptimization
         private List<XMIComponent> Architecture = null;
         public void SetArchitecture(List<XMIComponent> architecture)
         {
+
             Architecture = architecture;
         }
 
