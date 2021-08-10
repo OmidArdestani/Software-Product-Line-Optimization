@@ -21,21 +21,21 @@ namespace MyPLAOptimization
 
         public void testCase1()
         {
-            List<XMIComponent> architecture = new List<XMIComponent> { };
+            List<PLAComponent> architecture = new List<PLAComponent> { };
             for (int c = 0; c < 10; c++)
             {
-                XMIComponent com = new XMIComponent();
-                com.Interfaces = new List<XMIInterface> { };
-                com.DependedInterfaces = new List<XMIInterface> { };
+                PLAComponent com = new PLAComponent();
+                com.Interfaces = new List<PLAInterface> { };
+                com.DependedInterfaces = new List<PLAInterface> { };
                 // init interface
                 for (int i = 0; i < 5; i++)
                 {
-                    XMIInterface intfce = new XMIInterface();
-                    intfce.Operators = new List<XMIOperator> { };
+                    PLAInterface intfce = new PLAInterface();
+                    intfce.Operators = new List<PLAOperator> { };
                     // init operator
                     for (int o = 0; o < 10; o++)
                     {
-                        XMIOperator op = new XMIOperator();
+                        PLAOperator op = new PLAOperator();
                         op.Arguments = new List<object> { };
                         op.Arguments.Add(new int());
                         op.Name = "operator" + o;

@@ -21,7 +21,7 @@ namespace MyPLAOptimization
         public event Func<bool> OptimizationFinished;
         public event Func<string, bool> AlgorithmOutput;
         public enum ChromosomeType { PT_Real, PT_Integer, PT_Binary }
-        private List<XMIComponent> Architecture = null;
+        private List<PLAComponent> Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
         private ChromosomeType pType = ChromosomeType.PT_Real;
@@ -29,17 +29,13 @@ namespace MyPLAOptimization
         /// Set the architecture that need optimization
         /// </summary>
         /// <param name="architecture">The Architecture that exported from Model</param>
-        public void SetArchitecture(List<XMIComponent> architecture)
+        public void SetArchitecture(List<PLAComponent> architecture)
         {
             this.Architecture = architecture;
         }
         /// <summary>
-        /// Usage: three options 
-        ///     - NSGAII 
-        ///     - NSGAII, problemName 
-        ///     - NSGAII, problemName paretoFrontFile
+        /// Run optimizarion asyncron
         /// </summary>
-        /// <param name="args"></param>
         public async Task StartAsync()
         {
             await Task.Run(() =>
@@ -50,27 +46,21 @@ namespace MyPLAOptimization
                 Operator crossover; // Crossover operator
                 Operator mutation; // Mutation operator
                 Operator selection; // Selection operator
-                                    // Count number of operators
+
+                // Count number of operators
                 int operatorCount = this.Architecture.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
                 operatorCount += this.Architecture.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
                 AlgorithmOutput(string.Format("Operator count = {0}", operatorCount));
                 Dictionary<string, object> parameters; // Operator parameters
 
                 QualityIndicator indicators = null; // Object to get quality indicators
-
-                // Logger object and file to store log messages
-                //var logger = Logger.Log;
-
-                //var appenders = logger.Logger.Repository.GetAppenders();
-                //var fileAppender = appenders[0] as log4net.Appender.FileAppender;
-                //fileAppender.File = "NSGAII.log";
-                //fileAppender.ActivateOptions();
+                
+                // create var type
                 switch (pType)
                 {
                     case ChromosomeType.PT_Real:
                     case ChromosomeType.PT_Integer:
-                        //problem = new Kursawe("Real", operatorCount);
-                        problem = new ZDT3("ArrayReal", operatorCount);
+                        problem = new Kursawe("Real", operatorCount);
                         break;
                     case ChromosomeType.PT_Binary:
                         problem = new Kursawe("BinaryReal", operatorCount);
@@ -87,6 +77,7 @@ namespace MyPLAOptimization
                 //problem = new DTLZ1("Real");
                 //problem = new OKA2("Real") ;
 
+                // contruct algorithm
                 algorithm = new JMetalCSharp.Metaheuristics.NSGAII.NSGAII(problem);
 
                 // Algorithm parameters
@@ -143,7 +134,12 @@ namespace MyPLAOptimization
                 }
             });
         }
-
+        /// <summary>
+        /// Config the Optimization application
+        /// </summary>
+        /// <param name="populationSize">Size of begin population</param>
+        /// <param name="maxEvaluations">Maximum evaluation count</param>
+        /// <param name="type">Type of variable</param>
         public void Configuration(int populationSize, int maxEvaluations, ChromosomeType type = ChromosomeType.PT_Real)
         {
             this.PopulationSize = populationSize;

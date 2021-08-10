@@ -6,30 +6,30 @@ using System.Threading.Tasks;
 
 namespace MyPLAOptimization
 {
-    public interface XMIItems
+    public interface PLAItems
     {
         int Id { get; set; }
         string Name { get; set; }
     }
-    public class XMIComponent : XMIItems
+    public class PLAComponent : PLAItems
     {
-        public List<XMIInterface> Interfaces { get; set; }
-        public List<XMIInterface> DependedInterfaces { get; set; }
+        public List<PLAInterface> Interfaces { get; set; }
+        public List<PLAInterface> DependedInterfaces { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
     }
-    public class XMIInterface : XMIItems
+    public class PLAInterface : PLAItems
     {
-        public XMIComponent OwnerComponent { get; set; }
-        public List<XMIOperator> Operators { get; set; }
+        public PLAComponent OwnerComponent { get; set; }
+        public List<PLAOperator> Operators { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
     }
 
-    public class XMIOperator : XMIItems
+    public class PLAOperator : PLAItems
     {
         public List<Object> Arguments { get; set; }
-        public XMIInterface OwnerInterface { get; set; }
+        public PLAInterface OwnerInterface { get; set; }
         public int Id { get; set ; }
         public string Name { get ; set ; }
     }
