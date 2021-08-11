@@ -20,18 +20,35 @@ namespace MyPLAOptimization
     {
         public event Func<bool> OptimizationFinished;
         public event Func<string, bool> AlgorithmOutput;
-        public enum ChromosomeType { PT_Real, PT_Integer, PT_Binary }
         private List<PLAComponent> Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
-        private ChromosomeType pType = ChromosomeType.PT_Real;
+        private List<KeyValuePair<int, List<int>>> UsageInterfaceRelationship=new List<KeyValuePair<int, List<int>>> { };
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
         /// <param name="architecture">The Architecture that exported from Model</param>
-        public void SetArchitecture(List<PLAComponent> architecture)
+        private void SetArchitecture(List<PLAComponent> architecture)
         {
             this.Architecture = architecture;
+            // create a multi dimention matrix of interface relationships.
+            // ! we considered in design layer ther relationship between operators, but this view will cover that.
+            UsageInterfaceRelationship.Clear();
+            for (int c=0;c<architecture.Count;c++)
+            {
+                for(int i=0;i<architecture[c].Interfaces.Count;i++)
+                {
+                    int currentInterfaceId = architecture[c].Interfaces[i].Id;
+                    List<int> dependencies = new List<int> { };
+                    for (int d=0;d<architecture[c].DependedInterfaces.Count;d++)
+                    {
+                        dependencies.Add(architecture[c].DependedInterfaces[d].Id);
+                    }
+                    KeyValuePair<int, List<int>> operatorDependencies = new KeyValuePair<int, List<int>>(currentInterfaceId, dependencies) ;
+                    UsageInterfaceRelationship.Add(operatorDependencies);
+                }
+            }
+            var interfaces = architecture.Select(c => c.Interfaces.Select(o=>o.Id)).ToList();
         }
         /// <summary>
         /// Run optimizarion asyncron
@@ -47,35 +64,10 @@ namespace MyPLAOptimization
                 Operator mutation; // Mutation operator
                 Operator selection; // Selection operator
 
-                // Count number of operators
-                int operatorCount = this.Architecture.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-                operatorCount += this.Architecture.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-                AlgorithmOutput(string.Format("Operator count = {0}", operatorCount));
+                AlgorithmOutput(string.Format("Operator count = {0}", PopulationSize));
                 Dictionary<string, object> parameters; // Operator parameters
 
-                QualityIndicator indicators = null; // Object to get quality indicators
-                
-                // create var type
-                switch (pType)
-                {
-                    case ChromosomeType.PT_Real:
-                    case ChromosomeType.PT_Integer:
-                        problem = new Kursawe("Real", operatorCount);
-                        break;
-                    case ChromosomeType.PT_Binary:
-                        problem = new Kursawe("BinaryReal", operatorCount);
-                        break;
-                    default:
-                        problem = new Kursawe("Real", operatorCount);
-                        break;
-                }
-                // Also we can use these chromosom types
-                //problem = new Kursawe("BinaryReal", 3);
-                //problem = new Water("Real");
-                //problem = new ZDT3("ArrayReal", 30);
-                //problem = new ConstrEx("Real");
-                //problem = new DTLZ1("Real");
-                //problem = new OKA2("Real") ;
+                problem = new MyProblem(this.Architecture);
 
                 // contruct algorithm
                 algorithm = new JMetalCSharp.Metaheuristics.NSGAII.NSGAII(problem);
@@ -104,9 +96,6 @@ namespace MyPLAOptimization
                 algorithm.AddOperator("mutation", mutation);
                 algorithm.AddOperator("selection", selection);
 
-                // Add the indicator object to the algorithm
-                algorithm.SetInputParameter("indicators", indicators);
-
                 // Execute the Algorithm
                 long initTime = Environment.TickCount;
                 SolutionSet population = algorithm.Execute();
@@ -118,33 +107,22 @@ namespace MyPLAOptimization
                 population.PrintVariablesToFile("VAR");
                 AlgorithmOutput("Objectives values have been writen to file FUN");
                 population.PrintObjectivesToFile("FUN");
-                Console.WriteLine("Time: " + estimatedTime);
-                Console.ReadLine();
-                if (indicators != null)
-                {
-                    AlgorithmOutput("Quality indicators");
-                    AlgorithmOutput("Hypervolume: " + indicators.GetHypervolume(population));
-                    AlgorithmOutput("GD         : " + indicators.GetGD(population));
-                    AlgorithmOutput("IGD        : " + indicators.GetIGD(population));
-                    AlgorithmOutput("Spread     : " + indicators.GetSpread(population));
-                    AlgorithmOutput("Epsilon    : " + indicators.GetEpsilon(population));
-
-                    int evaluations = (int)algorithm.GetOutputParameter("evaluations");
-                    AlgorithmOutput("Speed      : " + evaluations + " evaluations");
-                }
+                AlgorithmOutput("Time: " + estimatedTime);
             });
         }
         /// <summary>
         /// Config the Optimization application
         /// </summary>
-        /// <param name="populationSize">Size of begin population</param>
+        /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        /// <param name="type">Type of variable</param>
-        public void Configuration(int populationSize, int maxEvaluations, ChromosomeType type = ChromosomeType.PT_Real)
+        public void Configuration(List<PLAComponent> architecture, int maxEvaluations)
         {
-            this.PopulationSize = populationSize;
+            // Count number of operators
+            int operatorCount = this.Architecture.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            operatorCount += this.Architecture.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            this.PopulationSize = operatorCount;
             this.MaxEvaluation = maxEvaluations;
-            pType = type;
+            this.SetArchitecture(architecture);
         }
     }
 }

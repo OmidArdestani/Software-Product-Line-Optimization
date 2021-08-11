@@ -8,26 +8,65 @@ using System.Xml.Linq;
 
 namespace MyPLAOptimization
 {
-    class XMIConvertor
+    interface FileConvertor
     {
-        public static List<PLAComponent> ReadXMIFile(string filePath)
+        List<PLAComponent> ReadFile(string filePath);
+        void ExportFile(string filePath, List<PLAComponent> components);
+    }
+    class XMIConvertor: FileConvertor
+    {
+        /// <summary>
+        /// Read XMI model file.
+        /// </summary>
+        /// <param name="filePath">The file address</param>
+        /// <returns></returns>
+        public List<PLAComponent> ReadFile(string filePath)
         {
+            var xmlStr = File.ReadAllText(filePath);
+
+            xmlStr = xmlStr.Replace("UML:", "UML");
+            // getting parts
+            var str = XElement.Parse(xmlStr);
+            var baseRoot = str.Elements("XMI.content").
+                Select(x => x.Elements("UMLModel")).
+                Select(x => x.Elements("UMLNamespace.ownedElement")).
+                Select(x => x.Elements("UMLModel")).
+                Select(x => x.Elements("UMLNamespace.ownedElement")).ToList();
+            var componenets = baseRoot.
+                Select(x => x.Elements("UMLComponent")).ToList();
+
+            var classes = baseRoot.
+                Select(x => x.Elements("UMLPackage")).
+                Select(x => x.Elements("UMLNamespace.ownedElement")).
+                Select(x => x.Elements("UMLClass")).ToList();
+
+            var relationships_realization = baseRoot.
+                Select(x => x.Elements("UMLAbstraction")).ToList();
+
+            var relationships_dependencie = baseRoot.
+                Select(x => x.Elements("UMLDependency")).ToList();
+            // create Model
             return new List<PLAComponent>();
         }
 
-        public static void ExportXMIFile(string filePath,List<PLAComponent> components)
+        public void ExportFile(string filePath,List<PLAComponent> components)
         {
 
         }
     }
 
-    class XMLonvertor
+    class XMLonvertor: FileConvertor
     {
-        public static List<PLAComponent>ReadXMLFIle(string filePath)
+        /// <summary>
+        /// Read XML model file.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public List<PLAComponent>ReadFile(string filePath)
         {
             var xmlStr = File.ReadAllText(filePath);
             var str = XElement.Parse(xmlStr);
-
+            // getting parts
             var componenets = str.Elements("Models").
                 Select(x => x.Elements("Model")).
                 Select(x => x.Elements("ModelChildren")).
@@ -55,7 +94,7 @@ namespace MyPLAOptimization
             return new List<PLAComponent>();
         }
 
-        public static void ExportXMLFile(string filePath, List<PLAComponent> components)
+        public void ExportFile(string filePath, List<PLAComponent> components)
         {
 
         }
