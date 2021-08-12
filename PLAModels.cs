@@ -8,21 +8,29 @@ namespace MyPLAOptimization
 {
     public interface PLAItems
     {
-        int Id { get; set; }
+        double Id { get; set; }
         string Name { get; set; }
+    }
+    public class PLArchitecture
+    {
+        public PLArchitecture(List<PLAComponent> components)
+        {
+            this.Components = components;
+        }
+        public List<PLAComponent> Components{ get; set; }
     }
     public class PLAComponent : PLAItems
     {
         public List<PLAInterface> Interfaces { get; set; }
         public List<PLAInterface> DependedInterfaces { get; set; }
-        public int Id { get; set; }
+        public double Id { get; set; }
         public string Name { get; set; }
     }
     public class PLAInterface : PLAItems
     {
         public PLAComponent OwnerComponent { get; set; }
         public List<PLAOperator> Operators { get; set; }
-        public int Id { get; set; }
+        public double Id { get; set; }
         public string Name { get; set; }
     }
 
@@ -30,7 +38,7 @@ namespace MyPLAOptimization
     {
         public List<Object> Arguments { get; set; }
         public PLAInterface OwnerInterface { get; set; }
-        public int Id { get; set ; }
+        public double Id { get; set ; }
         public string Name { get ; set ; }
     }
 

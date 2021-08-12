@@ -20,35 +20,35 @@ namespace MyPLAOptimization
     {
         public event Func<bool> OptimizationFinished;
         public event Func<string, bool> AlgorithmOutput;
-        private List<PLAComponent> Architecture = null;
+        private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
-        private List<KeyValuePair<int, List<int>>> UsageInterfaceRelationship=new List<KeyValuePair<int, List<int>>> { };
+        private List<KeyValuePair<double, List<double>>> UsageInterfaceRelationship=new List<KeyValuePair<double, List<double>>> { };
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
         /// <param name="architecture">The Architecture that exported from Model</param>
-        private void SetArchitecture(List<PLAComponent> architecture)
+        private void SetArchitecture(PLArchitecture architecture)
         {
             this.Architecture = architecture;
             // create a multi dimention matrix of interface relationships.
             // ! we considered in design layer ther relationship between operators, but this view will cover that.
             UsageInterfaceRelationship.Clear();
-            for (int c=0;c<architecture.Count;c++)
+            for (int c=0;c<architecture.Components.Count;c++)
             {
-                for(int i=0;i<architecture[c].Interfaces.Count;i++)
+                for(int i=0;i<architecture.Components[c].Interfaces.Count;i++)
                 {
-                    int currentInterfaceId = architecture[c].Interfaces[i].Id;
-                    List<int> dependencies = new List<int> { };
-                    for (int d=0;d<architecture[c].DependedInterfaces.Count;d++)
+                    double currentInterfaceId = architecture.Components[c].Interfaces[i].Id;
+                    List<double> dependencies = new List<double> { };
+                    for (int d=0;d<architecture.Components[c].DependedInterfaces.Count;d++)
                     {
-                        dependencies.Add(architecture[c].DependedInterfaces[d].Id);
+                        dependencies.Add(architecture.Components[c].DependedInterfaces[d].Id);
                     }
-                    KeyValuePair<int, List<int>> operatorDependencies = new KeyValuePair<int, List<int>>(currentInterfaceId, dependencies) ;
+                    KeyValuePair<double, List<double>> operatorDependencies = new KeyValuePair<double, List<double>>(currentInterfaceId, dependencies) ;
                     UsageInterfaceRelationship.Add(operatorDependencies);
                 }
             }
-            var interfaces = architecture.Select(c => c.Interfaces.Select(o=>o.Id)).ToList();
+            var interfaces = architecture.Components.Select(c => c.Interfaces.Select(o=>o.Id)).ToList();
         }
         /// <summary>
         /// Run optimizarion asyncron
@@ -68,6 +68,7 @@ namespace MyPLAOptimization
                 Dictionary<string, object> parameters; // Operator parameters
 
                 problem = new MyProblem(this.Architecture);
+                //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
                 algorithm = new JMetalCSharp.Metaheuristics.NSGAII.NSGAII(problem);
@@ -89,7 +90,8 @@ namespace MyPLAOptimization
 
                 // Selection Operator 
                 parameters = null;
-                selection = SelectionFactory.GetSelectionOperator("BinaryTournament2", parameters);
+                selection = new MySelectionOperator(parameters);
+                //selection = SelectionFactory.GetSelectionOperator("BinaryTournament2", parameters);
 
                 // Add the operators to the algorithm
                 algorithm.AddOperator("crossover", crossover);
@@ -115,11 +117,12 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(List<PLAComponent> architecture, int maxEvaluations)
+        public void Configuration(PLArchitecture architecture, int maxEvaluations)
         {
+            this.Architecture = architecture;
             // Count number of operators
-            int operatorCount = this.Architecture.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            operatorCount += this.Architecture.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            int operatorCount = this.Architecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            operatorCount += this.Architecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
             this.PopulationSize = operatorCount;
             this.MaxEvaluation = maxEvaluations;
             this.SetArchitecture(architecture);

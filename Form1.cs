@@ -21,7 +21,7 @@ namespace MyPLAOptimization
 
         public void testCase1()
         {
-            List<PLAComponent> architecture = new List<PLAComponent> { };
+            List<PLAComponent> components = new List<PLAComponent> { };
             for (int c = 0; c < 10; c++)
             {
                 PLAComponent com = new PLAComponent();
@@ -51,12 +51,11 @@ namespace MyPLAOptimization
                 // init component
                 com.Id = c;
                 com.Name = "Component" + c;
-                architecture.Add(com);
+                components.Add(com);
             }
             NSGAIIOptimizer myOptimization = new NSGAIIOptimizer();
             myOptimization.AlgorithmOutput += showOutput;
-            myOptimization.SetArchitecture(architecture);
-            myOptimization.Configuration(100, 55000);
+            myOptimization.Configuration(new PLArchitecture(components), 55000);
             myOptimization.StartAsync();
         }
 

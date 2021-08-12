@@ -10,15 +10,24 @@ using System.Threading.Tasks;
 
 namespace MyPLAOptimization
 {
+
+    enum ObjectivSelection
+    {
+        OS_Cohesion = 0,
+        OS_Coupling = 1,
+        OS_Granularity = 2,
+        OS_FeatureScattering = 3,
+        OS_FeatureInteraction = 4
+    }
     class MyProblem : Problem
     {
-        private List<PLAComponent> Architecture;
-        public MyProblem(List<PLAComponent> architecture)
+        private PLArchitecture Architecture;
+        public MyProblem(PLArchitecture architecture)
         {
             Architecture = architecture;
             // Count number of operators
-            int operatorCount = Architecture.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            operatorCount += Architecture.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            int operatorCount = Architecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            operatorCount += Architecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
             NumberOfVariables = operatorCount;
             /* ----------------------
              * 1- Cohesion
@@ -37,7 +46,7 @@ namespace MyPLAOptimization
             for (int i = 0; i < NumberOfVariables; i++)
             {
                 LowerLimit[i] = 0.0;
-                UpperLimit[i] = NumberOfVariables;
+                UpperLimit[i] = 1.0;
             }
 
             SolutionType = new RealSolutionType(this);
@@ -46,42 +55,87 @@ namespace MyPLAOptimization
         {
             double[] f = new double[NumberOfObjectives];
             XReal currentSolution = new XReal(solution);
-            List<PLAComponent> currentArchitecture = GenerateArchitecture(currentSolution);
+            PLArchitecture currentArchitecture = GenerateArchitecture(currentSolution);
             //evaluate Cohesion
-            f[0] = EvalCohesion(currentArchitecture);
+            f[(int)ObjectivSelection.OS_Cohesion] = EvalCohesion(currentArchitecture);
             //evaluate Coupling
-            f[1] = EvalCoupling(currentArchitecture);
+            f[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
             //evaluate Granularity
-            f[2] = EvalGranularity(currentArchitecture);
+            f[(int)ObjectivSelection.OS_Granularity] = EvalGranularity(currentArchitecture);
             //evaluate Feature-Scattering
-            f[3] = EvalFeatureScattering(currentArchitecture);
+            f[(int)ObjectivSelection.OS_FeatureScattering] = EvalFeatureScattering(currentArchitecture);
             //evaluate Feature-Interaction
-            f[4] = EvalFeatureInteraction(currentArchitecture);
+            f[(int)ObjectivSelection.OS_FeatureInteraction] = EvalFeatureInteraction(currentArchitecture);
             // set objectives
             solution.Objective = f;
 
         }
-        private List<PLAComponent> GenerateArchitecture(XReal solution)
+        private PLArchitecture GenerateArchitecture(XReal solution)
         {
-            throw new Exception("GenerateArchitecture not implemented");
+            // get operators
+            List<PLAOperator> operators = new List<PLAOperator> { };
+            for (int i = 0; i < Architecture.Components.Count; i++)
+            {
+                for (int j = 0; j < Architecture.Components[i].Interfaces.Count; j++)
+                {
+                    operators.AddRange(Architecture.Components[i].Interfaces[j].Operators);
+                }
+                for (int j = 0; j < Architecture.Components[i].DependedInterfaces.Count; j++)
+                {
+                    operators.AddRange(Architecture.Components[i].DependedInterfaces[j].Operators);
+                }
+            }
+            // create interfaces
+            int operatorCount = operators.Count;
+            List<PLAInterface> interfaces = new List<PLAInterface> { };
+            for (int o = 0; o < operators.Count; o++)
+            {
+                int currentSolutionIndex = (int)(solution.GetValue(o) * operatorCount);
+                PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex).SingleOrDefault();
+                if (currentInterface == null)
+                {
+                    currentInterface = new PLAInterface();
+                    currentInterface.Operators = new List<PLAOperator> { };
+                    currentInterface.Id = currentSolutionIndex;
+                    interfaces.Add(currentInterface);
+                }
+                currentInterface.Operators.Add(operators[o]);
+            }
+            // create components
+            int interfaceCount = interfaces.Count;
+            List<PLAComponent> components = new List<PLAComponent> { };
+            for (int i = 0; i < interfaces.Count; i++)
+            {
+                int currentSolutionIndex = (int)(solution.GetValue(i) * interfaceCount);
+                PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex).SingleOrDefault();
+                if (currentComponent == null)
+                {
+                    currentComponent = new PLAComponent();
+                    currentComponent.Interfaces = new List<PLAInterface> { };
+                    currentComponent.Id = currentSolutionIndex;
+                    components.Add(currentComponent);
+                }
+                currentComponent.Interfaces.Add(interfaces[i]);
+            }
+            return new PLArchitecture(components);
         }
-        private double EvalCohesion(List<PLAComponent> pla)
+        private double EvalCohesion(PLArchitecture pla)
         {
             throw new Exception("EvalCohesion not implemented");
         }
-        private double EvalCoupling(List<PLAComponent> pla)
+        private double EvalCoupling(PLArchitecture pla)
         {
             throw new Exception("EvalCoupling not implemented");
         }
-        private double EvalGranularity(List<PLAComponent> pla)
+        private double EvalGranularity(PLArchitecture pla)
         {
             throw new Exception("EvalGranularity not implemented");
         }
-        private double EvalFeatureScattering(List<PLAComponent> pla)
+        private double EvalFeatureScattering(PLArchitecture pla)
         {
             throw new Exception("EvalFeatureScattering not implemented");
         }
-        private double EvalFeatureInteraction(List<PLAComponent> pla)
+        private double EvalFeatureInteraction(PLArchitecture pla)
         {
             throw new Exception("EvalFeatureInteraction not implemented");
         }
