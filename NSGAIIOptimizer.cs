@@ -23,7 +23,7 @@ namespace MyPLAOptimization
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
-        private List<KeyValuePair<double, List<double>>> UsageInterfaceRelationship=new List<KeyValuePair<double, List<double>>> { };
+        private List<KeyValuePair<string, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<string, List<string>>> { };
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
@@ -34,21 +34,21 @@ namespace MyPLAOptimization
             // create a multi dimention matrix of interface relationships.
             // ! we considered in design layer ther relationship between operators, but this view will cover that.
             UsageInterfaceRelationship.Clear();
-            for (int c=0;c<architecture.Components.Count;c++)
+            for (int c = 0; c < architecture.Components.Count; c++)
             {
-                for(int i=0;i<architecture.Components[c].Interfaces.Count;i++)
+                for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
-                    double currentInterfaceId = architecture.Components[c].Interfaces[i].Id;
-                    List<double> dependencies = new List<double> { };
-                    for (int d=0;d<architecture.Components[c].DependedInterfaces.Count;d++)
+                    string currentInterfaceId = architecture.Components[c].Interfaces[i].Id;
+                    List<string> dependencies = new List<string> { };
+                    for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
                         dependencies.Add(architecture.Components[c].DependedInterfaces[d].Id);
                     }
-                    KeyValuePair<double, List<double>> operatorDependencies = new KeyValuePair<double, List<double>>(currentInterfaceId, dependencies) ;
+                    KeyValuePair<string, List<string>> operatorDependencies = new KeyValuePair<string, List<string>>(currentInterfaceId, dependencies);
                     UsageInterfaceRelationship.Add(operatorDependencies);
                 }
             }
-            var interfaces = architecture.Components.Select(c => c.Interfaces.Select(o=>o.Id)).ToList();
+            var interfaces = architecture.Components.Select(c => c.Interfaces.Select(o => o.Id)).ToList();
         }
         /// <summary>
         /// Run optimizarion asyncron

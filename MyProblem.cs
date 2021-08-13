@@ -91,12 +91,12 @@ namespace MyPLAOptimization
             for (int o = 0; o < operators.Count; o++)
             {
                 int currentSolutionIndex = (int)(solution.GetValue(o) * operatorCount);
-                PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex).SingleOrDefault();
+                PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
                 {
                     currentInterface = new PLAInterface();
                     currentInterface.Operators = new List<PLAOperator> { };
-                    currentInterface.Id = currentSolutionIndex;
+                    currentInterface.Id = currentSolutionIndex.ToString();
                     interfaces.Add(currentInterface);
                 }
                 currentInterface.Operators.Add(operators[o]);
@@ -107,12 +107,12 @@ namespace MyPLAOptimization
             for (int i = 0; i < interfaces.Count; i++)
             {
                 int currentSolutionIndex = (int)(solution.GetValue(i) * interfaceCount);
-                PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex).SingleOrDefault();
+                PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentComponent == null)
                 {
                     currentComponent = new PLAComponent();
                     currentComponent.Interfaces = new List<PLAInterface> { };
-                    currentComponent.Id = currentSolutionIndex;
+                    currentComponent.Id = currentSolutionIndex.ToString();
                     components.Add(currentComponent);
                 }
                 currentComponent.Interfaces.Add(interfaces[i]);
