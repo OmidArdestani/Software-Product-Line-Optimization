@@ -40,14 +40,15 @@ namespace MyPLAOptimization
             for (int i = 1; i < solutionSet.Size(); i++)
             {
                 Solution currentSolution = solutionSet.Get(i);
+                // calc score fot current solution
                 double scoreTemp = MathSolutionScore(currentSolution.Objective);
+                // if this score is more than last score, save the new solution and score
                 if (scoreTemp > bestScore)
                 {
                     bestScore = scoreTemp;
                     bestSolution = currentSolution;
                 }
             }
-
             return bestSolution;
         }
     }

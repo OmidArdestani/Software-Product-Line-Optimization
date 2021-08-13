@@ -33,7 +33,6 @@ namespace MyPLAOptimization
         public double Id { get; set; }
         public string Name { get; set; }
     }
-
     public class PLAOperator : PLAItems
     {
         public List<Object> Arguments { get; set; }

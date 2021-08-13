@@ -21,13 +21,13 @@ namespace MyPLAOptimization
     }
     class MyProblem : Problem
     {
-        private PLArchitecture Architecture;
+        private PLArchitecture PrimaryArchitecture;
         public MyProblem(PLArchitecture architecture)
         {
-            Architecture = architecture;
+            PrimaryArchitecture = architecture;
             // Count number of operators
-            int operatorCount = Architecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            operatorCount += Architecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            int operatorCount = PrimaryArchitecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
+            operatorCount += PrimaryArchitecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
             NumberOfVariables = operatorCount;
             /* ----------------------
              * 1- Cohesion
@@ -74,15 +74,15 @@ namespace MyPLAOptimization
         {
             // get operators
             List<PLAOperator> operators = new List<PLAOperator> { };
-            for (int i = 0; i < Architecture.Components.Count; i++)
+            for (int i = 0; i < PrimaryArchitecture.Components.Count; i++)
             {
-                for (int j = 0; j < Architecture.Components[i].Interfaces.Count; j++)
+                for (int j = 0; j < PrimaryArchitecture.Components[i].Interfaces.Count; j++)
                 {
-                    operators.AddRange(Architecture.Components[i].Interfaces[j].Operators);
+                    operators.AddRange(PrimaryArchitecture.Components[i].Interfaces[j].Operators);
                 }
-                for (int j = 0; j < Architecture.Components[i].DependedInterfaces.Count; j++)
+                for (int j = 0; j < PrimaryArchitecture.Components[i].DependedInterfaces.Count; j++)
                 {
-                    operators.AddRange(Architecture.Components[i].DependedInterfaces[j].Operators);
+                    operators.AddRange(PrimaryArchitecture.Components[i].DependedInterfaces[j].Operators);
                 }
             }
             // create interfaces
@@ -121,23 +121,65 @@ namespace MyPLAOptimization
         }
         private double EvalCohesion(PLArchitecture pla)
         {
-            throw new Exception("EvalCohesion not implemented");
+            // Definition Ref [Colanzi, Vergilio - 2014]
+            // Definition : Average number of internal relationships per class in a component. 
+            // get all interfaces count
+            double totalDependecies = pla.Components.Select(c => c.Interfaces.Count()).Sum();
+            // get component count
+            double totalComponents = pla.Components.Count();
+            // return average of interface per componenet.
+            return totalDependecies / totalComponents;
         }
         private double EvalCoupling(PLArchitecture pla)
         {
-            throw new Exception("EvalCoupling not implemented");
+            // Definition Ref [Colanzi, Vergilio - 2014]
+            //// Definition : Number of packages on which classes and interfaces of this component depend.
+            //double DepPack = 0;
+            //// Definition : Number of elements that depend on this class.
+            //double CDepIn = 0;
+            //// Definition : Number of elements on which this class depends.
+            //double CDepOut = 0;
+            //// Definition : Number of UML dependencies where the package is the supplier.
+            //double DepIn = 0;
+            // Definition : Number of UML dependencies where the package is the client.
+            try
+            {
+                double DepOut = pla.Components.Select(c => c.DependedInterfaces.Count()).Sum();
+                return DepOut;
+            }
+            catch
+            {
+                return 0;
+            }
         }
         private double EvalGranularity(PLArchitecture pla)
         {
-            throw new Exception("EvalGranularity not implemented");
+            // Average of works that a component will do,
+            // this mean, all count of operations that a component will throw,
+            double avgWorks = pla.Components.Select(c => c.Interfaces.Select(i => i.Operators.Count()).Sum()).Sum();
+            return avgWorks;
         }
         private double EvalFeatureScattering(PLArchitecture pla)
         {
-            throw new Exception("EvalFeatureScattering not implemented");
+            // Definition Ref [Colanzi, Vergilio - 2014]
+            //Number of architectural components which contributes to the realization of a certain feature
+            double CDAC = pla.Components.Count();
+            //Number of interfaces in the system architecture which contributes to the realization of a certain feature
+            double CDAI = pla.Components.Select(c => c.Interfaces.Count()).Sum();
+            //Number of operations in the system architecture which contributes to the realization of a certain feature
+            double CDAO = pla.Components.Select(c => c.Interfaces.Select(i => i.Operators.Count()).Sum()).Sum();
+            return (CDAC + CDAI + CDAO);
         }
         private double EvalFeatureInteraction(PLArchitecture pla)
         {
-            throw new Exception("EvalFeatureInteraction not implemented");
+            // Definition Ref [Colanzi, Vergilio - 2014]
+            //Number of features with which the assessed feature share at least a component
+            double CIBC = 0;
+            //Number of features with which the assessed feature share at least an interface
+            double IIBC = 0;
+            //Number of features with which the assessed feature share at least an operation
+            double OOBC = 0;
+            return 0;
         }
     }
 }
