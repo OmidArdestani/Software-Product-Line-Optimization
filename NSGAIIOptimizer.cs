@@ -23,7 +23,7 @@ namespace MyPLAOptimization
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
-        private List<KeyValuePair<string, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<string, List<string>>> { };
+        private List<KeyValuePair<List<string>, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
@@ -32,23 +32,22 @@ namespace MyPLAOptimization
         {
             this.Architecture = architecture;
             // create a multi dimention matrix of interface relationships.
-            // ! we considered in design layer ther relationship between operators, but this view will cover that.
+            // ! we considered in design layer the relationship between operators, but this view will cover that.
             UsageInterfaceRelationship.Clear();
             for (int c = 0; c < architecture.Components.Count; c++)
             {
                 for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
-                    string currentInterfaceId = architecture.Components[c].Interfaces[i].Id;
+                    var currentInterfaceId = architecture.Components[c].Interfaces[i].Operators.Select(o => o.Id).ToList();
                     List<string> dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
-                        dependencies.Add(architecture.Components[c].DependedInterfaces[d].Id);
+                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operators.Select(o=>o.Id).ToList());
                     }
-                    KeyValuePair<string, List<string>> operatorDependencies = new KeyValuePair<string, List<string>>(currentInterfaceId, dependencies);
+                    KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentInterfaceId, dependencies);
                     UsageInterfaceRelationship.Add(operatorDependencies);
                 }
             }
-            var interfaces = architecture.Components.Select(c => c.Interfaces.Select(o => o.Id)).ToList();
         }
         /// <summary>
         /// Run optimizarion asyncron
@@ -67,7 +66,7 @@ namespace MyPLAOptimization
                 AlgorithmOutput(string.Format("Operator count = {0}", PopulationSize));
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture);
+                problem = new MyProblem(this.Architecture,UsageInterfaceRelationship);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -122,7 +121,6 @@ namespace MyPLAOptimization
             this.Architecture = architecture;
             // Count number of operators
             int operatorCount = this.Architecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            operatorCount += this.Architecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
             this.PopulationSize = operatorCount;
             this.MaxEvaluation = maxEvaluations;
             this.SetArchitecture(architecture);

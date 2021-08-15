@@ -22,9 +22,12 @@ namespace MyPLAOptimization
     class MyProblem : Problem
     {
         private PLArchitecture PrimaryArchitecture;
-        public MyProblem(PLArchitecture architecture)
+
+        private List<KeyValuePair<List<string>, List<string>>> InterfaceDependencies;
+        public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies)
         {
             PrimaryArchitecture = architecture;
+            InterfaceDependencies = operatorDependencies;
             // Count number of operators
             int operatorCount = PrimaryArchitecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
             operatorCount += PrimaryArchitecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
@@ -78,11 +81,11 @@ namespace MyPLAOptimization
             {
                 for (int j = 0; j < PrimaryArchitecture.Components[i].Interfaces.Count; j++)
                 {
-                    operators.AddRange(PrimaryArchitecture.Components[i].Interfaces[j].Operators);
-                }
-                for (int j = 0; j < PrimaryArchitecture.Components[i].DependedInterfaces.Count; j++)
-                {
-                    operators.AddRange(PrimaryArchitecture.Components[i].DependedInterfaces[j].Operators);
+                    for (int k = 0; k < PrimaryArchitecture.Components[i].Interfaces[j].Operators.Count; k++)
+                    {
+                        if (operators.Find(o => o.Id == PrimaryArchitecture.Components[i].Interfaces[j].Operators[k].Id) == null)
+                            operators.Add(PrimaryArchitecture.Components[i].Interfaces[j].Operators[k]);
+                    }
                 }
             }
             // create interfaces
@@ -112,10 +115,37 @@ namespace MyPLAOptimization
                 {
                     currentComponent = new PLAComponent();
                     currentComponent.Interfaces = new List<PLAInterface> { };
+                    currentComponent.DependedInterfaces = new List<PLAInterface> { };
                     currentComponent.Id = currentSolutionIndex.ToString();
                     components.Add(currentComponent);
                 }
                 currentComponent.Interfaces.Add(interfaces[i]);
+            }
+            // create dependencies
+            for (int idi = 0; idi < InterfaceDependencies.Count; idi++)
+            {
+                for (int idci = 0; idci < InterfaceDependencies[idi].Key.Count; idci++)
+                {
+                    var clientComponents = components.Where(
+                        c => c.Interfaces.Find(
+                            i => i.Operators.Find(
+                                o => o.Id == InterfaceDependencies[idi].Key[idci]) != null) != null).ToList();
+                    for (int idsi = 0; idsi < InterfaceDependencies[idi].Value.Count; idsi++)
+                    {
+                        var suplierInterface = components.Where(
+                        c => c.Interfaces.Find(
+                            i => i.Operators.Find(
+                                o => o.Id == InterfaceDependencies[idi].Value[idsi]) != null) != null).Select(x => x.Interfaces).SingleOrDefault();
+                        for (int cci = 0; cci < clientComponents.Count; cci++)
+                        {
+                            if(suplierInterface.Count>0)
+                            {
+                                if (clientComponents[cci].DependedInterfaces.Find(l => l.Id == suplierInterface.First().Id) == null)
+                                    clientComponents[cci].DependedInterfaces.Add(suplierInterface.First());
+                            }
+                        }
+                    }
+                }
             }
             return new PLArchitecture(components);
         }
