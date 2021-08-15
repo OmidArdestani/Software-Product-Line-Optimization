@@ -83,6 +83,7 @@ namespace MyPLAOptimization
                 {
                     for (int k = 0; k < PrimaryArchitecture.Components[i].Interfaces[j].Operators.Count; k++)
                     {
+                        // add operator to list if it was not added befor.
                         if (operators.Find(o => o.Id == PrimaryArchitecture.Components[i].Interfaces[j].Operators[k].Id) == null)
                             operators.Add(PrimaryArchitecture.Components[i].Interfaces[j].Operators[k]);
                     }
@@ -124,22 +125,27 @@ namespace MyPLAOptimization
             // create dependencies
             for (int idi = 0; idi < InterfaceDependencies.Count; idi++)
             {
+                // sweep all key and value dependencies
                 for (int idci = 0; idci < InterfaceDependencies[idi].Key.Count; idci++)
                 {
+                    // find the components, that using the current cheking operator is in any interface.
                     var clientComponents = components.Where(
                         c => c.Interfaces.Find(
                             i => i.Operators.Find(
                                 o => o.Id == InterfaceDependencies[idi].Key[idci]) != null) != null).ToList();
                     for (int idsi = 0; idsi < InterfaceDependencies[idi].Value.Count; idsi++)
                     {
+                        // find the suplier interface considering the operator relationship matrix from input architecture
                         var suplierInterface = components.Where(
                         c => c.Interfaces.Find(
                             i => i.Operators.Find(
                                 o => o.Id == InterfaceDependencies[idi].Value[idsi]) != null) != null).Select(x => x.Interfaces).SingleOrDefault();
                         for (int cci = 0; cci < clientComponents.Count; cci++)
                         {
+                            //check suplier interface count
                             if(suplierInterface.Count>0)
                             {
+                                // add dependency interface to client component, if the dependency interface was not added befor.
                                 if (clientComponents[cci].DependedInterfaces.Find(l => l.Id == suplierInterface.First().Id) == null)
                                     clientComponents[cci].DependedInterfaces.Add(suplierInterface.First());
                             }
