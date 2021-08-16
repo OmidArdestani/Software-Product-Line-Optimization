@@ -22,16 +22,29 @@ namespace MyPLAOptimization
     class MyProblem : Problem
     {
         private PLArchitecture PrimaryArchitecture;
+        private List<PLAOperator> LocalOperators= new List<PLAOperator> { };
 
         private List<KeyValuePair<List<string>, List<string>>> InterfaceDependencies;
         public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies)
         {
             PrimaryArchitecture = architecture;
             InterfaceDependencies = operatorDependencies;
+            // get operators
+            LocalOperators.Clear();
+            for (int i = 0; i < PrimaryArchitecture.Components.Count; i++)
+            {
+                for (int j = 0; j < PrimaryArchitecture.Components[i].Interfaces.Count; j++)
+                {
+                    for (int k = 0; k < PrimaryArchitecture.Components[i].Interfaces[j].Operators.Count; k++)
+                    {
+                        // add operator to list if it was not added befor.
+                        if (LocalOperators.Find(o => o.Id == PrimaryArchitecture.Components[i].Interfaces[j].Operators[k].Id) == null)
+                            LocalOperators.Add(PrimaryArchitecture.Components[i].Interfaces[j].Operators[k]);
+                    }
+                }
+            }
             // Count number of operators
-            int operatorCount = PrimaryArchitecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            operatorCount += PrimaryArchitecture.Components.Select(c => c.DependedInterfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            NumberOfVariables = operatorCount;
+            NumberOfVariables = LocalOperators.Count;
             /* ----------------------
              * 1- Cohesion
              * 2- Coupling
@@ -75,24 +88,10 @@ namespace MyPLAOptimization
         }
         private PLArchitecture GenerateArchitecture(XReal solution)
         {
-            // get operators
-            List<PLAOperator> operators = new List<PLAOperator> { };
-            for (int i = 0; i < PrimaryArchitecture.Components.Count; i++)
-            {
-                for (int j = 0; j < PrimaryArchitecture.Components[i].Interfaces.Count; j++)
-                {
-                    for (int k = 0; k < PrimaryArchitecture.Components[i].Interfaces[j].Operators.Count; k++)
-                    {
-                        // add operator to list if it was not added befor.
-                        if (operators.Find(o => o.Id == PrimaryArchitecture.Components[i].Interfaces[j].Operators[k].Id) == null)
-                            operators.Add(PrimaryArchitecture.Components[i].Interfaces[j].Operators[k]);
-                    }
-                }
-            }
             // create interfaces
-            int operatorCount = operators.Count;
+            int operatorCount = LocalOperators.Count;
             List<PLAInterface> interfaces = new List<PLAInterface> { };
-            for (int o = 0; o < operators.Count; o++)
+            for (int o = 0; o < LocalOperators.Count; o++)
             {
                 int currentSolutionIndex = (int)(solution.GetValue(o) * operatorCount);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
@@ -103,7 +102,7 @@ namespace MyPLAOptimization
                     currentInterface.Id = currentSolutionIndex.ToString();
                     interfaces.Add(currentInterface);
                 }
-                currentInterface.Operators.Add(operators[o]);
+                currentInterface.Operators.Add(LocalOperators[o]);
             }
             // create components
             int interfaceCount = interfaces.Count;

@@ -12,13 +12,16 @@ namespace MyPLAOptimization
 {
     public partial class Form1 : Form
     {
+        private PLArchitecture GotArchitecture = null;
+        NSGAIIOptimizer MyOptimization = null;
         public Form1()
         {
             CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
+
+            MyOptimization = new NSGAIIOptimizer();
             //testCase1();
         }
-
         public void testCase1()
         {
             List<PLAComponent> components = new List<PLAComponent> { };
@@ -83,12 +86,23 @@ namespace MyPLAOptimization
                 {
                     xmiConv = new XMLConvertor();
                 }
-                PLArchitecture architecture = xmiConv.ReadFile(dialog.FileName);
-                NSGAIIOptimizer myOptimization = new NSGAIIOptimizer();
-                myOptimization.AlgorithmOutput += showOutput;
-                myOptimization.Configuration(architecture, 55000);
-                myOptimization.StartAsync();
+                GotArchitecture = xmiConv.ReadFile(dialog.FileName);
+                string[] addressParts = dialog.FileName.Split('\\');
+                if (addressParts.Length > 2)
+                    tbInputFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                else
+                    tbInputFileAddress.Text = string.Join("/", addressParts);
+                lblComponentCnt.Text = xmiConv.GetComponentCount().ToString();
+                lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
+                lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
             }
+        }
+
+        private void btnRunAlgorithm_Click(object sender, EventArgs e)
+        {
+            MyOptimization.AlgorithmOutput += showOutput;
+            MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value);
+            MyOptimization.StartAsync();
         }
     }
 }

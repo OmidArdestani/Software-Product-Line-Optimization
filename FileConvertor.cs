@@ -11,11 +11,17 @@ namespace MyPLAOptimization
 {
     interface FileConvertor
     {
+        int GetComponentCount();
+        int GetInterfaceCount();
+        int GetOperatorCount();
         PLArchitecture ReadFile(string filePath);
         void ExportFile(string filePath, List<PLAComponent> components);
     }
     class XMIConvertor : FileConvertor
     {
+        private int ComponentCount = 0;
+        private int InterfaceCount = 0;
+        private int OperatorCount = 0;
         /// <summary>
         /// Read XMI model file.
         /// </summary>
@@ -58,6 +64,7 @@ namespace MyPLAOptimization
                 };
                 componentList.Add(cmp);
             }
+            ComponentCount = componentList.Count;
             // fetch interfaces and operators
             List<PLAInterface> interfaceList = new List<PLAInterface> { };
             foreach (var item in xmiInterfaces)
@@ -80,6 +87,8 @@ namespace MyPLAOptimization
                 }
                 interfaceList.Add(intf);
             }
+            InterfaceCount = interfaceList.Count;
+            OperatorCount = interfaceList.Select(i => i.Operators.Count).Sum();
             // create relationships
             // realization
             foreach (var realizationItem in relationships_realization)
@@ -107,10 +116,28 @@ namespace MyPLAOptimization
         {
 
         }
+
+        public int GetComponentCount()
+        {
+            return ComponentCount;
+        }
+
+        public int GetInterfaceCount()
+        {
+            return InterfaceCount;
+        }
+
+        public int GetOperatorCount()
+        {
+            return OperatorCount;
+        }
     }
 
     class XMLConvertor : FileConvertor
     {
+        private int ComponentCount = 0;
+        private int InterfaceCount = 0;
+        private int OperatorCount = 0;
         /// <summary>
         /// Read XML model file.
         /// </summary>
@@ -153,6 +180,7 @@ namespace MyPLAOptimization
                 };
                 componentList.Add(cmp);
             }
+            ComponentCount = componentList.Count;
             // fetch interfaces and operators
             List<PLAInterface> interfaceList = new List<PLAInterface> { };
             foreach (var item in xmlInterfaces)
@@ -175,6 +203,8 @@ namespace MyPLAOptimization
                 }
                 interfaceList.Add(intf);
             }
+            InterfaceCount = interfaceList.Count;
+            OperatorCount = interfaceList.Select(i => i.Operators.Count).Sum();
             // create relationships
             // realization
             foreach (var realizationItem in relationships_realization)
@@ -200,6 +230,21 @@ namespace MyPLAOptimization
         public void ExportFile(string filePath, List<PLAComponent> components)
         {
 
+        }
+
+        public int GetComponentCount()
+        {
+            return ComponentCount;
+        }
+
+        public int GetInterfaceCount()
+        {
+            return InterfaceCount;
+        }
+
+        public int GetOperatorCount()
+        {
+            return OperatorCount;
         }
     }
 }
