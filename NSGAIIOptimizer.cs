@@ -32,14 +32,14 @@ namespace MyPLAOptimization
         {
             this.Architecture = architecture;
             // create a multi dimention matrix of interface relationships.
-            // ! we considered in design layer the relationship between operators, but this view will cover that.
+            // any operator in each interface depend on each operator in any dependecie interface.
             UsageInterfaceRelationship.Clear();
             for (int c = 0; c < architecture.Components.Count; c++)
             {
                 for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
                     var currentInterfaceId = architecture.Components[c].Interfaces[i].Operators.Select(o => o.Id).ToList();
-                    List<string> dependencies = new List<string> { };
+                    var dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
                         dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operators.Select(o=>o.Id).ToList());
@@ -116,12 +116,10 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(PLArchitecture architecture, int maxEvaluations)
+        public void Configuration(PLArchitecture architecture, int maxEvaluations,int populationSize)
         {
             this.Architecture = architecture;
-            // Count number of operators
-            int operatorCount = this.Architecture.Components.Select(c => c.Interfaces.Select(o => o.Operators.Count()).Sum()).Sum();
-            this.PopulationSize = operatorCount;
+            this.PopulationSize = populationSize;
             this.MaxEvaluation = maxEvaluations;
             this.SetArchitecture(architecture);
         }

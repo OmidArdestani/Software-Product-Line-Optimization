@@ -9,7 +9,7 @@ using System.Xml.Linq;
 
 namespace MyPLAOptimization
 {
-    interface FileConvertor
+    interface IFileConvertor
     {
         int GetComponentCount();
         int GetInterfaceCount();
@@ -17,7 +17,7 @@ namespace MyPLAOptimization
         PLArchitecture ReadFile(string filePath);
         void ExportFile(string filePath, List<PLAComponent> components);
     }
-    class XMIConvertor : FileConvertor
+    class XMIConvertor : IFileConvertor
     {
         private int ComponentCount = 0;
         private int InterfaceCount = 0;
@@ -133,7 +133,7 @@ namespace MyPLAOptimization
         }
     }
 
-    class XMLConvertor : FileConvertor
+    class XMLConvertor : IFileConvertor
     {
         private int ComponentCount = 0;
         private int InterfaceCount = 0;

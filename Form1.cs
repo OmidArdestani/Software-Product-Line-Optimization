@@ -12,6 +12,7 @@ namespace MyPLAOptimization
 {
     public partial class Form1 : Form
     {
+        private IFileConvertor xmiConv = null;
         private PLArchitecture GotArchitecture = null;
         NSGAIIOptimizer MyOptimization = null;
         public Form1()
@@ -58,7 +59,7 @@ namespace MyPLAOptimization
             }
             NSGAIIOptimizer myOptimization = new NSGAIIOptimizer();
             myOptimization.AlgorithmOutput += showOutput;
-            myOptimization.Configuration(new PLArchitecture(components), 55000);
+            //myOptimization.Configuration(new PLArchitecture(components), 55000);
             myOptimization.StartAsync();
         }
 
@@ -75,7 +76,6 @@ namespace MyPLAOptimization
             dialog.ShowDialog();
             if (dialog.FileName != "")
             {
-                FileConvertor xmiConv = null;
                 // Input file is XMI format
                 if (dialog.FilterIndex == 1)
                 {
@@ -101,8 +101,35 @@ namespace MyPLAOptimization
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
             MyOptimization.AlgorithmOutput += showOutput;
-            MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value);
+            MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
             MyOptimization.StartAsync();
+        }
+
+        private void btnExportOutput_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml";
+            dialog.ShowDialog();
+            IFileConvertor exportFIle = null;
+            if (dialog.FileName != "")
+            {
+                // Input file is XMI format
+                if (dialog.FilterIndex == 1)
+                {
+                    exportFIle = new XMIConvertor();
+                }
+                // Input file is XML format
+                else if (dialog.FilterIndex == 2)
+                {
+                    exportFIle = new XMLConvertor();
+                }
+                string[] addressParts = dialog.FileName.Split('\\');
+                if (addressParts.Length > 2)
+                    tbExportFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                else
+                    tbExportFileAddress.Text = string.Join("/", addressParts);
+                //xmiConv.ExportFile(dialog.FileName,null);
+            }
         }
     }
 }

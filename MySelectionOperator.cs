@@ -11,6 +11,7 @@ namespace MyPLAOptimization
 {
     class MySelectionOperator : Selection
     {
+        public Solution BestSolution { get; set; }
         public MySelectionOperator(Dictionary<string, object> parameters) : base(parameters)
         {
         }
