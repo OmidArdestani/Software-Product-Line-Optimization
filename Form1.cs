@@ -57,15 +57,16 @@ namespace MyPLAOptimization
                 com.Name = "Component" + c;
                 components.Add(com);
             }
-            NSGAIIOptimizer myOptimization = new NSGAIIOptimizer();
-            myOptimization.AlgorithmOutput += showOutput;
+            MyOptimization.AlgorithmOutput += showOutput;
+            MyOptimization.OptimizationFinished += GetFinishedOptimization;
+
             //myOptimization.Configuration(new PLArchitecture(components), 55000);
-            myOptimization.StartAsync();
+            MyOptimization.StartAsync();
         }
 
         private bool showOutput(string info)
         {
-            richTextBox1.AppendText(info + "\n");
+            rtbOutput.AppendText(info + "\n");
             return true;
         }
 
@@ -95,16 +96,27 @@ namespace MyPLAOptimization
                 lblComponentCnt.Text = xmiConv.GetComponentCount().ToString();
                 lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
                 lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
+                nudMaximumEvaluation.Enabled = true;
+                btnRunAlgorithm.Enabled = true;
             }
         }
 
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
             MyOptimization.AlgorithmOutput += showOutput;
+            MyOptimization.OptimizationFinished += GetFinishedOptimization;
             MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
             MyOptimization.StartAsync();
+            btnRunAlgorithm.Enabled = false;
+            nudMaximumEvaluation.Enabled = false;
         }
-
+        private bool GetFinishedOptimization()
+        {
+            btnExportOutput.Enabled = true;
+            btnRunAlgorithm.Enabled = true;
+            nudMaximumEvaluation.Enabled = true;
+            return true;
+        }
         private void btnExportOutput_Click(object sender, EventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
@@ -128,7 +140,8 @@ namespace MyPLAOptimization
                     tbExportFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
                 else
                     tbExportFileAddress.Text = string.Join("/", addressParts);
-                //xmiConv.ExportFile(dialog.FileName,null);
+                PLArchitecture optimizedPLA = MyOptimization.BestPLA;
+                xmiConv.ExportFile(dialog.FileName, optimizedPLA.Components);
             }
         }
     }

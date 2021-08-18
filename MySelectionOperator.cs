@@ -15,7 +15,7 @@ namespace MyPLAOptimization
         public MySelectionOperator(Dictionary<string, object> parameters) : base(parameters)
         {
         }
-        private double MathSolutionScore(double[] objectivs)
+        public static double MathSolutionScore(double[] objectivs)
         {
             double score = 0;
 
@@ -35,7 +35,7 @@ namespace MyPLAOptimization
             {
                 return null;
             }
-            double bestScore = -1;
+            double bestScore = -1e6;
             Solution bestSolution = null;
 
             for (int i = 1; i < solutionSet.Size(); i++)

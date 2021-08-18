@@ -29,7 +29,7 @@ namespace MyPLAOptimization
         /// </summary>
         private void InitializeComponent()
         {
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.rtbOutput = new System.Windows.Forms.RichTextBox();
             this.btnSelectFile = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.lblOperatorCnt = new System.Windows.Forms.Label();
@@ -52,19 +52,19 @@ namespace MyPLAOptimization
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
-            // richTextBox1
+            // rtbOutput
             // 
-            this.richTextBox1.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
-            this.richTextBox1.ForeColor = System.Drawing.SystemColors.Window;
-            this.richTextBox1.Location = new System.Drawing.Point(6, 19);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(237, 120);
-            this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "";
+            this.rtbOutput.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.rtbOutput.ForeColor = System.Drawing.SystemColors.Window;
+            this.rtbOutput.Location = new System.Drawing.Point(6, 19);
+            this.rtbOutput.Name = "rtbOutput";
+            this.rtbOutput.Size = new System.Drawing.Size(272, 120);
+            this.rtbOutput.TabIndex = 0;
+            this.rtbOutput.Text = "";
             // 
             // btnSelectFile
             // 
-            this.btnSelectFile.Location = new System.Drawing.Point(240, 19);
+            this.btnSelectFile.Location = new System.Drawing.Point(6, 20);
             this.btnSelectFile.Name = "btnSelectFile";
             this.btnSelectFile.Size = new System.Drawing.Size(75, 23);
             this.btnSelectFile.TabIndex = 2;
@@ -84,7 +84,7 @@ namespace MyPLAOptimization
             this.groupBox1.Controls.Add(this.btnSelectFile);
             this.groupBox1.Location = new System.Drawing.Point(15, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(321, 168);
+            this.groupBox1.Size = new System.Drawing.Size(285, 168);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Input";
@@ -92,7 +92,7 @@ namespace MyPLAOptimization
             // lblOperatorCnt
             // 
             this.lblOperatorCnt.AutoSize = true;
-            this.lblOperatorCnt.Location = new System.Drawing.Point(118, 126);
+            this.lblOperatorCnt.Location = new System.Drawing.Point(118, 138);
             this.lblOperatorCnt.Name = "lblOperatorCnt";
             this.lblOperatorCnt.Size = new System.Drawing.Size(22, 13);
             this.lblOperatorCnt.TabIndex = 4;
@@ -101,7 +101,7 @@ namespace MyPLAOptimization
             // lblInterfaceCnt
             // 
             this.lblInterfaceCnt.AutoSize = true;
-            this.lblInterfaceCnt.Location = new System.Drawing.Point(118, 95);
+            this.lblInterfaceCnt.Location = new System.Drawing.Point(118, 107);
             this.lblInterfaceCnt.Name = "lblInterfaceCnt";
             this.lblInterfaceCnt.Size = new System.Drawing.Size(22, 13);
             this.lblInterfaceCnt.TabIndex = 4;
@@ -110,7 +110,7 @@ namespace MyPLAOptimization
             // lblComponentCnt
             // 
             this.lblComponentCnt.AutoSize = true;
-            this.lblComponentCnt.Location = new System.Drawing.Point(118, 65);
+            this.lblComponentCnt.Location = new System.Drawing.Point(118, 77);
             this.lblComponentCnt.Name = "lblComponentCnt";
             this.lblComponentCnt.Size = new System.Drawing.Size(22, 13);
             this.lblComponentCnt.TabIndex = 4;
@@ -119,7 +119,7 @@ namespace MyPLAOptimization
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(17, 126);
+            this.label4.Location = new System.Drawing.Point(17, 138);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 4;
@@ -128,7 +128,7 @@ namespace MyPLAOptimization
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 95);
+            this.label3.Location = new System.Drawing.Point(17, 107);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(83, 13);
             this.label3.TabIndex = 4;
@@ -137,7 +137,7 @@ namespace MyPLAOptimization
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(17, 65);
+            this.label2.Location = new System.Drawing.Point(17, 77);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(95, 13);
             this.label2.TabIndex = 4;
@@ -146,14 +146,15 @@ namespace MyPLAOptimization
             // tbInputFileAddress
             // 
             this.tbInputFileAddress.Enabled = false;
-            this.tbInputFileAddress.Location = new System.Drawing.Point(6, 19);
+            this.tbInputFileAddress.Location = new System.Drawing.Point(6, 46);
             this.tbInputFileAddress.Name = "tbInputFileAddress";
-            this.tbInputFileAddress.Size = new System.Drawing.Size(228, 20);
+            this.tbInputFileAddress.Size = new System.Drawing.Size(269, 20);
             this.tbInputFileAddress.TabIndex = 3;
             // 
             // btnRunAlgorithm
             // 
             this.btnRunAlgorithm.BackColor = System.Drawing.Color.Salmon;
+            this.btnRunAlgorithm.Enabled = false;
             this.btnRunAlgorithm.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.btnRunAlgorithm.Location = new System.Drawing.Point(6, 114);
             this.btnRunAlgorithm.Name = "btnRunAlgorithm";
@@ -168,7 +169,7 @@ namespace MyPLAOptimization
             this.groupBox2.Controls.Add(this.nudMaximumEvaluation);
             this.groupBox2.Controls.Add(this.btnRunAlgorithm);
             this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Location = new System.Drawing.Point(342, 12);
+            this.groupBox2.Location = new System.Drawing.Point(306, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(160, 168);
             this.groupBox2.TabIndex = 4;
@@ -177,6 +178,7 @@ namespace MyPLAOptimization
             // 
             // nudMaximumEvaluation
             // 
+            this.nudMaximumEvaluation.Enabled = false;
             this.nudMaximumEvaluation.Location = new System.Drawing.Point(6, 65);
             this.nudMaximumEvaluation.Maximum = new decimal(new int[] {
             100000,
@@ -208,12 +210,12 @@ namespace MyPLAOptimization
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.richTextBox1);
+            this.groupBox3.Controls.Add(this.rtbOutput);
             this.groupBox3.Controls.Add(this.tbExportFileAddress);
             this.groupBox3.Controls.Add(this.btnExportOutput);
-            this.groupBox3.Location = new System.Drawing.Point(508, 12);
+            this.groupBox3.Location = new System.Drawing.Point(472, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(249, 168);
+            this.groupBox3.Size = new System.Drawing.Size(284, 168);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Output";
@@ -223,12 +225,13 @@ namespace MyPLAOptimization
             this.tbExportFileAddress.Enabled = false;
             this.tbExportFileAddress.Location = new System.Drawing.Point(6, 142);
             this.tbExportFileAddress.Name = "tbExportFileAddress";
-            this.tbExportFileAddress.Size = new System.Drawing.Size(165, 20);
+            this.tbExportFileAddress.Size = new System.Drawing.Size(200, 20);
             this.tbExportFileAddress.TabIndex = 3;
             // 
             // btnExportOutput
             // 
-            this.btnExportOutput.Location = new System.Drawing.Point(177, 142);
+            this.btnExportOutput.Enabled = false;
+            this.btnExportOutput.Location = new System.Drawing.Point(212, 142);
             this.btnExportOutput.Name = "btnExportOutput";
             this.btnExportOutput.Size = new System.Drawing.Size(66, 23);
             this.btnExportOutput.TabIndex = 2;
@@ -261,7 +264,7 @@ namespace MyPLAOptimization
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox rtbOutput;
         private System.Windows.Forms.Button btnSelectFile;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox tbInputFileAddress;

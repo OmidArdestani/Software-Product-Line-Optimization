@@ -18,6 +18,9 @@ namespace MyPLAOptimization
             this.Components = components;
         }
         public List<PLAComponent> Components{ get; set; }
+        public int ComponentCount { get; set; }
+        public int InterfaceCount { get; set; }
+        public int OperatorCount { get; set; }
     }
     public class PLAComponent : PLAItems
     {

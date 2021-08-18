@@ -22,7 +22,7 @@ namespace MyPLAOptimization
     class MyProblem : Problem
     {
         private PLArchitecture PrimaryArchitecture;
-        private List<PLAOperator> LocalOperators= new List<PLAOperator> { };
+        private List<PLAOperator> LocalOperators = new List<PLAOperator> { };
 
         private List<KeyValuePair<List<string>, List<string>>> InterfaceDependencies;
         public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies)
@@ -31,15 +31,16 @@ namespace MyPLAOptimization
             InterfaceDependencies = operatorDependencies;
             // get operators
             LocalOperators.Clear();
-            for (int i = 0; i < PrimaryArchitecture.Components.Count; i++)
+            for (int c = 0; c < PrimaryArchitecture.Components.Count; c++)
             {
-                for (int j = 0; j < PrimaryArchitecture.Components[i].Interfaces.Count; j++)
+                for (int i = 0; i < PrimaryArchitecture.Components[c].Interfaces.Count; i++)
                 {
-                    for (int k = 0; k < PrimaryArchitecture.Components[i].Interfaces[j].Operators.Count; k++)
+                    for (int o = 0; o < PrimaryArchitecture.Components[c].Interfaces[i].Operators.Count; o++)
                     {
+                        string operatorId = PrimaryArchitecture.Components[c].Interfaces[i].Operators[o].Id;
                         // add operator to list if it was not added befor.
-                        if (LocalOperators.Find(o => o.Id == PrimaryArchitecture.Components[i].Interfaces[j].Operators[k].Id) == null)
-                            LocalOperators.Add(PrimaryArchitecture.Components[i].Interfaces[j].Operators[k]);
+                        if (LocalOperators.Where(_o => _o.Id == operatorId).Count() == 0)
+                            LocalOperators.Add(PrimaryArchitecture.Components[c].Interfaces[i].Operators[o]);
                     }
                 }
             }
@@ -86,7 +87,7 @@ namespace MyPLAOptimization
             solution.Objective = f;
 
         }
-        private PLArchitecture GenerateArchitecture(XReal solution)
+        public PLArchitecture GenerateArchitecture(XReal solution)
         {
             // create interfaces
             int operatorCount = LocalOperators.Count;
@@ -142,7 +143,7 @@ namespace MyPLAOptimization
                         for (int cci = 0; cci < clientComponents.Count; cci++)
                         {
                             //check suplier interface count
-                            if(suplierInterface.Count>0)
+                            if (suplierInterface.Count > 0)
                             {
                                 // add dependency interface to client component, if the dependency interface was not added befor.
                                 if (clientComponents[cci].DependedInterfaces.Find(l => l.Id == suplierInterface.First().Id) == null)
@@ -152,7 +153,11 @@ namespace MyPLAOptimization
                     }
                 }
             }
-            return new PLArchitecture(components);
+            PLArchitecture returnPla = new PLArchitecture(components);
+            returnPla.ComponentCount = components.Count();
+            returnPla.InterfaceCount = interfaceCount;
+            returnPla.OperatorCount = operatorCount;
+            return returnPla;
         }
         private double EvalCohesion(PLArchitecture pla)
         {

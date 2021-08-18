@@ -7,7 +7,9 @@ using JMetalCSharp.Problems.Kursawe;
 using JMetalCSharp.Problems.ZDT;
 using JMetalCSharp.QualityIndicator;
 using JMetalCSharp.Utils;
+using JMetalCSharp.Utils.Wrapper;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,7 @@ namespace MyPLAOptimization
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
+        public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         /// <summary>
         /// Set the architecture that need optimization
@@ -42,7 +45,7 @@ namespace MyPLAOptimization
                     var dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
-                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operators.Select(o=>o.Id).ToList());
+                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operators.Select(o => o.Id).ToList());
                     }
                     KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentInterfaceId, dependencies);
                     UsageInterfaceRelationship.Add(operatorDependencies);
@@ -57,16 +60,16 @@ namespace MyPLAOptimization
             await Task.Run(() =>
             {
                 Thread.Sleep(1000);
-                Problem problem; // The problem to solve
+                MyProblem problem; // The problem to solve
                 Algorithm algorithm; // The algorithm to use
                 Operator crossover; // Crossover operator
                 Operator mutation; // Mutation operator
                 Operator selection; // Selection operator
 
-                AlgorithmOutput(string.Format("Operator count = {0}", PopulationSize));
+                AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture,UsageInterfaceRelationship);
+                problem = new MyProblem(this.Architecture, UsageInterfaceRelationship);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -101,14 +104,20 @@ namespace MyPLAOptimization
                 long initTime = Environment.TickCount;
                 SolutionSet population = algorithm.Execute();
                 long estimatedTime = Environment.TickCount - initTime;
-
+                IComparer<Solution> comp = new MyComparator();
+                BestPLA = problem.GenerateArchitecture(new XReal(population.Best(comp)));
                 // Result messages 
-                AlgorithmOutput("Total execution time: " + estimatedTime + "ms");
+                AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
                 AlgorithmOutput("Variables values have been writen to file VAR");
                 population.PrintVariablesToFile("VAR");
-                AlgorithmOutput("Objectives values have been writen to file FUN");
+                AlgorithmOutput("Objectives values have been writen to file FUN\n");
                 population.PrintObjectivesToFile("FUN");
-                AlgorithmOutput("Time: " + estimatedTime);
+                // output
+                AlgorithmOutput("Best PLA has:");
+                AlgorithmOutput("Components : " + BestPLA.ComponentCount);
+                AlgorithmOutput("Interfaces : " + BestPLA.InterfaceCount);
+                AlgorithmOutput("Operators : " + BestPLA.OperatorCount);
+                OptimizationFinished();
             });
         }
         /// <summary>
@@ -116,7 +125,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(PLArchitecture architecture, int maxEvaluations,int populationSize)
+        public void Configuration(PLArchitecture architecture, int maxEvaluations, int populationSize)
         {
             this.Architecture = architecture;
             this.PopulationSize = populationSize;
