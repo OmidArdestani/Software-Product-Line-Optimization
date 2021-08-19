@@ -21,6 +21,8 @@ namespace MyPLAOptimization
             InitializeComponent();
 
             MyOptimization = new NSGAIIOptimizer();
+            MyOptimization.AlgorithmOutput += showOutput;
+            MyOptimization.OptimizationFinished += GetFinishedOptimization;
             //testCase1();
         }
         public void testCase1()
@@ -103,8 +105,6 @@ namespace MyPLAOptimization
 
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
-            MyOptimization.AlgorithmOutput += showOutput;
-            MyOptimization.OptimizationFinished += GetFinishedOptimization;
             MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
             MyOptimization.StartAsync();
             btnRunAlgorithm.Enabled = false;
@@ -141,7 +141,7 @@ namespace MyPLAOptimization
                 else
                     tbExportFileAddress.Text = string.Join("/", addressParts);
                 PLArchitecture optimizedPLA = MyOptimization.BestPLA;
-                xmiConv.ExportFile(dialog.FileName, optimizedPLA.Components);
+                exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
             }
         }
     }
