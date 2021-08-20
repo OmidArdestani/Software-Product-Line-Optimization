@@ -37,7 +37,7 @@ namespace MyPLAOptimization
                 for (int i = 0; i < 5; i++)
                 {
                     PLAInterface intfce = new PLAInterface();
-                    intfce.Operators = new List<PLAOperator> { };
+                    intfce.Operation = new List<PLAOperator> { };
                     // init operator
                     for (int o = 0; o < 10; o++)
                     {
@@ -47,7 +47,7 @@ namespace MyPLAOptimization
                         op.Name = "operator" + o;
                         op.Id = o.ToString();
                         op.OwnerInterface = intfce;
-                        intfce.Operators.Add(op);
+                        intfce.Operation.Add(op);
                     }
                     intfce.Name = "interface" + i;
                     intfce.Id = i.ToString();

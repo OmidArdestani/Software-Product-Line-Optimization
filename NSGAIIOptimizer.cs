@@ -41,11 +41,11 @@ namespace MyPLAOptimization
             {
                 for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
-                    var currentInterfaceId = architecture.Components[c].Interfaces[i].Operators.Select(o => o.Id).ToList();
+                    var currentInterfaceId = architecture.Components[c].Interfaces[i].Operation.Select(o => o.Id).ToList();
                     var dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
-                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operators.Select(o => o.Id).ToList());
+                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operation.Select(o => o.Id).ToList());
                     }
                     KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentInterfaceId, dependencies);
                     UsageInterfaceRelationship.Add(operatorDependencies);

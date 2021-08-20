@@ -22,7 +22,7 @@ namespace MyPLAOptimization
     class MyProblem : Problem
     {
         private PLArchitecture PrimaryArchitecture;
-        private List<PLAOperator> LocalOperators = new List<PLAOperator> { };
+        private List<PLAOperator> LocalOperations = new List<PLAOperator> { };
 
         private List<KeyValuePair<List<string>, List<string>>> InterfaceDependencies;
         public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies)
@@ -30,22 +30,22 @@ namespace MyPLAOptimization
             PrimaryArchitecture = architecture;
             InterfaceDependencies = operatorDependencies;
             // get operators
-            LocalOperators.Clear();
+            LocalOperations.Clear();
             for (int c = 0; c < PrimaryArchitecture.Components.Count; c++)
             {
                 for (int i = 0; i < PrimaryArchitecture.Components[c].Interfaces.Count; i++)
                 {
-                    for (int o = 0; o < PrimaryArchitecture.Components[c].Interfaces[i].Operators.Count; o++)
+                    for (int o = 0; o < PrimaryArchitecture.Components[c].Interfaces[i].Operation.Count; o++)
                     {
-                        string operatorId = PrimaryArchitecture.Components[c].Interfaces[i].Operators[o].Id;
+                        string operatorId = PrimaryArchitecture.Components[c].Interfaces[i].Operation[o].Id;
                         // add operator to list if it was not added befor.
-                        if (LocalOperators.Where(_o => _o.Id == operatorId).Count() == 0)
-                            LocalOperators.Add(PrimaryArchitecture.Components[c].Interfaces[i].Operators[o]);
+                        if (LocalOperations.Where(_o => _o.Id == operatorId).Count() == 0)
+                            LocalOperations.Add(PrimaryArchitecture.Components[c].Interfaces[i].Operation[o]);
                     }
                 }
             }
             // Count number of operators
-            NumberOfVariables = LocalOperators.Count;
+            NumberOfVariables = LocalOperations.Count;
             /* ----------------------
              * 1- Cohesion
              * 2- Coupling
@@ -90,20 +90,20 @@ namespace MyPLAOptimization
         public PLArchitecture GenerateArchitecture(XReal solution)
         {
             // create interfaces
-            int operatorCount = LocalOperators.Count;
+            int operationCount = LocalOperations.Count;
             List<PLAInterface> interfaces = new List<PLAInterface> { };
-            for (int o = 0; o < LocalOperators.Count; o++)
+            for (int o = 0; o < LocalOperations.Count; o++)
             {
-                int currentSolutionIndex = (int)(solution.GetValue(o) * operatorCount);
+                int currentSolutionIndex = (int)(solution.GetValue(o) * operationCount);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
                 {
                     currentInterface = new PLAInterface();
-                    currentInterface.Operators = new List<PLAOperator> { };
+                    currentInterface.Operation = new List<PLAOperator> { };
                     currentInterface.Id = currentSolutionIndex.ToString();
                     interfaces.Add(currentInterface);
                 }
-                currentInterface.Operators.Add(LocalOperators[o]);
+                currentInterface.Operation.Add(LocalOperations[o]);
             }
             // create components
             int interfaceCount = interfaces.Count;
@@ -131,14 +131,14 @@ namespace MyPLAOptimization
                     // find the components, that using the current cheking operator is in any interface.
                     var clientComponents = components.Where(
                         c => c.Interfaces.Find(
-                            i => i.Operators.Find(
+                            i => i.Operation.Find(
                                 o => o.Id == InterfaceDependencies[idi].Key[idci]) != null) != null).ToList();
                     for (int idsi = 0; idsi < InterfaceDependencies[idi].Value.Count; idsi++)
                     {
                         // find the suplier interface considering the operator relationship matrix from input architecture
                         var suplierInterface = components.Where(
                         c => c.Interfaces.Find(
-                            i => i.Operators.Find(
+                            i => i.Operation.Find(
                                 o => o.Id == InterfaceDependencies[idi].Value[idsi]) != null) != null).Select(x => x.Interfaces).SingleOrDefault();
                         for (int cci = 0; cci < clientComponents.Count; cci++)
                         {
@@ -156,7 +156,7 @@ namespace MyPLAOptimization
             PLArchitecture returnPla = new PLArchitecture(components);
             returnPla.ComponentCount = components.Count();
             returnPla.InterfaceCount = interfaceCount;
-            returnPla.OperatorCount = operatorCount;
+            returnPla.OperatorCount = operationCount;
             return returnPla;
         }
         private double EvalCohesion(PLArchitecture pla)
@@ -174,6 +174,7 @@ namespace MyPLAOptimization
         {
             // Definition Ref [Colanzi, Vergilio - 2014]
             //// Definition : Number of packages on which classes and interfaces of this component depend.
+            /// for me is component
             //double DepPack = 0;
             //// Definition : Number of elements that depend on this class.
             //double CDepIn = 0;
@@ -185,7 +186,10 @@ namespace MyPLAOptimization
             try
             {
                 double DepOut = pla.Components.Select(c => c.DependedInterfaces.Count()).Sum();
-                return DepOut;
+                int componentCount = pla.Components.Count();
+                // 
+                double avg = DepOut / componentCount;
+                return avg;
             }
             catch
             {
@@ -195,8 +199,8 @@ namespace MyPLAOptimization
         private double EvalGranularity(PLArchitecture pla)
         {
             // Average of works that a component will do,
-            // this mean, all count of operations that a component will throw,
-            double avgWorks = pla.Components.Select(c => c.Interfaces.Select(i => i.Operators.Count()).Sum()).Sum();
+            // this mean, all count of operations that a component will throw,?
+            double avgWorks = pla.Components.Select(c => c.Interfaces.Select(i => i.Operation.Count()).Sum()).Sum() / pla.Components.Count();
             return avgWorks;
         }
         private double EvalFeatureScattering(PLArchitecture pla)
@@ -207,7 +211,7 @@ namespace MyPLAOptimization
             //Number of interfaces in the system architecture which contributes to the realization of a certain feature
             double CDAI = pla.Components.Select(c => c.Interfaces.Count()).Sum();
             //Number of operations in the system architecture which contributes to the realization of a certain feature
-            double CDAO = pla.Components.Select(c => c.Interfaces.Select(i => i.Operators.Count()).Sum()).Sum();
+            double CDAO = pla.Components.Select(c => c.Interfaces.Select(i => i.Operation.Count()).Sum()).Sum();
             return (CDAC + CDAI + CDAO);
         }
         private double EvalFeatureInteraction(PLArchitecture pla)
