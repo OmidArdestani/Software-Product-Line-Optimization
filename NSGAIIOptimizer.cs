@@ -92,8 +92,8 @@ namespace MyPLAOptimization
 
                 // Selection Operator 
                 parameters = null;
-                selection = new MySelectionOperator(parameters);
-                //selection = SelectionFactory.GetSelectionOperator("BinaryTournament2", parameters);
+                //selection = new MySelectionOperator(parameters);
+                selection = SelectionFactory.GetSelectionOperator("BinaryTournament2", parameters);
 
                 // Add the operators to the algorithm
                 algorithm.AddOperator("crossover", crossover);
@@ -105,7 +105,7 @@ namespace MyPLAOptimization
                 SolutionSet population = algorithm.Execute();
                 long estimatedTime = Environment.TickCount - initTime;
                 IComparer<Solution> comp = new MyComparator();
-                BestPLA = problem.GenerateArchitecture(new XReal(population.Best(comp)));
+                BestPLA = problem.GenerateArchitecture(population.Best(comp));
                 // Result messages 
                 AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
                 AlgorithmOutput("Variables values have been writen to file VAR");

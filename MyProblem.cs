@@ -1,5 +1,6 @@
 ﻿using JMetalCSharp.Core;
 using JMetalCSharp.Encoding.SolutionType;
+using JMetalCSharp.Encoding.Variable;
 using JMetalCSharp.Utils;
 using JMetalCSharp.Utils.Wrapper;
 using System;
@@ -71,8 +72,8 @@ namespace MyPLAOptimization
         public override void Evaluate(Solution solution)
         {
             double[] f = new double[NumberOfObjectives];
-            XReal currentSolution = new XReal(solution);
-            PLArchitecture currentArchitecture = GenerateArchitecture(currentSolution);
+            //XReal currentSolution = new XReal(solution);
+            PLArchitecture currentArchitecture = GenerateArchitecture(solution);
             //evaluate Cohesion
             f[(int)ObjectivSelection.OS_Cohesion] = EvalCohesion(currentArchitecture);
             //evaluate Coupling
@@ -87,14 +88,16 @@ namespace MyPLAOptimization
             solution.Objective = f;
 
         }
-        public PLArchitecture GenerateArchitecture(XReal solution)
+        public PLArchitecture GenerateArchitecture(Solution solution)
         {
             // create interfaces
             int operationCount = LocalOperations.Count;
             List<PLAInterface> interfaces = new List<PLAInterface> { };
             for (int o = 0; o < LocalOperations.Count; o++)
             {
-                int currentSolutionIndex = (int)(solution.GetValue(o) * operationCount);
+                //double varValue = ((Real2D)solution.Variable[o]).Value[0];
+                double varValue = ((Real)solution.Variable[o]).Value;
+                int currentSolutionIndex = (int)(varValue * operationCount);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
                 {
@@ -110,7 +113,9 @@ namespace MyPLAOptimization
             List<PLAComponent> components = new List<PLAComponent> { };
             for (int i = 0; i < interfaces.Count; i++)
             {
-                int currentSolutionIndex = (int)(solution.GetValue(i) * interfaceCount);
+                //double varValue = ((Real2D)solution.Variable[i]).Value[1];
+                double varValue = ((Real)solution.Variable[i]).Value;
+                int currentSolutionIndex = (int)(varValue * interfaceCount);
                 PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentComponent == null)
                 {
@@ -172,29 +177,24 @@ namespace MyPLAOptimization
         }
         private double EvalCoupling(PLArchitecture pla)
         {
-            // Definition Ref [Colanzi, Vergilio - 2014]
-            //// Definition : Number of packages on which classes and interfaces of this component depend.
-            /// for me is component
-            //double DepPack = 0;
-            //// Definition : Number of elements that depend on this class.
-            //double CDepIn = 0;
-            //// Definition : Number of elements on which this class depends.
-            //double CDepOut = 0;
-            //// Definition : Number of UML dependencies where the package is the supplier.
-            //double DepIn = 0;
-            // Definition : Number of UML dependencies where the package is the client.
-            try
+            List<double> coupllings = new List<double> { };
+            for (int componentIndex = 0; componentIndex < pla.Components.Count; componentIndex++)
             {
-                double DepOut = pla.Components.Select(c => c.DependedInterfaces.Count()).Sum();
-                int componentCount = pla.Components.Count();
-                // 
-                double avg = DepOut / componentCount;
-                return avg;
+                var depInterfaces = pla.Components[componentIndex].DependedInterfaces.ToList();
+                List<PLAComponent> depComponents = new List<PLAComponent> { };
+                for (int i = 0; i < depInterfaces.Count(); i++)
+                {
+                    var depComponent = pla.Components.Where(comp => comp.Interfaces.Find(dpInt => dpInt.Id == depInterfaces[i].Id) != null).SingleOrDefault();
+                    if (depComponents.Find(comp => comp.Id == depComponent.Id) == null)
+                    {
+                        depComponents.Add(depComponent);
+                    }
+                }
+                //https://searchapparchitecture.techtarget.com/tip/The-basics-of-software-coupling-metrics-and-concepts
+                double n = depComponents.Count;
+                coupllings.Add(n / (n + 1));
             }
-            catch
-            {
-                return 0;
-            }
+            return coupllings.Average();
         }
         private double EvalGranularity(PLArchitecture pla)
         {

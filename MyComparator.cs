@@ -13,8 +13,8 @@ namespace MyPLAOptimization
 
         public int Compare(Solution x, Solution y)
         {
-            double xScor = MySelectionOperator.MathSolutionScore(x.Objective);
-            double yScor = MySelectionOperator.MathSolutionScore(y.Objective);
+            double xScor = x.Objective[0];
+            double yScor = y.Objective[0];
             return xScor < yScor ? 1 : 0;
         }
     }
