@@ -93,7 +93,7 @@ namespace MyPLAOptimization
             // create interfaces
             int operationCount = LocalOperations.Count;
             List<PLAInterface> interfaces = new List<PLAInterface> { };
-            for (int o = 0; o < LocalOperations.Count; o++)
+            for (int o = 0; o < operationCount; o++)
             {
                 //double varValue = ((Real2D)solution.Variable[o]).Value[0];
                 double varValue = ((Real)solution.Variable[o]).Value;
@@ -111,7 +111,7 @@ namespace MyPLAOptimization
             // create components
             int interfaceCount = interfaces.Count;
             List<PLAComponent> components = new List<PLAComponent> { };
-            for (int i = 0; i < interfaces.Count; i++)
+            for (int i = 0; i < interfaceCount; i++)
             {
                 //double varValue = ((Real2D)solution.Variable[i]).Value[1];
                 double varValue = ((Real)solution.Variable[i]).Value;
@@ -173,7 +173,7 @@ namespace MyPLAOptimization
             // get component count
             double totalComponents = pla.Components.Count();
             // return average of interface per componenet.
-            return totalDependecies / totalComponents;
+            return -totalDependecies / totalComponents;
         }
         private double EvalCoupling(PLArchitecture pla)
         {
@@ -200,7 +200,7 @@ namespace MyPLAOptimization
         {
             // Average of works that a component will do,
             // this mean, all count of operations that a component will throw,?
-            double avgWorks = pla.Components.Select(c => c.Interfaces.Select(i => i.Operation.Count()).Sum()).Sum() / pla.Components.Count();
+            double avgWorks = pla.OperatorCount / pla.Components.Count();
             return avgWorks;
         }
         private double EvalFeatureScattering(PLArchitecture pla)

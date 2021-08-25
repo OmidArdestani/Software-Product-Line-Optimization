@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace MyPLAOptimization
@@ -34,31 +35,21 @@ namespace MyPLAOptimization
             xmlStr = xmlStr.Replace("UML:", "UML");
             // getting parts
             var str = XElement.Parse(xmlStr);
-
-            var xmiComponenets = str.Element("XMI.content").Element("UMLModel").Element("UMLNamespace.ownedElement").Elements("UMLModel").
-                Where(x => x.Attribute("xmi.id").Value == "Component_View").SingleOrDefault().
-                Element("UMLNamespace.ownedElement").Elements("UMLComponent");
-
-            var xmiInterfaces = str.Element("XMI.content").Element("UMLModel").Element("UMLNamespace.ownedElement").Elements("UMLModel").
-                Where(x => x.Attribute("xmi.id").Value == "Logical_View").SingleOrDefault().
-                Element("UMLNamespace.ownedElement").Elements("UMLInterface");
-
-            var relationships_realization = str.Element("XMI.content").Element("UMLModel").Element("UMLNamespace.ownedElement").Elements("UMLModel").
-                Where(x => x.Attribute("xmi.id").Value == "Logical_View").SingleOrDefault().
-                Element("UMLNamespace.ownedElement").Elements("UMLAbstraction");
-
-            var relationships_dependencie = str.Element("XMI.content").Element("UMLModel").Element("UMLNamespace.ownedElement").Elements("UMLModel").
-                Where(x => x.Attribute("xmi.id").Value == "Logical_View").SingleOrDefault().
-                Element("UMLNamespace.ownedElement").Elements("UMLDependency");
+            XmlDocument xdoc = new XmlDocument();
+            xdoc.LoadXml(xmlStr);
+            XmlNodeList xmlComponentList = xdoc.SelectNodes("//UMLComponent");
+            XmlNodeList xmlInterfaceList = xdoc.SelectNodes("//UMLInterface");
+            XmlNodeList xmlRealizationList = xdoc.SelectNodes("//UMLAbstraction");
+            XmlNodeList xmlDependencieList = xdoc.SelectNodes("//UMLDependency");
             // create Model
             // fetch components
             List<PLAComponent> componentList = new List<PLAComponent> { };
-            foreach (var item in xmiComponenets)
+            foreach (XmlNode item in xmlComponentList)
             {
                 PLAComponent cmp = new PLAComponent()
                 {
-                    Id = item.Attribute("xmi.id").Value,
-                    Name = item.Attribute("name").Value,
+                    Id = item.Attributes.GetNamedItem("xmi.id").Value,
+                    Name = item.Attributes.GetNamedItem("name").Value,
                     DependedInterfaces = new List<PLAInterface> { },
                     Interfaces = new List<PLAInterface> { }
                 };
@@ -67,21 +58,21 @@ namespace MyPLAOptimization
             ComponentCount = componentList.Count;
             // fetch interfaces and operators
             List<PLAInterface> interfaceList = new List<PLAInterface> { };
-            foreach (var item in xmiInterfaces)
+            foreach (XmlNode item in xmlInterfaceList)
             {
                 PLAInterface intf = new PLAInterface()
                 {
-                    Id = item.Attribute("xmi.id").Value,
-                    Name = item.Attribute("name").Value
+                    Id = item.Attributes.GetNamedItem("xmi.id").Value,
+                    Name = item.Attributes.GetNamedItem("name").Value
                 };
                 intf.Operation = new List<PLAOperator> { };
-                var xmiOperators = item.Element("UMLClassifier.feature").Elements("UMLOperation");
-                foreach (var xmiOperator in xmiOperators)
+                var xmiOperators = item.SelectNodes("UMLClassifier.feature/UMLOperation");
+                foreach (XmlNode xmiOperator in xmiOperators)
                 {
                     PLAOperator opr = new PLAOperator()
                     {
-                        Id = xmiOperator.Attribute("xmi.id").Value,
-                        Name = xmiOperator.Attribute("name").Value
+                        Id = xmiOperator.Attributes.GetNamedItem("xmi.id").Value,
+                        Name = xmiOperator.Attributes.GetNamedItem("name").Value
                     };
                     intf.Operation.Add(opr);
                 }
@@ -91,19 +82,19 @@ namespace MyPLAOptimization
             OperatorCount = interfaceList.Select(i => i.Operation.Count).Sum();
             // create relationships
             // realization
-            foreach (var realizationItem in relationships_realization)
+            foreach (XmlNode realizationItem in xmlRealizationList)
             {
-                string realizeFrom = realizationItem.Attribute("supplier").Value;
-                string realizeTo = realizationItem.Attribute("client").Value;
+                string realizeFrom = realizationItem.Attributes.GetNamedItem("supplier").Value;
+                string realizeTo = realizationItem.Attributes.GetNamedItem("client").Value;
                 PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
                 PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
                 comp.Interfaces.Add(intf);
             }
             // dependecies
-            foreach (var dependecieItem in relationships_dependencie)
+            foreach (XmlNode dependecieItem in xmlDependencieList)
             {
-                string realizeFrom = dependecieItem.Attribute("supplier").Value;
-                string realizeTo = dependecieItem.Attribute("client").Value;
+                string realizeFrom = dependecieItem.Attributes.GetNamedItem("supplier").Value;
+                string realizeTo = dependecieItem.Attributes.GetNamedItem("client").Value;
                 PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
                 PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
                 comp.DependedInterfaces.Add(intf);
@@ -145,83 +136,97 @@ namespace MyPLAOptimization
         public PLArchitecture ReadFile(string filePath)
         {
             var xmlStr = File.ReadAllText(filePath);
-            var str = XElement.Parse(xmlStr);
             // getting parts
-
-            var xmlComponenets = str.Element("Models").Elements("Model").
-                Where(x => x.Attribute("Name").Value == "Component View").SingleOrDefault().
-                Element("ModelChildren").Elements("Component");
-
-            var xmlInterfaces = str.Element("Models").Elements("Model").
-                Where(x => x.Attribute("Name").Value == "Logical View").SingleOrDefault().
-                Element("ModelChildren").Elements("Class");
-
-            var relationships_realization = str.Element("Models").Elements("ModelRelationshipContainer").
-                Where(x => x.Attribute("Name").Value == "relationships").SingleOrDefault().
-                Element("ModelChildren").Elements("ModelRelationshipContainer").Where(x => x.Attribute("Name").Value == "Realization").SingleOrDefault().
-                Element("ModelChildren").Elements("Realization");
-
-            var relationships_dependencie = str.Element("Models").Elements("ModelRelationshipContainer").
-                Where(x => x.Attribute("Name").Value == "relationships").SingleOrDefault().
-                Element("ModelChildren").Elements("ModelRelationshipContainer").Where(x => x.Attribute("Name").Value == "Dependency").SingleOrDefault().
-                Element("ModelChildren").Elements("Dependency");
+            XmlDocument xdoc = new XmlDocument();
+            xdoc.LoadXml(xmlStr);
+            XmlNodeList xmlComponentList = xdoc.SelectNodes("//Component");
+            XmlNodeList xmlInterfaceList = xdoc.SelectNodes("//Class");
+            XmlNodeList xmlRealizationList = xdoc.SelectNodes("//Realization");
+            XmlNodeList xmlDependencieList = xdoc.SelectNodes("//Dependency");
             // create Model
             // fetch components
             List<PLAComponent> componentList = new List<PLAComponent> { };
-            foreach (var item in xmlComponenets)
+            foreach (XmlNode item in xmlComponentList)
             {
-                PLAComponent cmp = new PLAComponent()
+                if (componentList.Find(c => c.Name == item.Attributes.GetNamedItem("Name").Value) == null)
                 {
-                    Id = item.Attribute("Id").Value,
-                    Name = item.Attribute("Name").Value,
-                    DependedInterfaces = new List<PLAInterface> { },
-                    Interfaces = new List<PLAInterface> { }
-                };
-                componentList.Add(cmp);
+                    PLAComponent cmp = new PLAComponent()
+                    {
+                        Id = item.Attributes.GetNamedItem("Id").Value,
+                        Name = item.Attributes.GetNamedItem("Name").Value,
+                        DependedInterfaces = new List<PLAInterface> { },
+                        Interfaces = new List<PLAInterface> { }
+                    };
+                    componentList.Add(cmp);
+                }
             }
             ComponentCount = componentList.Count;
             // fetch interfaces and operators
             List<PLAInterface> interfaceList = new List<PLAInterface> { };
-            foreach (var item in xmlInterfaces)
+            foreach (XmlNode item in xmlInterfaceList)
             {
-                PLAInterface intf = new PLAInterface()
+                if (item.ChildNodes.Count > 2)
                 {
-                    Id = item.Attribute("Id").Value,
-                    Name = item.Attribute("Name").Value
-                };
-                intf.Operation = new List<PLAOperator> { };
-                var xmlOperators = item.Element("ModelChildren").Elements("Operation");
-                foreach (var xmlOperator in xmlOperators)
-                {
-                    PLAOperator opr = new PLAOperator()
+                    if (item.Attributes.GetNamedItem("Id") != null)
                     {
-                        Id = xmlOperator.Attribute("Id").Value,
-                        Name = xmlOperator.Attribute("Name").Value,
-                    };
-                    intf.Operation.Add(opr);
+                        var xmlOperators = item.SelectNodes("ModelChildren/Operation");
+                        if (xmlOperators.Count > 0)
+                        {
+                            PLAInterface intf = new PLAInterface()
+                            {
+                                Id = item.Attributes.GetNamedItem("Id").Value,
+                                Name = item.Attributes.GetNamedItem("Name").Value
+                            };
+                            intf.Operation = new List<PLAOperator> { };
+                            foreach (XmlNode xmlOperator in xmlOperators)
+                            {
+                                if (xmlOperator.Attributes.GetNamedItem("Id") != null)
+                                {
+                                    PLAOperator opr = new PLAOperator()
+                                    {
+                                        Id = xmlOperator.Attributes.GetNamedItem("Id").Value,
+                                        Name = xmlOperator.Attributes.GetNamedItem("Name").Value,
+                                    };
+                                    intf.Operation.Add(opr);
+                                }
+                            }
+                            interfaceList.Add(intf);
+                        }
+                    }
                 }
-                interfaceList.Add(intf);
             }
             InterfaceCount = interfaceList.Count;
             OperatorCount = interfaceList.Select(i => i.Operation.Count).Sum();
             // create relationships
             // realization
-            foreach (var realizationItem in relationships_realization)
+            foreach (XmlNode realizationItem in xmlRealizationList)
             {
-                string realizeFrom = realizationItem.Attribute("From").Value;
-                string realizeTo = realizationItem.Attribute("To").Value;
-                PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
-                PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
-                comp.Interfaces.Add(intf);
+                if (realizationItem.Attributes.GetNamedItem("From") != null)
+                {
+                    string realizeFrom = realizationItem.Attributes.GetNamedItem("From").Value;
+                    string realizeTo = realizationItem.Attributes.GetNamedItem("To").Value;
+                    PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
+                    PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
+                    if (comp != null && intf != null)
+                    {
+                        comp.Interfaces.Add(intf);
+                    }
+                }
             }
             // dependecies
-            foreach (var dependecieItem in relationships_dependencie)
+            foreach (XmlNode dependecieItem in xmlDependencieList)
             {
-                string realizeFrom = dependecieItem.Attribute("From").Value;
-                string realizeTo = dependecieItem.Attribute("To").Value;
-                PLAComponent comp = componentList.Where(x => x.Id == realizeFrom).SingleOrDefault();
-                PLAInterface intf = interfaceList.Where(x => x.Id == realizeTo).SingleOrDefault();
-                comp.DependedInterfaces.Add(intf);
+                if (dependecieItem.Attributes.GetNamedItem("From") != null)
+                {
+                    string realizeFrom = dependecieItem.Attributes.GetNamedItem("From").Value;
+                    string realizeTo = dependecieItem.Attributes.GetNamedItem("To").Value;
+                    PLAComponent comp = componentList.Where(x => x.Id == realizeFrom).SingleOrDefault();
+                    PLAInterface intf = interfaceList.Where(x => x.Id == realizeTo).SingleOrDefault();
+                    if (comp != null && intf != null)
+                    {
+                        comp.DependedInterfaces.Add(intf);
+                    }
+                }
             }
             return new PLArchitecture(componentList);
         }
@@ -498,7 +503,7 @@ namespace MyPLAOptimization
                         Stereotypes.Add(Stereotype_);
                         classElement.Add(Stereotypes);
                         //
-                        List <XElement> operatorElements = new List<XElement> { };
+                        List<XElement> operatorElements = new List<XElement> { };
                         for (int o = 0; o < interface_.Operation.Count; o++)
                         {
                             PLAOperator operator_ = component.Interfaces[i].Operation[o];
