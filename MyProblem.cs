@@ -67,7 +67,7 @@ namespace MyPLAOptimization
                 UpperLimit[i] = 1.0;
             }
 
-            SolutionType = new RealSolutionType(this);
+            SolutionType = new MyReal2DSolutionType(this);
         }
         public override void Evaluate(Solution solution)
         {
@@ -88,6 +88,11 @@ namespace MyPLAOptimization
             solution.Objective = f;
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="solution"></param>
+        /// <returns></returns>
         public PLArchitecture GenerateArchitecture(Solution solution)
         {
             // create interfaces
@@ -95,8 +100,7 @@ namespace MyPLAOptimization
             List<PLAInterface> interfaces = new List<PLAInterface> { };
             for (int o = 0; o < operationCount; o++)
             {
-                //double varValue = ((Real2D)solution.Variable[o]).Value[0];
-                double varValue = ((Real)solution.Variable[o]).Value;
+                double varValue = ((ArrayReal)solution.Variable[0]).Array[o];
                 int currentSolutionIndex = (int)(varValue * operationCount);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
@@ -113,8 +117,7 @@ namespace MyPLAOptimization
             List<PLAComponent> components = new List<PLAComponent> { };
             for (int i = 0; i < interfaceCount; i++)
             {
-                //double varValue = ((Real2D)solution.Variable[i]).Value[1];
-                double varValue = ((Real)solution.Variable[i]).Value;
+                double varValue = ((ArrayReal)solution.Variable[1]).Array[i];
                 int currentSolutionIndex = (int)(varValue * interfaceCount);
                 PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentComponent == null)

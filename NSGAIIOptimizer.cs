@@ -83,12 +83,12 @@ namespace MyPLAOptimization
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 0.9);
                 parameters.Add("distributionIndex", 20.0);
-                crossover = CrossoverFactory.GetCrossoverOperator("SBXCrossover", parameters);
+                crossover = CrossoverFactory.GetCrossoverOperator("SinglePointCrossover", parameters);
 
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 1.0 / problem.NumberOfVariables);
                 parameters.Add("distributionIndex", 20.0);
-                mutation = MutationFactory.GetMutationOperator("PolynomialMutation", parameters);
+                mutation = MutationFactory.GetMutationOperator("BitFlipMutation", parameters);
 
                 // Selection Operator 
                 parameters = null;

@@ -11,13 +11,13 @@ namespace MyPLAOptimization
 	/// <summary>
 	/// Class representing a solution type composed of real variables
 	/// </summary>
-	public class Real2DSolutionType : SolutionType
+	public class MyReal2DSolutionType : SolutionType
 	{
 		/// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="problem">Problem to solve</param>
-		public Real2DSolutionType(Problem problem)
+		public MyReal2DSolutionType(Problem problem)
 			: base(problem)
 		{
 
@@ -25,11 +25,11 @@ namespace MyPLAOptimization
 
 		public override Variable[] CreateVariables()
 		{
-			Variable[] variables = new Variable[Problem.NumberOfVariables];
+			Variable[] variables = new Variable[2];
 
-			for (int i = 0, li = Problem.NumberOfVariables; i < li; i++)
+			for (int i = 0; i < 2; i++)
 			{
-				variables[i] = new ArrayReal(2, Problem);
+				variables[i] = new ArrayReal(Problem.NumberOfVariables, Problem);
 			}
 			return variables;
 		}
