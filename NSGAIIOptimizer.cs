@@ -83,7 +83,7 @@ namespace MyPLAOptimization
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 0.9);
                 parameters.Add("distributionIndex", 20.0);
-                crossover = CrossoverFactory.GetCrossoverOperator("SinglePointCrossover", parameters);
+                crossover = new MSinglePointCrossover(parameters);
 
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 1.0 / problem.NumberOfVariables);
