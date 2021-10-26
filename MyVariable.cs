@@ -96,5 +96,6 @@ namespace MyPLAOptimization
         {
             return string.Join(",", Value);
         }
+
     }
 }

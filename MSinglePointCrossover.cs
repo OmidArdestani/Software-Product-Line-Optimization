@@ -2,6 +2,7 @@
 using JMetalCSharp.Encoding.SolutionType;
 using JMetalCSharp.Encoding.Variable;
 using JMetalCSharp.Utils;
+using MyPLAOptimization;
 using System;
 using System.Collections.Generic;
 
@@ -65,14 +66,20 @@ namespace JMetalCSharp.Operators.Crossover
                 if (JMetalRandom.NextDouble() < probability)
                 {
                     int crossoverPoint = JMetalRandom.Next(0, parent1.NumberOfVariables() - 1);
-                    object valueX1;
-                    object valueX2;
+                    double valueX1;
+                    double valueX2;
+                    double valueX12;
+                    double valueX22;
                     for (int i = crossoverPoint; i < parent1.NumberOfVariables(); i++)
                     {
-                        valueX1 = (parent1.Variable[i]).Value;
-                        valueX2 = (parent2.Variable[i]).Value;
-                        (offSpring[0].Variable[i]).Value = valueX2;
-                        (offSpring[1].Variable[i]).Value = valueX1;
+                        valueX1 = ((ArrayReal)parent1.Variable[0]).Array[i];
+                        valueX2 = ((ArrayReal)parent2.Variable[0]).Array[i];
+                        ((ArrayReal)offSpring[0].Variable[0]).Array[i] = valueX2;
+                        ((ArrayReal)offSpring[1].Variable[0]).Array[i] = valueX1;
+                        valueX12 = ((ArrayReal)parent1.Variable[1]).Array[i];
+                        valueX22 = ((ArrayReal)parent2.Variable[1]).Array[i];
+                        ((ArrayReal)offSpring[0].Variable[1]).Array[i] = valueX22;
+                        ((ArrayReal)offSpring[1].Variable[1]).Array[i] = valueX12;
                     }
                 }
             }

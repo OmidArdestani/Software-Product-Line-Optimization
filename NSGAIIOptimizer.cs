@@ -87,12 +87,12 @@ namespace MyPLAOptimization
 
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 1.0 / problem.NumberOfVariables);
-                parameters.Add("distributionIndex", 20.0);
-                mutation = MutationFactory.GetMutationOperator("BitFlipMutation", parameters);
+                //parameters.Add("distributionIndex", 20.0);
+                parameters.Add("perturbation", 0.5); // half of my data range
+                mutation = new MUniformMutation(parameters);
 
                 // Selection Operator 
                 parameters = null;
-                //selection = new MySelectionOperator(parameters);
                 selection = SelectionFactory.GetSelectionOperator("BinaryTournament2", parameters);
 
                 // Add the operators to the algorithm

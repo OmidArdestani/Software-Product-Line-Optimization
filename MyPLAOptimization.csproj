@@ -65,6 +65,7 @@
     <Compile Include="IFileConvertor.cs" />
     <Compile Include="PLAModels.cs" />
     <Compile Include="MSinglePointCrossover.cs" />
+    <Compile Include="MUniformMutation.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
