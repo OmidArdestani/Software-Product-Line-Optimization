@@ -1,4 +1,5 @@
-﻿using System;
+﻿using read_feature_model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,7 @@ namespace MyPLAOptimization
         private IFileConvertor xmiConv = null;
         private PLArchitecture GotArchitecture = null;
         NSGAIIOptimizer MyOptimization = null;
+        XMLFeatureModel featureModel = new XMLFeatureModel();
         public Form1()
         {
             CheckForIllegalCrossThreadCalls = false;
@@ -142,6 +144,17 @@ namespace MyPLAOptimization
                     tbExportFileAddress.Text = string.Join("/", addressParts);
                 PLArchitecture optimizedPLA = MyOptimization.BestPLA;
                 exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
+            }
+        }
+
+        private void BtnSelectFeatureModel_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "SXFM Format (*.XML)";
+            dialog.ShowDialog();
+            if (dialog.FileName != "")
+            {
+                featureModel.LoadFile(dialog.FileName);
             }
         }
     }

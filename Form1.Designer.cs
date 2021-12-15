@@ -46,6 +46,7 @@ namespace MyPLAOptimization
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tbExportFileAddress = new System.Windows.Forms.TextBox();
             this.btnExportOutput = new System.Windows.Forms.Button();
+            this.btnSelectFeatureModel = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaximumEvaluation)).BeginInit();
@@ -66,14 +67,15 @@ namespace MyPLAOptimization
             // 
             this.btnSelectFile.Location = new System.Drawing.Point(6, 20);
             this.btnSelectFile.Name = "btnSelectFile";
-            this.btnSelectFile.Size = new System.Drawing.Size(75, 23);
+            this.btnSelectFile.Size = new System.Drawing.Size(106, 23);
             this.btnSelectFile.TabIndex = 2;
-            this.btnSelectFile.Text = "Select FIle";
+            this.btnSelectFile.Text = "Select Architecture";
             this.btnSelectFile.UseVisualStyleBackColor = true;
             this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btnSelectFeatureModel);
             this.groupBox1.Controls.Add(this.lblOperatorCnt);
             this.groupBox1.Controls.Add(this.lblInterfaceCnt);
             this.groupBox1.Controls.Add(this.lblComponentCnt);
@@ -239,6 +241,16 @@ namespace MyPLAOptimization
             this.btnExportOutput.UseVisualStyleBackColor = true;
             this.btnExportOutput.Click += new System.EventHandler(this.btnExportOutput_Click);
             // 
+            // btnSelectFeatureModel
+            // 
+            this.btnSelectFeatureModel.Location = new System.Drawing.Point(169, 20);
+            this.btnSelectFeatureModel.Name = "btnSelectFeatureModel";
+            this.btnSelectFeatureModel.Size = new System.Drawing.Size(106, 23);
+            this.btnSelectFeatureModel.TabIndex = 5;
+            this.btnSelectFeatureModel.Text = "Select Feature Model";
+            this.btnSelectFeatureModel.UseVisualStyleBackColor = true;
+            this.btnSelectFeatureModel.Click += new System.EventHandler(this.BtnSelectFeatureModel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -281,6 +293,7 @@ namespace MyPLAOptimization
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox tbExportFileAddress;
         private System.Windows.Forms.Button btnExportOutput;
+        private System.Windows.Forms.Button btnSelectFeatureModel;
     }
 }
 
