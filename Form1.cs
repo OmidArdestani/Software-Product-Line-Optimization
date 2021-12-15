@@ -149,8 +149,8 @@ namespace MyPLAOptimization
 
         private void BtnSelectFeatureModel_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "SXFM Format (*.XML)";
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "SXFM Format (*.XML)|*.xml";
             dialog.ShowDialog();
             if (dialog.FileName != "")
             {

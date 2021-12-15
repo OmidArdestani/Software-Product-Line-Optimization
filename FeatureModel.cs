@@ -67,7 +67,10 @@ namespace read_feature_model
     {
         public RootNode Root { get; set; }
         protected List<PropositionalFormula> constraints = new List<PropositionalFormula> { };
+        public FeatureModel()
+        {
 
+        }
         public FeatureModel(string fileName)
         {
 
@@ -263,7 +266,7 @@ namespace read_feature_model
                 constraints.Add(formula);
             }
         }
-        public XMLFeatureModel()
+        public XMLFeatureModel() : base()
         {
 
         }
