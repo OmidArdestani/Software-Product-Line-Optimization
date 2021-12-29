@@ -15,6 +15,8 @@ namespace MyPLAOptimization
     {
         private IFileConvertor xmiConv = null;
         private PLArchitecture GotArchitecture = null;
+        private bool FeaturModelLoaded = false;
+        private bool DiagramLoaded = false;
         NSGAIIOptimizer MyOptimization = null;
         XMLFeatureModel featureModel = new XMLFeatureModel();
         public Form1()
@@ -100,8 +102,12 @@ namespace MyPLAOptimization
                 lblComponentCnt.Text = xmiConv.GetComponentCount().ToString();
                 lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
                 lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
-                nudMaximumEvaluation.Enabled = true;
-                btnRunAlgorithm.Enabled = true;
+                DiagramLoaded = true;
+                if (FeaturModelLoaded && DiagramLoaded)
+                {
+                    nudMaximumEvaluation.Enabled = true;
+                    btnRunAlgorithm.Enabled = true;
+                }
             }
         }
 
@@ -155,6 +161,34 @@ namespace MyPLAOptimization
             if (dialog.FileName != "")
             {
                 featureModel.LoadFile(dialog.FileName);
+                int childCnt = featureModel.Root.ChildCount();
+                bool hasComponentFeatureModel = false;
+                for (int i = 0; i < childCnt; i++)
+                {
+                    var child = featureModel.Root.GetChildAt(i);
+                    if(child.Name.ToLower().Replace(" ","")=="componentdiagram")
+                    {
+                        hasComponentFeatureModel = true;
+                        break;
+                    }
+                }
+                if (!hasComponentFeatureModel)
+                {
+                    MessageBox.Show("No Component Mandatory in feature mode.", "The feature model has not Component Diagram part.\nPlease load another feature model.");
+                    lblFeatureModelValid.Text = "Not Valid";
+                    lblFeatureModelValid.ForeColor = Color.Red;
+                }
+                else
+                {
+                    lblFeatureModelValid.Text = "Valid";
+                    lblFeatureModelValid.ForeColor = Color.DarkGreen;
+                    FeaturModelLoaded = true;
+                    if (FeaturModelLoaded && DiagramLoaded)
+                    {
+                        nudMaximumEvaluation.Enabled = true;
+                        btnRunAlgorithm.Enabled = true;
+                    }
+                }
             }
         }
     }

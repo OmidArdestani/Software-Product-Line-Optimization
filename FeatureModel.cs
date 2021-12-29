@@ -11,6 +11,9 @@ using System.Xml;
 
 namespace read_feature_model
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class FeatureTreeNode
     {
         public string ID { get; set; }
@@ -21,24 +24,43 @@ namespace read_feature_model
             this.ID = id;
             this.Name = name;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="child"></param>
         public void AddChild(FeatureTreeNode child)
         {
             Children.Add(child);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public int ChildCount()
         {
             return Children.Count;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public FeatureTreeNode GetChildAt(int index)
         {
             return Children[index];
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<FeatureTreeNode> GetChildren()
         {
             return Children;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class RootNode : FeatureTreeNode
     {
         public RootNode(string name, string id) : base(name, id)
@@ -46,6 +68,9 @@ namespace read_feature_model
 
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class FeatureGroup : FeatureTreeNode
     {
         public int Min { get; set; }
@@ -55,6 +80,9 @@ namespace read_feature_model
 
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class SolitaireFeature : FeatureTreeNode
     {
         public bool IsOptional { get; set; }
@@ -63,33 +91,45 @@ namespace read_feature_model
 
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class FeatureModel
     {
         public RootNode Root { get; set; }
         protected List<PropositionalFormula> constraints = new List<PropositionalFormula> { };
-        public FeatureModel()
+        
+        public FeatureModel(string fileName="")
         {
 
         }
-        public FeatureModel(string fileName)
-        {
-
-        }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public List<PropositionalFormula> GetConstraints()
         {
             return constraints;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         public void SetConstraints(List<PropositionalFormula> value)
         {
             constraints = value;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
         public void AddConstraints(PropositionalFormula value)
         {
             constraints.Add(value);
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public void LoadModel()
         {
 
@@ -103,11 +143,18 @@ namespace read_feature_model
         public string SecondOperator { get; set; }
         public FeatureTreeNode FirstItem { get; set; }
         public FeatureTreeNode SecondItem { get; set; }
+        /// <summary>
+        /// Return a string 
+        /// </summary>
+        /// <returns></returns>
         override public string ToString()
         {
             return FirstOperator + FirstItem.ID + " Or " + SecondOperator + SecondItem.ID;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class XMLFeatureModel : FeatureModel
     {
         private List<KeyValuePair<FeatureTreeNode, int>> nodeList;
@@ -219,7 +266,12 @@ namespace read_feature_model
             // set single remaining node as Root
             this.Root = (RootNode)nodeList[0].Key;
         }
-
+        /// <summary>
+        /// find a node by Id in tree
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private FeatureTreeNode GetNodeByID(FeatureTreeNode root, string id)
         {
             if (root.ID == id)
@@ -270,6 +322,10 @@ namespace read_feature_model
         {
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
         public void LoadFile(string fileName)
         {
             string fileData = File.ReadAllText(fileName);
