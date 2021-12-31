@@ -70,11 +70,11 @@ namespace MyPLAOptimization
                         Id = item.Attributes.GetNamedItem("xmi.id").Value,
                         Name = item.Attributes.GetNamedItem("name").Value
                     };
-                    intf.Operation = new List<PLAOperator> { };
+                    intf.Operation = new List<PLAOperation> { };
                     var xmiOperators = item.SelectNodes("UMLClassifier.feature/UMLOperation");
                     foreach (XmlNode xmiOperator in xmiOperators)
                     {
-                        PLAOperator opr = new PLAOperator()
+                        PLAOperation opr = new PLAOperation()
                         {
                             Id = xmiOperator.Attributes.GetNamedItem("xmi.id").Value,
                             Name = xmiOperator.Attributes.GetNamedItem("name").Value
@@ -189,12 +189,12 @@ namespace MyPLAOptimization
                                 Id = item.Attributes.GetNamedItem("Id").Value,
                                 Name = item.Attributes.GetNamedItem("Name").Value
                             };
-                            intf.Operation = new List<PLAOperator> { };
+                            intf.Operation = new List<PLAOperation> { };
                             foreach (XmlNode xmlOperator in xmlOperators)
                             {
                                 if (xmlOperator.Attributes.GetNamedItem("Id") != null)
                                 {
-                                    PLAOperator opr = new PLAOperator()
+                                    PLAOperation opr = new PLAOperation()
                                     {
                                         Id = xmlOperator.Attributes.GetNamedItem("Id").Value,
                                         Name = xmlOperator.Attributes.GetNamedItem("Name").Value,
@@ -518,7 +518,7 @@ namespace MyPLAOptimization
                         List<XElement> operatorElements = new List<XElement> { };
                         for (int o = 0; o < interface_.Operation.Count; o++)
                         {
-                            PLAOperator operator_ = component.Interfaces[i].Operation[o];
+                            PLAOperation operator_ = component.Interfaces[i].Operation[o];
                             XElement operatorElement = new XElement("Operation");
                             operatorElement.SetAttributeValue("Id", operator_.Id);
                             operatorElement.SetAttributeValue("Name", operator_.Name);

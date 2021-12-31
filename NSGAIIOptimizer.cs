@@ -8,6 +8,7 @@ using JMetalCSharp.Problems.ZDT;
 using JMetalCSharp.QualityIndicator;
 using JMetalCSharp.Utils;
 using JMetalCSharp.Utils.Wrapper;
+using read_feature_model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace MyPLAOptimization
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
+        private FeatureModel featureModel;
         public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         /// <summary>
@@ -69,7 +71,7 @@ namespace MyPLAOptimization
                 AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture, UsageInterfaceRelationship);
+                problem = new MyProblem(this.Architecture, UsageInterfaceRelationship,featureModel);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -125,11 +127,12 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(PLArchitecture architecture, int maxEvaluations, int populationSize)
+        public void Configuration(PLArchitecture architecture,FeatureModel featureModel, int maxEvaluations, int populationSize)
         {
             this.Architecture = architecture;
             this.PopulationSize = populationSize;
             this.MaxEvaluation = maxEvaluations;
+            this.featureModel = featureModel;
             this.SetArchitecture(architecture);
         }
     }

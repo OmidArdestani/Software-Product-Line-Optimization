@@ -41,11 +41,11 @@ namespace MyPLAOptimization
                 for (int i = 0; i < 5; i++)
                 {
                     PLAInterface intfce = new PLAInterface();
-                    intfce.Operation = new List<PLAOperator> { };
+                    intfce.Operation = new List<PLAOperation> { };
                     // init operator
                     for (int o = 0; o < 10; o++)
                     {
-                        PLAOperator op = new PLAOperator();
+                        PLAOperation op = new PLAOperation();
                         op.Arguments = new List<object> { };
                         op.Arguments.Add(new int());
                         op.Name = "operator" + o;
@@ -113,7 +113,7 @@ namespace MyPLAOptimization
 
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
-            MyOptimization.Configuration(GotArchitecture, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
+            MyOptimization.Configuration(GotArchitecture, featureModel, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
             MyOptimization.StartAsync();
             btnRunAlgorithm.Enabled = false;
             nudMaximumEvaluation.Enabled = false;
@@ -152,7 +152,10 @@ namespace MyPLAOptimization
                 exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
             }
         }
+        private void GenerateFeatureModelAndComponentsRelationshipMatrix()
+        {
 
+        }
         private void BtnSelectFeatureModel_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -166,7 +169,7 @@ namespace MyPLAOptimization
                 for (int i = 0; i < childCnt; i++)
                 {
                     var child = featureModel.Root.GetChildAt(i);
-                    if(child.Name.ToLower().Replace(" ","")=="componentdiagram")
+                    if (child.Name.ToLower().Replace(" ", "") == "componentdiagram")
                     {
                         hasComponentFeatureModel = true;
                         break;
@@ -183,6 +186,7 @@ namespace MyPLAOptimization
                     lblFeatureModelValid.Text = "Valid";
                     lblFeatureModelValid.ForeColor = Color.DarkGreen;
                     FeaturModelLoaded = true;
+                    GenerateFeatureModelAndComponentsRelationshipMatrix();
                     if (FeaturModelLoaded && DiagramLoaded)
                     {
                         nudMaximumEvaluation.Enabled = true;

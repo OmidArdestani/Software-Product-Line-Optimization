@@ -297,25 +297,28 @@ namespace read_feature_model
             List<string> lines = xmlData.Item(0).InnerText.Trim().Split('\n').ToList();
             foreach (string line in lines)
             {
-                string constraintName = line.Split(':')[0];
-                string constraintFormula = line.Split(':')[1];
-                string firstItemId = constraintFormula.Replace(" or ", ",").Split(',')[0];
-                string secondItemId = constraintFormula.Replace(" or ", ",").Split(',')[1];
-                bool firstOper = firstItemId.Contains("~");
-                bool secondOper = secondItemId.Contains("~");
-                firstItemId = firstOper ? firstItemId.Replace("~", "") : firstItemId;
-                secondItemId = secondOper ? secondItemId.Replace("~", "") : secondItemId;
-                firstItemId = firstItemId.Replace(" ", "");
-                secondItemId = secondItemId.Replace(" ", "");
-                PropositionalFormula formula = new PropositionalFormula();
-                formula.Name = constraintName;
-                formula.FirstOperator = firstOper ? "~" : "";
-                formula.SecondOperator = secondOper ? "~" : "";
-                var item = GetNodeByID(this.Root, firstItemId);
-                formula.FirstItem = item;
-                item = GetNodeByID(this.Root, secondItemId);
-                formula.SecondItem = item;
-                constraints.Add(formula);
+                if (line != "")
+                {
+                    string constraintName = line.Split(':')[0];
+                    string constraintFormula = line.Split(':')[1];
+                    string firstItemId = constraintFormula.Replace(" or ", ",").Split(',')[0];
+                    string secondItemId = constraintFormula.Replace(" or ", ",").Split(',')[1];
+                    bool firstOper = firstItemId.Contains("~");
+                    bool secondOper = secondItemId.Contains("~");
+                    firstItemId = firstOper ? firstItemId.Replace("~", "") : firstItemId;
+                    secondItemId = secondOper ? secondItemId.Replace("~", "") : secondItemId;
+                    firstItemId = firstItemId.Replace(" ", "");
+                    secondItemId = secondItemId.Replace(" ", "");
+                    PropositionalFormula formula = new PropositionalFormula();
+                    formula.Name = constraintName;
+                    formula.FirstOperator = firstOper ? "~" : "";
+                    formula.SecondOperator = secondOper ? "~" : "";
+                    var item = GetNodeByID(this.Root, firstItemId);
+                    formula.FirstItem = item;
+                    item = GetNodeByID(this.Root, secondItemId);
+                    formula.SecondItem = item;
+                    constraints.Add(formula);
+                }
             }
         }
         public XMLFeatureModel() : base()

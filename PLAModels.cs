@@ -32,11 +32,11 @@ namespace MyPLAOptimization
     public class PLAInterface : PLAItems
     {
         public PLAComponent OwnerComponent { get; set; }
-        public List<PLAOperator> Operation { get; set; }
+        public List<PLAOperation> Operation { get; set; }
         public string Id { get; set; }
         public string Name { get; set; }
     }
-    public class PLAOperator : PLAItems
+    public class PLAOperation : PLAItems
     {
         public List<Object> Arguments { get; set; }
         public PLAInterface OwnerInterface { get; set; }
