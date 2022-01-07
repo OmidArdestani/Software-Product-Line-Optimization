@@ -79,6 +79,7 @@ namespace MyPLAOptimization
                             Id = xmiOperator.Attributes.GetNamedItem("xmi.id").Value,
                             Name = xmiOperator.Attributes.GetNamedItem("name").Value
                         };
+                        opr.OwnerInterface = intf;
                         intf.Operation.Add(opr);
                     }
                     interfaceList.Add(intf);
@@ -96,6 +97,7 @@ namespace MyPLAOptimization
                     string realizeTo = realizationItem.Attributes.GetNamedItem("client").Value;
                     PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
                     PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
+                    intf.OwnerComponent = comp;
                     comp.Interfaces.Add(intf);
                 }
             }
@@ -199,6 +201,7 @@ namespace MyPLAOptimization
                                         Id = xmlOperator.Attributes.GetNamedItem("Id").Value,
                                         Name = xmlOperator.Attributes.GetNamedItem("Name").Value,
                                     };
+                                    opr.OwnerInterface = intf;
                                     intf.Operation.Add(opr);
                                 }
                             }
@@ -221,6 +224,7 @@ namespace MyPLAOptimization
                     PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
                     if (comp != null && intf != null)
                     {
+                        intf.OwnerComponent = comp;
                         comp.Interfaces.Add(intf);
                     }
                 }

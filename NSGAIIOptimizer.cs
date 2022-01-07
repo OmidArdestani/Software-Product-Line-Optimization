@@ -28,7 +28,7 @@ namespace MyPLAOptimization
         private int MaxEvaluation = 10;
         private FeatureModel featureModel;
         public PLArchitecture BestPLA { get; set; }
-        private List<KeyValuePair<List<string>, List<string>>> UsageInterfaceRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
+        private List<KeyValuePair<List<string>, List<string>>> UsageOperationsRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
@@ -38,19 +38,19 @@ namespace MyPLAOptimization
             this.Architecture = architecture;
             // create a multi dimention matrix of interface relationships.
             // any operator in each interface depend on each operator in any dependecie interface.
-            UsageInterfaceRelationship.Clear();
+            UsageOperationsRelationship.Clear();
             for (int c = 0; c < architecture.Components.Count; c++)
             {
                 for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
-                    var currentInterfaceId = architecture.Components[c].Interfaces[i].Operation.Select(o => o.Id).ToList();
+                    var currentOperationsId = architecture.Components[c].Interfaces[i].Operation.Select(o => o.Id).ToList();
                     var dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
                         dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operation.Select(o => o.Id).ToList());
                     }
-                    KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentInterfaceId, dependencies);
-                    UsageInterfaceRelationship.Add(operatorDependencies);
+                    KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentOperationsId, dependencies);
+                    UsageOperationsRelationship.Add(operatorDependencies);
                 }
             }
         }
@@ -71,7 +71,7 @@ namespace MyPLAOptimization
                 AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture, UsageInterfaceRelationship,featureModel);
+                problem = new MyProblem(this.Architecture, UsageOperationsRelationship,featureModel);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
