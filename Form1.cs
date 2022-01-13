@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace MyPLAOptimization
         private bool DiagramLoaded = false;
         NSGAIIOptimizer MyOptimization = null;
         XMLFeatureModel featureModel = new XMLFeatureModel();
+        List<FeatureRelationship> featureRelationshipMatrix = new List<FeatureRelationship> { };
         public Form1()
         {
             CheckForIllegalCrossThreadCalls = false;
@@ -41,7 +43,7 @@ namespace MyPLAOptimization
                 for (int i = 0; i < 5; i++)
                 {
                     PLAInterface intfce = new PLAInterface();
-                    intfce.Operation = new List<PLAOperation> { };
+                    intfce.Operations = new List<PLAOperation> { };
                     // init operator
                     for (int o = 0; o < 10; o++)
                     {
@@ -51,7 +53,7 @@ namespace MyPLAOptimization
                         op.Name = "operator" + o;
                         op.Id = o.ToString();
                         op.OwnerInterface = intfce;
-                        intfce.Operation.Add(op);
+                        intfce.Operations.Add(op);
                     }
                     intfce.Name = "interface" + i;
                     intfce.Id = i.ToString();
@@ -76,44 +78,10 @@ namespace MyPLAOptimization
             return true;
         }
 
-        private void btnSelectFile_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml";
-            dialog.ShowDialog();
-            if (dialog.FileName != "")
-            {
-                // Input file is XMI format
-                if (dialog.FilterIndex == 1)
-                {
-                    xmiConv = new XMIConvertor();
-                }
-                // Input file is XML format
-                else if (dialog.FilterIndex == 2)
-                {
-                    xmiConv = new XMLConvertor();
-                }
-                GotArchitecture = xmiConv.ReadFile(dialog.FileName);
-                string[] addressParts = dialog.FileName.Split('\\');
-                if (addressParts.Length > 2)
-                    tbInputFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
-                else
-                    tbInputFileAddress.Text = string.Join("/", addressParts);
-                lblComponentCnt.Text = xmiConv.GetComponentCount().ToString();
-                lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
-                lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
-                DiagramLoaded = true;
-                if (FeaturModelLoaded && DiagramLoaded)
-                {
-                    nudMaximumEvaluation.Enabled = true;
-                    btnRunAlgorithm.Enabled = true;
-                }
-            }
-        }
 
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
-            MyOptimization.Configuration(GotArchitecture, featureModel, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
+            MyOptimization.Configuration(GotArchitecture, featureModel, featureRelationshipMatrix, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
             MyOptimization.StartAsync();
             btnRunAlgorithm.Enabled = false;
             nudMaximumEvaluation.Enabled = false;
@@ -156,6 +124,50 @@ namespace MyPLAOptimization
         {
 
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnSelectFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml";
+            dialog.ShowDialog();
+            if (dialog.FileName != "")
+            {
+                // Input file is XMI format
+                if (dialog.FilterIndex == 1)
+                {
+                    xmiConv = new XMIConvertor();
+                }
+                // Input file is XML format
+                else if (dialog.FilterIndex == 2)
+                {
+                    xmiConv = new XMLConvertor();
+                }
+                GotArchitecture = xmiConv.ReadFile(dialog.FileName);
+                string[] addressParts = dialog.FileName.Split('\\');
+                if (addressParts.Length > 2)
+                    tbArchFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                else
+                    tbArchFileAddress.Text = string.Join("/", addressParts);
+                lblComponentCnt.Text = xmiConv.GetComponentCount().ToString();
+                lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
+                lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
+                DiagramLoaded = true;
+                if (FeaturModelLoaded && DiagramLoaded)
+                {
+                    nudMaximumEvaluation.Enabled = true;
+                    btnRunAlgorithm.Enabled = true;
+                }
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectFeatureModel_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -165,16 +177,7 @@ namespace MyPLAOptimization
             {
                 featureModel.LoadFile(dialog.FileName);
                 int childCnt = featureModel.Root.ChildCount();
-                bool hasComponentFeatureModel = false;
-                for (int i = 0; i < childCnt; i++)
-                {
-                    var child = featureModel.Root.GetChildAt(i);
-                    if (child.Name.ToLower().Replace(" ", "") == "componentdiagram")
-                    {
-                        hasComponentFeatureModel = true;
-                        break;
-                    }
-                }
+                bool hasComponentFeatureModel = true;
                 if (!hasComponentFeatureModel)
                 {
                     MessageBox.Show("No Component Mandatory in feature mode.", "The feature model has not Component Diagram part.\nPlease load another feature model.");
@@ -192,7 +195,58 @@ namespace MyPLAOptimization
                         nudMaximumEvaluation.Enabled = true;
                         btnRunAlgorithm.Enabled = true;
                     }
+                    string[] addressParts = dialog.FileName.Split('\\');
+                    if (addressParts.Length > 2)
+                        tbFMFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                    else
+                        tbFMFileAddress.Text = string.Join("/", addressParts);
                 }
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnSelectFeatureRelationship_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "CSV (*.CSV)|*.csv";
+            dialog.ShowDialog();
+            if (dialog.FileName != "")
+            {
+                string[] fileLines = File.ReadAllLines(dialog.FileName);
+                featureRelationshipMatrix.Clear();
+                string[] featureNames = fileLines[0].Split(',');
+                for (int i = 1; i < fileLines.Count(); i++)
+                {
+                    string[] values = fileLines[i].Split(',');
+                    string interfaceName = values[0];
+                    for (int j = 1; j < values.Count(); j++)
+                    {
+                        string featureName = featureNames[j];
+                        if (values[j] == "1")
+                        {
+                            var allOperations = new List<PLAOperation> { };
+                            GotArchitecture.Components.ForEach(c =>
+                                c.Interfaces.Where(inter =>
+                                inter.Name == interfaceName).ToList().ForEach(inter =>
+                                    allOperations.AddRange(inter.Operations)));
+                            foreach (var item in allOperations)
+                            {
+                                FeatureRelationship rel = new FeatureRelationship();
+                                rel.RelatedFeature = featureModel.GetNodeByName(featureModel.Root, featureName);
+                                rel.RelatedOperation = item;
+                                featureRelationshipMatrix.Add(rel);
+                            }
+                        }
+                    }
+                }
+                string[] addressParts = dialog.FileName.Split('\\');
+                if (addressParts.Length > 2)
+                    tbFMRelFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                else
+                    tbFMRelFileAddress.Text = string.Join("/", addressParts);
             }
         }
     }

@@ -30,16 +30,16 @@ namespace MyPLAOptimization
         private void InitializeComponent()
         {
             this.rtbOutput = new System.Windows.Forms.RichTextBox();
-            this.btnSelectFile = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnSelectFeatureModel = new System.Windows.Forms.Button();
+            this.lblFeatureModelValid = new System.Windows.Forms.Label();
             this.lblOperatorCnt = new System.Windows.Forms.Label();
             this.lblInterfaceCnt = new System.Windows.Forms.Label();
             this.lblComponentCnt = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.tbInputFileAddress = new System.Windows.Forms.TextBox();
+            this.tbArchFileAddress = new System.Windows.Forms.TextBox();
             this.btnRunAlgorithm = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.nudMaximumEvaluation = new System.Windows.Forms.NumericUpDown();
@@ -47,12 +47,17 @@ namespace MyPLAOptimization
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tbExportFileAddress = new System.Windows.Forms.TextBox();
             this.btnExportOutput = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblFeatureModelValid = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnSelectFeatureRelationship = new System.Windows.Forms.Button();
+            this.btnSelectFeatureModel = new System.Windows.Forms.Button();
+            this.btnSelectFile = new System.Windows.Forms.Button();
+            this.tbFMFileAddress = new System.Windows.Forms.TextBox();
+            this.tbFMRelFileAddress = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaximumEvaluation)).BeginInit();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // rtbOutput
@@ -65,19 +70,9 @@ namespace MyPLAOptimization
             this.rtbOutput.TabIndex = 0;
             this.rtbOutput.Text = "";
             // 
-            // btnSelectFile
-            // 
-            this.btnSelectFile.Location = new System.Drawing.Point(6, 20);
-            this.btnSelectFile.Name = "btnSelectFile";
-            this.btnSelectFile.Size = new System.Drawing.Size(106, 23);
-            this.btnSelectFile.TabIndex = 2;
-            this.btnSelectFile.Text = "Select Architecture";
-            this.btnSelectFile.UseVisualStyleBackColor = true;
-            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
-            // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.btnSelectFeatureModel);
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.lblFeatureModelValid);
             this.groupBox1.Controls.Add(this.lblOperatorCnt);
             this.groupBox1.Controls.Add(this.lblInterfaceCnt);
@@ -86,29 +81,26 @@ namespace MyPLAOptimization
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.tbInputFileAddress);
-            this.groupBox1.Controls.Add(this.btnSelectFile);
-            this.groupBox1.Location = new System.Drawing.Point(15, 12);
+            this.groupBox1.Location = new System.Drawing.Point(300, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(285, 168);
+            this.groupBox1.Size = new System.Drawing.Size(185, 168);
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Input";
+            this.groupBox1.Text = "Input Info";
             // 
-            // btnSelectFeatureModel
+            // lblFeatureModelValid
             // 
-            this.btnSelectFeatureModel.Location = new System.Drawing.Point(169, 20);
-            this.btnSelectFeatureModel.Name = "btnSelectFeatureModel";
-            this.btnSelectFeatureModel.Size = new System.Drawing.Size(106, 23);
-            this.btnSelectFeatureModel.TabIndex = 5;
-            this.btnSelectFeatureModel.Text = "Select Feature Model";
-            this.btnSelectFeatureModel.UseVisualStyleBackColor = true;
-            this.btnSelectFeatureModel.Click += new System.EventHandler(this.BtnSelectFeatureModel_Click);
+            this.lblFeatureModelValid.AutoSize = true;
+            this.lblFeatureModelValid.Location = new System.Drawing.Point(121, 129);
+            this.lblFeatureModelValid.Name = "lblFeatureModelValid";
+            this.lblFeatureModelValid.Size = new System.Drawing.Size(22, 13);
+            this.lblFeatureModelValid.TabIndex = 4;
+            this.lblFeatureModelValid.Text = "-----";
             // 
             // lblOperatorCnt
             // 
             this.lblOperatorCnt.AutoSize = true;
-            this.lblOperatorCnt.Location = new System.Drawing.Point(126, 124);
+            this.lblOperatorCnt.Location = new System.Drawing.Point(121, 96);
             this.lblOperatorCnt.Name = "lblOperatorCnt";
             this.lblOperatorCnt.Size = new System.Drawing.Size(22, 13);
             this.lblOperatorCnt.TabIndex = 4;
@@ -117,7 +109,7 @@ namespace MyPLAOptimization
             // lblInterfaceCnt
             // 
             this.lblInterfaceCnt.AutoSize = true;
-            this.lblInterfaceCnt.Location = new System.Drawing.Point(126, 100);
+            this.lblInterfaceCnt.Location = new System.Drawing.Point(121, 65);
             this.lblInterfaceCnt.Name = "lblInterfaceCnt";
             this.lblInterfaceCnt.Size = new System.Drawing.Size(22, 13);
             this.lblInterfaceCnt.TabIndex = 4;
@@ -126,16 +118,25 @@ namespace MyPLAOptimization
             // lblComponentCnt
             // 
             this.lblComponentCnt.AutoSize = true;
-            this.lblComponentCnt.Location = new System.Drawing.Point(126, 77);
+            this.lblComponentCnt.Location = new System.Drawing.Point(121, 35);
             this.lblComponentCnt.Name = "lblComponentCnt";
             this.lblComponentCnt.Size = new System.Drawing.Size(22, 13);
             this.lblComponentCnt.TabIndex = 4;
             this.lblComponentCnt.Text = "-----";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 129);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 13);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Feature Model Valid:";
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(17, 124);
+            this.label4.Location = new System.Drawing.Point(12, 96);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 4;
@@ -144,7 +145,7 @@ namespace MyPLAOptimization
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(17, 100);
+            this.label3.Location = new System.Drawing.Point(12, 65);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(83, 13);
             this.label3.TabIndex = 4;
@@ -153,19 +154,19 @@ namespace MyPLAOptimization
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(17, 77);
+            this.label2.Location = new System.Drawing.Point(12, 35);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(95, 13);
             this.label2.TabIndex = 4;
             this.label2.Text = "Component Count:";
             // 
-            // tbInputFileAddress
+            // tbArchFileAddress
             // 
-            this.tbInputFileAddress.Enabled = false;
-            this.tbInputFileAddress.Location = new System.Drawing.Point(6, 46);
-            this.tbInputFileAddress.Name = "tbInputFileAddress";
-            this.tbInputFileAddress.Size = new System.Drawing.Size(269, 20);
-            this.tbInputFileAddress.TabIndex = 3;
+            this.tbArchFileAddress.Enabled = false;
+            this.tbArchFileAddress.Location = new System.Drawing.Point(6, 41);
+            this.tbArchFileAddress.Name = "tbArchFileAddress";
+            this.tbArchFileAddress.Size = new System.Drawing.Size(269, 20);
+            this.tbArchFileAddress.TabIndex = 3;
             // 
             // btnRunAlgorithm
             // 
@@ -182,10 +183,11 @@ namespace MyPLAOptimization
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.nudMaximumEvaluation);
             this.groupBox2.Controls.Add(this.btnRunAlgorithm);
             this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Location = new System.Drawing.Point(306, 12);
+            this.groupBox2.Location = new System.Drawing.Point(491, 12);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(160, 168);
             this.groupBox2.TabIndex = 4;
@@ -226,10 +228,11 @@ namespace MyPLAOptimization
             // 
             // groupBox3
             // 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.rtbOutput);
             this.groupBox3.Controls.Add(this.tbExportFileAddress);
             this.groupBox3.Controls.Add(this.btnExportOutput);
-            this.groupBox3.Location = new System.Drawing.Point(472, 12);
+            this.groupBox3.Location = new System.Drawing.Point(657, 12);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(284, 168);
             this.groupBox3.TabIndex = 5;
@@ -255,29 +258,73 @@ namespace MyPLAOptimization
             this.btnExportOutput.UseVisualStyleBackColor = true;
             this.btnExportOutput.Click += new System.EventHandler(this.btnExportOutput_Click);
             // 
-            // label1
+            // groupBox4
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(17, 147);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(104, 13);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "Feature Model Valid:";
+            this.groupBox4.Controls.Add(this.btnSelectFeatureRelationship);
+            this.groupBox4.Controls.Add(this.btnSelectFeatureModel);
+            this.groupBox4.Controls.Add(this.btnSelectFile);
+            this.groupBox4.Controls.Add(this.tbFMRelFileAddress);
+            this.groupBox4.Controls.Add(this.tbFMFileAddress);
+            this.groupBox4.Controls.Add(this.tbArchFileAddress);
+            this.groupBox4.Location = new System.Drawing.Point(12, 12);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(280, 165);
+            this.groupBox4.TabIndex = 6;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Inputs";
             // 
-            // lblFeatureModelValid
+            // btnSelectFeatureRelationship
             // 
-            this.lblFeatureModelValid.AutoSize = true;
-            this.lblFeatureModelValid.Location = new System.Drawing.Point(126, 147);
-            this.lblFeatureModelValid.Name = "lblFeatureModelValid";
-            this.lblFeatureModelValid.Size = new System.Drawing.Size(22, 13);
-            this.lblFeatureModelValid.TabIndex = 4;
-            this.lblFeatureModelValid.Text = "-----";
+            this.btnSelectFeatureRelationship.Location = new System.Drawing.Point(6, 114);
+            this.btnSelectFeatureRelationship.Name = "btnSelectFeatureRelationship";
+            this.btnSelectFeatureRelationship.Size = new System.Drawing.Size(151, 23);
+            this.btnSelectFeatureRelationship.TabIndex = 8;
+            this.btnSelectFeatureRelationship.Text = "Select Feature Relationship";
+            this.btnSelectFeatureRelationship.UseVisualStyleBackColor = true;
+            this.btnSelectFeatureRelationship.Click += new System.EventHandler(this.BtnSelectFeatureRelationship_Click);
+            // 
+            // btnSelectFeatureModel
+            // 
+            this.btnSelectFeatureModel.Location = new System.Drawing.Point(6, 67);
+            this.btnSelectFeatureModel.Name = "btnSelectFeatureModel";
+            this.btnSelectFeatureModel.Size = new System.Drawing.Size(151, 23);
+            this.btnSelectFeatureModel.TabIndex = 7;
+            this.btnSelectFeatureModel.Text = "Select Feature Model";
+            this.btnSelectFeatureModel.UseVisualStyleBackColor = true;
+            this.btnSelectFeatureModel.Click += new System.EventHandler(this.BtnSelectFeatureModel_Click);
+            // 
+            // btnSelectFile
+            // 
+            this.btnSelectFile.Location = new System.Drawing.Point(6, 16);
+            this.btnSelectFile.Name = "btnSelectFile";
+            this.btnSelectFile.Size = new System.Drawing.Size(151, 23);
+            this.btnSelectFile.TabIndex = 6;
+            this.btnSelectFile.Text = "Select Architecture";
+            this.btnSelectFile.UseVisualStyleBackColor = true;
+            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
+            // 
+            // tbFMFileAddress
+            // 
+            this.tbFMFileAddress.Enabled = false;
+            this.tbFMFileAddress.Location = new System.Drawing.Point(6, 90);
+            this.tbFMFileAddress.Name = "tbFMFileAddress";
+            this.tbFMFileAddress.Size = new System.Drawing.Size(269, 20);
+            this.tbFMFileAddress.TabIndex = 3;
+            // 
+            // tbFMRelFileAddress
+            // 
+            this.tbFMRelFileAddress.Enabled = false;
+            this.tbFMRelFileAddress.Location = new System.Drawing.Point(6, 138);
+            this.tbFMRelFileAddress.Name = "tbFMRelFileAddress";
+            this.tbFMRelFileAddress.Size = new System.Drawing.Size(269, 20);
+            this.tbFMRelFileAddress.TabIndex = 3;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(768, 190);
+            this.ClientSize = new System.Drawing.Size(953, 190);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -292,6 +339,8 @@ namespace MyPLAOptimization
             ((System.ComponentModel.ISupportInitialize)(this.nudMaximumEvaluation)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -299,9 +348,8 @@ namespace MyPLAOptimization
         #endregion
 
         private System.Windows.Forms.RichTextBox rtbOutput;
-        private System.Windows.Forms.Button btnSelectFile;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox tbInputFileAddress;
+        private System.Windows.Forms.TextBox tbArchFileAddress;
         private System.Windows.Forms.Label lblOperatorCnt;
         private System.Windows.Forms.Label lblInterfaceCnt;
         private System.Windows.Forms.Label lblComponentCnt;
@@ -315,9 +363,14 @@ namespace MyPLAOptimization
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.TextBox tbExportFileAddress;
         private System.Windows.Forms.Button btnExportOutput;
-        private System.Windows.Forms.Button btnSelectFeatureModel;
         private System.Windows.Forms.Label lblFeatureModelValid;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Button btnSelectFeatureRelationship;
+        private System.Windows.Forms.Button btnSelectFeatureModel;
+        private System.Windows.Forms.Button btnSelectFile;
+        private System.Windows.Forms.TextBox tbFMRelFileAddress;
+        private System.Windows.Forms.TextBox tbFMFileAddress;
     }
 }
 

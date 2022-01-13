@@ -103,6 +103,17 @@ namespace read_feature_model
         {
 
         }
+        public List<FeatureTreeNode> GetAllChildrenOf(FeatureTreeNode root)
+        {
+            var returnVlaues = new List<FeatureTreeNode> { };
+            var children = root.GetChildren();
+            returnVlaues.AddRange(children);
+            foreach (var item in children)
+            {
+                returnVlaues.AddRange(GetAllChildrenOf(item));
+            }
+            return returnVlaues;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -159,7 +170,6 @@ namespace read_feature_model
     {
         private List<KeyValuePair<FeatureTreeNode, int>> nodeList;
         public Dictionary<string, string> Attributes { get; set; }
-        public int MyProperty { get; set; }
         /// <summary>
         /// Load header attributes for more detailes
         /// </summary>
@@ -272,7 +282,7 @@ namespace read_feature_model
         /// <param name="root"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        private FeatureTreeNode GetNodeByID(FeatureTreeNode root, string id)
+        public FeatureTreeNode GetNodeByID(FeatureTreeNode root, string id)
         {
             if (root.ID == id)
                 return root;
@@ -281,6 +291,27 @@ namespace read_feature_model
                 foreach (FeatureTreeNode node in root.GetChildren())
                 {
                     var tempNode = GetNodeByID(node, id);
+                    if (tempNode != null)
+                        return tempNode;
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// find a node by Id in tree
+        /// </summary>
+        /// <param name="root"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public FeatureTreeNode GetNodeByName(FeatureTreeNode root, string name)
+        {
+            if (root.Name == name)
+                return root;
+            else if (root.ChildCount() > 0)
+            {
+                foreach (FeatureTreeNode node in root.GetChildren())
+                {
+                    var tempNode = GetNodeByName(node, name);
                     if (tempNode != null)
                         return tempNode;
                 }

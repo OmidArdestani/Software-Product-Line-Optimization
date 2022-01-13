@@ -1,4 +1,5 @@
-﻿using System;
+﻿using read_feature_model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,7 +33,7 @@ namespace MyPLAOptimization
     public class PLAInterface : PLAItems
     {
         public PLAComponent OwnerComponent { get; set; }
-        public List<PLAOperation> Operation { get; set; }
+        public List<PLAOperation> Operations { get; set; }
         public string Id { get; set; }
         public string Name { get; set; }
     }
@@ -42,6 +43,12 @@ namespace MyPLAOptimization
         public PLAInterface OwnerInterface { get; set; }
         public string Id { get; set ; }
         public string Name { get ; set ; }
+    }
+
+    public class FeatureRelationship
+    {
+        public PLAOperation RelatedOperation { get; set; }
+        public FeatureTreeNode RelatedFeature { get; set; }
     }
 
 }

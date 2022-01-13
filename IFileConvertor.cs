@@ -70,7 +70,7 @@ namespace MyPLAOptimization
                         Id = item.Attributes.GetNamedItem("xmi.id").Value,
                         Name = item.Attributes.GetNamedItem("name").Value
                     };
-                    intf.Operation = new List<PLAOperation> { };
+                    intf.Operations = new List<PLAOperation> { };
                     var xmiOperators = item.SelectNodes("UMLClassifier.feature/UMLOperation");
                     foreach (XmlNode xmiOperator in xmiOperators)
                     {
@@ -80,13 +80,13 @@ namespace MyPLAOptimization
                             Name = xmiOperator.Attributes.GetNamedItem("name").Value
                         };
                         opr.OwnerInterface = intf;
-                        intf.Operation.Add(opr);
+                        intf.Operations.Add(opr);
                     }
                     interfaceList.Add(intf);
                 }
             }
             InterfaceCount = interfaceList.Count;
-            OperatorCount = interfaceList.Select(i => i.Operation.Count).Sum();
+            OperatorCount = interfaceList.Select(i => i.Operations.Count).Sum();
             // create relationships
             // realization
             foreach (XmlNode realizationItem in xmlRealizationList)
@@ -191,7 +191,7 @@ namespace MyPLAOptimization
                                 Id = item.Attributes.GetNamedItem("Id").Value,
                                 Name = item.Attributes.GetNamedItem("Name").Value
                             };
-                            intf.Operation = new List<PLAOperation> { };
+                            intf.Operations = new List<PLAOperation> { };
                             foreach (XmlNode xmlOperator in xmlOperators)
                             {
                                 if (xmlOperator.Attributes.GetNamedItem("Id") != null)
@@ -202,7 +202,7 @@ namespace MyPLAOptimization
                                         Name = xmlOperator.Attributes.GetNamedItem("Name").Value,
                                     };
                                     opr.OwnerInterface = intf;
-                                    intf.Operation.Add(opr);
+                                    intf.Operations.Add(opr);
                                 }
                             }
                             interfaceList.Add(intf);
@@ -211,7 +211,7 @@ namespace MyPLAOptimization
                 }
             }
             InterfaceCount = interfaceList.Count;
-            OperatorCount = interfaceList.Select(i => i.Operation.Count).Sum();
+            OperatorCount = interfaceList.Select(i => i.Operations.Count).Sum();
             // create relationships
             // realization
             foreach (XmlNode realizationItem in xmlRealizationList)
@@ -520,9 +520,9 @@ namespace MyPLAOptimization
                         classElement.Add(Stereotypes);
                         //
                         List<XElement> operatorElements = new List<XElement> { };
-                        for (int o = 0; o < interface_.Operation.Count; o++)
+                        for (int o = 0; o < interface_.Operations.Count; o++)
                         {
-                            PLAOperation operator_ = component.Interfaces[i].Operation[o];
+                            PLAOperation operator_ = component.Interfaces[i].Operations[o];
                             XElement operatorElement = new XElement("Operation");
                             operatorElement.SetAttributeValue("Id", operator_.Id);
                             operatorElement.SetAttributeValue("Name", operator_.Name);

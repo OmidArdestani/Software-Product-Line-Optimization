@@ -27,6 +27,7 @@ namespace MyPLAOptimization
         private int PopulationSize = 100;
         private int MaxEvaluation = 10;
         private FeatureModel featureModel;
+        private List<FeatureRelationship> featureRelationshipMatrix;
         public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageOperationsRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         /// <summary>
@@ -43,11 +44,11 @@ namespace MyPLAOptimization
             {
                 for (int i = 0; i < architecture.Components[c].Interfaces.Count; i++)
                 {
-                    var currentOperationsId = architecture.Components[c].Interfaces[i].Operation.Select(o => o.Id).ToList();
+                    var currentOperationsId = architecture.Components[c].Interfaces[i].Operations.Select(o => o.Id).ToList();
                     var dependencies = new List<string> { };
                     for (int d = 0; d < architecture.Components[c].DependedInterfaces.Count; d++)
                     {
-                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operation.Select(o => o.Id).ToList());
+                        dependencies.AddRange(architecture.Components[c].DependedInterfaces[d].Operations.Select(o => o.Id).ToList());
                     }
                     KeyValuePair<List<string>, List<string>> operatorDependencies = new KeyValuePair<List<string>, List<string>>(currentOperationsId, dependencies);
                     UsageOperationsRelationship.Add(operatorDependencies);
@@ -71,7 +72,7 @@ namespace MyPLAOptimization
                 AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture, UsageOperationsRelationship,featureModel);
+                problem = new MyProblem(this.Architecture, UsageOperationsRelationship, featureModel,featureRelationshipMatrix);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -127,8 +128,9 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(PLArchitecture architecture,FeatureModel featureModel, int maxEvaluations, int populationSize)
+        public void Configuration(PLArchitecture architecture, FeatureModel featureModel,List<FeatureRelationship> featureRelationship, int maxEvaluations, int populationSize)
         {
+            this.featureRelationshipMatrix = featureRelationship;
             this.Architecture = architecture;
             this.PopulationSize = populationSize;
             this.MaxEvaluation = maxEvaluations;

@@ -1,14 +1,8 @@
 ﻿using JMetalCSharp.Core;
-using JMetalCSharp.Encoding.SolutionType;
 using JMetalCSharp.Encoding.Variable;
-using JMetalCSharp.Utils;
-using JMetalCSharp.Utils.Wrapper;
 using read_feature_model;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyPLAOptimization
 {
@@ -24,27 +18,29 @@ namespace MyPLAOptimization
     {
         private PLArchitecture primaryArchitecture;
         private FeatureModel featureModel;
+        private List<FeatureRelationship> featureRealationshipMatrix;
         private List<PLAOperation> LocalOperations = new List<PLAOperation> { };
 
         private double[] fitnessFunctions;
         private List<KeyValuePair<List<string>, List<string>>> operationDependencies;
-        public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies, FeatureModel featureModel)
+        public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies, FeatureModel featureModel, List<FeatureRelationship> featureRealationshipMatrix)
         {
             this.primaryArchitecture = architecture;
             this.operationDependencies = operatorDependencies;
             this.featureModel = featureModel;
+            this.featureRealationshipMatrix = featureRealationshipMatrix;
             // get operators
             LocalOperations.Clear();
             for (int c = 0; c < primaryArchitecture.Components.Count; c++)
             {
                 for (int i = 0; i < primaryArchitecture.Components[c].Interfaces.Count; i++)
                 {
-                    for (int o = 0; o < primaryArchitecture.Components[c].Interfaces[i].Operation.Count; o++)
+                    for (int o = 0; o < primaryArchitecture.Components[c].Interfaces[i].Operations.Count; o++)
                     {
-                        string operatorId = primaryArchitecture.Components[c].Interfaces[i].Operation[o].Id;
+                        string operatorId = primaryArchitecture.Components[c].Interfaces[i].Operations[o].Id;
                         // add operator to list if it was not added befor.
                         if (LocalOperations.Where(_o => _o.Id == operatorId).Count() == 0)
-                            LocalOperations.Add(primaryArchitecture.Components[c].Interfaces[i].Operation[o]);
+                            LocalOperations.Add(primaryArchitecture.Components[c].Interfaces[i].Operations[o]);
                     }
                 }
             }
@@ -107,11 +103,11 @@ namespace MyPLAOptimization
                 if (currentInterface == null)
                 {
                     currentInterface = new PLAInterface();
-                    currentInterface.Operation = new List<PLAOperation> { };
+                    currentInterface.Operations = new List<PLAOperation> { };
                     currentInterface.Id = currentSolutionIndex.ToString();
                     interfaces.Add(currentInterface);
                 }
-                currentInterface.Operation.Add(LocalOperations[o]);
+                currentInterface.Operations.Add(LocalOperations[o]);
             }
             // create components
             int interfaceCount = interfaces.Count;
@@ -140,14 +136,14 @@ namespace MyPLAOptimization
                     // find the components, that using the current cheking operator is in any interface.
                     var clientComponents = components.Where(
                         c => c.Interfaces.Find(
-                            i => i.Operation.Find(
+                            i => i.Operations.Find(
                                 o => o.Id == operationDependencies[idi].Key[idci]) != null) != null).ToList();
                     for (int idsi = 0; idsi < operationDependencies[idi].Value.Count; idsi++)
                     {
                         // find the suplier interface considering the operator relationship matrix from input architecture
                         var suplierInterface = components.Where(
                         c => c.Interfaces.Find(
-                            i => i.Operation.Find(
+                            i => i.Operations.Find(
                                 o => o.Id == operationDependencies[idi].Value[idsi]) != null) != null).Select(x => x.Interfaces).SingleOrDefault();
                         for (int cci = 0; cci < clientComponents.Count; cci++)
                         {
@@ -209,14 +205,74 @@ namespace MyPLAOptimization
         /// <returns></returns>
         private double EvalPLACohesion(PLArchitecture pla)
         {
-            // Definition Ref [Colanzi, Vergilio - 2014]
-            // Definition : Average number of internal relationships per class in a component. 
-            // get all interfaces count
-            double totalDependecies = pla.Components.Select(c => c.Interfaces.Count()).Sum();
-            // get component count
-            double totalPLACohesion = 0;
-            // return average of interface per componenet.
-            return -totalPLACohesion / (double)pla.ComponentCount;
+            // Get component count
+            double componentIsRealizingFeature_Count = 0;
+            double featureRealizedByComponent_Count = 0;
+            //-----------------------------------------------------------------------
+            // Calculation count of features that each component is realizing.
+            //-----------------------------------------------------------------------
+            for (int cIndex = 0; cIndex < pla.ComponentCount; cIndex++)
+            {
+                // Get all operation in the current component
+                var allOperationsInTheComponent = new List<PLAOperation> { };
+                pla.Components[cIndex].Interfaces.ForEach(i => allOperationsInTheComponent.AddRange(i.Operations));
+                Dictionary<string, string> mapOfFeatureAndOperation = new Dictionary<string, string>(); // (Feature id as key,Operation id as value)
+                // Sweep in all operation
+                foreach (var operation in allOperationsInTheComponent)
+                {
+                    // Find all realationships with the current operation
+                    var allRels = featureRealationshipMatrix.Where(x => x.RelatedOperation == operation);
+                    // Sweep in the got relationships
+                    foreach (var item in allRels)
+                    {
+                        var featureRalatedToOperation = item.RelatedFeature;
+                        // Insert ther Operation ID in the dictionary, if the feature is not null and also the ID is not added to the dictionory.
+                        if (featureRalatedToOperation != null && !mapOfFeatureAndOperation.ContainsKey(featureRalatedToOperation.ID))
+                        {
+                            mapOfFeatureAndOperation.Add(featureRalatedToOperation.ID, operation.Id);
+                        }
+                    }
+                }
+                // Sum all count of dictionary items
+                componentIsRealizingFeature_Count += mapOfFeatureAndOperation.Count();
+            }
+            //-----------------------------------------------------------------------
+            // Calculation count of components that realized each feature.
+            //-----------------------------------------------------------------------
+            // Get all features from feature model
+            var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
+            // Get all operation in the PLA
+            var allOperationsInComponent = new List<PLAOperation> { };
+            pla.Components.ForEach(c => c.Interfaces.ForEach(i => allOperationsInComponent.AddRange(i.Operations)));
+            // Sweep the feature list
+            for (int featureInd = 0; featureInd < allFeatures.Count(); featureInd++)
+            {
+                // Keep current feature.
+                var currentFeature = allFeatures[featureInd];
+                // Get all relationships with the current feature.
+                var allFeatureRels = featureRealationshipMatrix.Where(x => x.RelatedFeature == currentFeature);
+                Dictionary<string, string> mapOfComponentToFeature = new Dictionary<string, string>(); // (Component id as key,Feature id as value)
+                // Sweep in the got relationships
+                foreach (var rel in allFeatureRels)
+                {
+                    // Sweep in the all operation in the PLA
+                    foreach (var operation in allOperationsInComponent)
+                    {
+                        // Insert the owner component ID in the dictionary, if the operation equal rel. operation and also the Component ID was not inserted.
+                        if (operation == rel.RelatedOperation && !mapOfComponentToFeature.ContainsKey(operation.OwnerInterface.OwnerComponent.Id))
+                        {
+                            mapOfComponentToFeature.Add(operation.OwnerInterface.OwnerComponent.Id, rel.RelatedFeature.ID);
+                        }
+                    }
+                }
+                // Sum all count of dictionary items
+                featureRealizedByComponent_Count += mapOfComponentToFeature.Count();
+            }
+            // value normalization
+            double n = 1;
+            double normalizedPLACohesion = (componentIsRealizingFeature_Count + featureRealizedByComponent_Count) / n;
+            // return result
+            return -normalizedPLACohesion;
         }
         /// <summary>
         /// 
@@ -233,7 +289,7 @@ namespace MyPLAOptimization
             {
                 for (int i = 0; i < pla.Components[c].Interfaces.Count; i++)
                 {
-                    operations.AddRange(pla.Components[c].Interfaces[i].Operation);
+                    operations.AddRange(pla.Components[c].Interfaces[i].Operations);
                 }
             }
             // Check each operation dependensy
