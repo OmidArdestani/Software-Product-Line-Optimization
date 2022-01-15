@@ -348,7 +348,7 @@ namespace MyPLAOptimization
             //-----------------------------------------------------------------------
             // Calculation reusibility in time = PLACohesion / Coupling
             //-----------------------------------------------------------------------
-            double inTime = fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
+            double inTime = -fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
             //-----------------------------------------------------------------------
             // Calculation reusability in space = average of interface probability use in products (configurations).
             //-----------------------------------------------------------------------

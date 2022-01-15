@@ -12,11 +12,14 @@ namespace MyPLAOptimization
         public string Id { get; set; }
         public string Name { get; set; }
 
-        private Dictionary<string, ValueType> propertie;
+        private Dictionary<string, ValueType> propertie=new Dictionary<string, ValueType>();
 
         public ValueType Propertie(string key)
         {
-            return propertie[key];
+            if (propertie.ContainsKey(key))
+                return propertie[key];
+            else
+                return null;
         }
 
         public void SetPropertie(string key, ValueType value)

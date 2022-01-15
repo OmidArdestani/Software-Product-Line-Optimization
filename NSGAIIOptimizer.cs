@@ -1,4 +1,5 @@
 ﻿using JMetalCSharp.Core;
+using JMetalCSharp.Encoding.Variable;
 using JMetalCSharp.Operators.Crossover;
 using JMetalCSharp.Operators.Mutation;
 using JMetalCSharp.Operators.Selection;
@@ -12,6 +13,7 @@ using read_feature_model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -72,7 +74,7 @@ namespace MyPLAOptimization
                 AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture, UsageOperationsRelationship, featureModel,featureRelationshipMatrix);
+                problem = new MyProblem(this.Architecture, UsageOperationsRelationship, featureModel, featureRelationshipMatrix);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -112,7 +114,7 @@ namespace MyPLAOptimization
                 // Result messages 
                 AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
                 AlgorithmOutput("Variables values have been writen to file VAR");
-                population.PrintVariablesToFile("VAR");
+                PrintVariablesToFile("VAR", population);
                 AlgorithmOutput("Objectives values have been writen to file FUN\n");
                 population.PrintObjectivesToFile("FUN");
                 // output
@@ -123,12 +125,41 @@ namespace MyPLAOptimization
                 OptimizationFinished();
             });
         }
+
+        public void PrintVariablesToFile(string path, SolutionSet solutionSet)
+        {
+            try
+            {
+                if (solutionSet.Size() > 0)
+                {
+                    int numberOfVariables = ((ArrayReal)(solutionSet.SolutionsList.ElementAt(0).Variable[0])).Array.Count();
+                    using (StreamWriter outFile = new StreamWriter(path))
+                    {
+                        foreach (Solution s in solutionSet.SolutionsList)
+                        {
+                            for (int i = 0; i < numberOfVariables; i++)
+                            {
+                                var firstRow = ((ArrayReal)(s.Variable[0])).Array[i];
+                                var secondRow = ((ArrayReal)(s.Variable[1])).Array[i];
+                                outFile.Write(string.Format("({0},{1})",firstRow,secondRow));
+                            }
+                            outFile.Write("\r\n");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log.Error("SolutionSet.PrintVariablesToFile", ex);
+                Console.WriteLine(ex.StackTrace);
+            }
+        }
         /// <summary>
         /// Config the Optimization application
         /// </summary>
         /// <param name="architecture">The architecture that is optimizing</param>
         /// <param name="maxEvaluations">Maximum evaluation count</param>
-        public void Configuration(PLArchitecture architecture, FeatureModel featureModel,List<FeatureRelationship> featureRelationship, int maxEvaluations, int populationSize)
+        public void Configuration(PLArchitecture architecture, FeatureModel featureModel, List<FeatureRelationship> featureRelationship, int maxEvaluations, int populationSize)
         {
             this.featureRelationshipMatrix = featureRelationship;
             this.Architecture = architecture;
