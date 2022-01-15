@@ -1,6 +1,7 @@
 ﻿using JMetalCSharp.Core;
 using JMetalCSharp.Encoding.Variable;
 using read_feature_model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,6 +14,7 @@ namespace MyPLAOptimization
         OS_Coupling = 1,
         OS_Reusability = 2,
         OS_ConventionalCohesion = 3,
+        OS_Configurability = 4
     }
     class MyProblem : Problem
     {
@@ -53,7 +55,7 @@ namespace MyPLAOptimization
              * 4- Feature-Scattering
              * 5- Feature-Interaction
              *-----------------------*/
-            NumberOfObjectives = 4;
+            NumberOfObjectives = 5;
             NumberOfConstraints = 0;
             ProblemName = "MyProblem";
             fitnessFunctions = new double[NumberOfObjectives];
@@ -70,18 +72,22 @@ namespace MyPLAOptimization
         }
         public override void Evaluate(Solution solution)
         {
-            //XReal currentSolution = new XReal(solution);
+            // Generate new PLA considering new interface chane
             PLArchitecture currentArchitecture = GenerateArchitecture(solution);
-            //evaluate Coupling
+            //----------------------------------------------------------
+            //  Calculate all the fitness functions.
+            // ATTENTION: The calculation sequence is important.
+            //----------------------------------------------------------
+            //evaluate Coupling (1)
             fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
-            //evaluate Granularity
-            //f[(int)ObjectivSelection.OS_Granularity] = EvalGranularity(currentArchitecture);
-            //evaluate Reusabulity
-            fitnessFunctions[(int)ObjectivSelection.OS_Reusability] = EvalReusability(currentArchitecture);
-            //evaluate Cohesion
+            //evaluate Cohesion (2)
             fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = EvalPLACohesion(currentArchitecture);
-            //evaluate PLA-Cohesion (Feature-Scattering)
+            //evaluate PLA-Cohesion (Feature-Scattering) (3)
             fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = EvalConventionalCohesion(currentArchitecture);
+            //evaluate Reusabulity (4)
+            fitnessFunctions[(int)ObjectivSelection.OS_Reusability] = EvalReusability(currentArchitecture);
+            //evaluate Configurability (5)
+            fitnessFunctions[(int)ObjectivSelection.OS_Configurability] = EvalConfigurability(currentArchitecture);
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -312,6 +318,26 @@ namespace MyPLAOptimization
             }
             return -1 * operationNormalizedCohesionList.Average();
         }
+
+        private double Factoriel(int value)
+        {
+            int num = value;
+            if (num > 0)
+            {
+                int n = num;
+                for (int i = n - 1; i > 0; i--)
+                {
+                    n *= i;
+                }
+                return n;
+            }
+            else
+                return 1;
+        }
+        private double MathChooseProbability(int k_select, int n_total)
+        {
+            return Factoriel(n_total) / (Factoriel(k_select) * Factoriel(n_total - k_select));
+         }
         /// <summary>
         /// 
         /// </summary>
@@ -319,9 +345,77 @@ namespace MyPLAOptimization
         /// <returns></returns>
         private double EvalReusability(PLArchitecture pla)
         {
+            //-----------------------------------------------------------------------
+            // Calculation reusibility in time = PLACohesion / Coupling
+            //-----------------------------------------------------------------------
             double inTime = fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
+            //-----------------------------------------------------------------------
+            // Calculation reusability in space = average of interface probability use in products (configurations).
+            //-----------------------------------------------------------------------
+            var plaInterfaces = new List<PLAInterface> { };
+            pla.Components.ForEach(c => plaInterfaces.AddRange(c.Interfaces));
             double inSpace = 0;
+            foreach (var interfaceItem in plaInterfaces)
+            {
+                // Store related features
+                var relatedFeatureList = new List<FeatureTreeNode> { };
+                // Find related features consider to operations
+                foreach (var operationItem in interfaceItem.Operations)
+                {
+                    var relationships = featureRealationshipMatrix.Where(x => x.RelatedOperation == operationItem);
+                    foreach (var relItem in relationships)
+                    {
+                        // Insert into the related list if not inserted befor.
+                        if (!relatedFeatureList.Contains(relItem.RelatedFeature))
+                        {
+                            relatedFeatureList.Add(relItem.RelatedFeature);
+                        }
+                    }
+                }
+                double probability = 0;
+                // Check Mandatory/Optional or Group of features that related to this interface.
+                foreach (var featureItem in relatedFeatureList)
+                {
+                    // Mandatory/Optional Feature
+                    if (featureItem is SolitaireFeature)
+                    {
+                        interfaceItem.SetPropertie("isOptional", ((SolitaireFeature)featureItem).IsOptional);
+                        interfaceItem.SetPropertie("isGroup", false);
+                        // If the feature is mandatory, the probability of interface use in products is 1, means always in use.
+                        if (!((SolitaireFeature)featureItem).IsOptional)
+                        {
+                            probability = 1;
+                            break;
+                        }
+                        else
+                        {
+                            probability += 0.5;
+                        }
+                    }
+                    // Check the feature parent is a Group (OR items)
+                    else if (featureItem.Parent is FeatureGroup)
+                    {
+                        interfaceItem.SetPropertie("isOptional", true);
+                        interfaceItem.SetPropertie("isGroup", true);
+                        probability += MathChooseProbability(1, featureItem.Parent.ChildCount());
+                    }
+                }
+                // Sum of average of probability
+                inSpace += probability / pla.InterfaceCount;
+            }
             return inTime + inSpace;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
+        private double EvalConfigurability(PLArchitecture pla)
+        {
+            double k_interfaceCount = pla.InterfaceCount;
+            // Checking the property named "isOptional", which was set in the Reusability calculation step.
+            double optionalInterfaceCount = pla.Components.Select(c => c.Interfaces.Where(i=> Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
+            return optionalInterfaceCount / Math.Pow(2, k_interfaceCount); // 2^k is if all interfaces was optional.
         }
     }
 }

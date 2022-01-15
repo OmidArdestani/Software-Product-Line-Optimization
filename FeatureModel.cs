@@ -18,6 +18,7 @@ namespace read_feature_model
     {
         public string ID { get; set; }
         public string Name { get; set; }
+        public FeatureTreeNode Parent { get; set; }
         private readonly List<FeatureTreeNode> Children = new List<FeatureTreeNode> { };
         public FeatureTreeNode(string name = "", string id = "")
         {
@@ -267,6 +268,7 @@ namespace read_feature_model
                 {
                     if (nodeList[i + 1].Value > nodeList[i].Value && nodeList[i + 1].Value == maxLevel)
                     {
+                        nodeList[i + 1].Key.Parent = nodeList[i].Key;
                         nodeList[i].Key.AddChild(nodeList[i + 1].Key);
                         nodeList.RemoveAt(i + 1);
                         break;

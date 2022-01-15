@@ -7,10 +7,25 @@ using System.Threading.Tasks;
 
 namespace MyPLAOptimization
 {
-    public interface PLAItems
+    public abstract class PLAItems
     {
-        string Id { get; set; }
-        string Name { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+
+        private Dictionary<string, ValueType> propertie;
+
+        public ValueType Propertie(string key)
+        {
+            return propertie[key];
+        }
+
+        public void SetPropertie(string key, ValueType value)
+        {
+            if (propertie.ContainsKey(key))
+                propertie[key] = value;
+            else
+                propertie.Add(key, value);
+        }
     }
     public class PLArchitecture
     {
@@ -18,7 +33,7 @@ namespace MyPLAOptimization
         {
             this.Components = components;
         }
-        public List<PLAComponent> Components{ get; set; }
+        public List<PLAComponent> Components { get; set; }
         public int ComponentCount { get; set; }
         public int InterfaceCount { get; set; }
         public int OperatorCount { get; set; }
@@ -27,22 +42,16 @@ namespace MyPLAOptimization
     {
         public List<PLAInterface> Interfaces { get; set; }
         public List<PLAInterface> DependedInterfaces { get; set; }
-        public string Id { get; set; }
-        public string Name { get; set; }
     }
     public class PLAInterface : PLAItems
     {
         public PLAComponent OwnerComponent { get; set; }
         public List<PLAOperation> Operations { get; set; }
-        public string Id { get; set; }
-        public string Name { get; set; }
     }
     public class PLAOperation : PLAItems
     {
         public List<Object> Arguments { get; set; }
         public PLAInterface OwnerInterface { get; set; }
-        public string Id { get; set ; }
-        public string Name { get ; set ; }
     }
 
     public class FeatureRelationship
