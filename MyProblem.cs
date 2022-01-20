@@ -3,6 +3,7 @@ using JMetalCSharp.Encoding.Variable;
 using read_feature_model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MyPLAOptimization
@@ -176,7 +177,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        private double EvalCoupling(PLArchitecture pla)
+        public double EvalCoupling(PLArchitecture pla)
         {
             List<double> couplings = new List<double> { };
             for (int componentIndex = 0; componentIndex < pla.Components.Count; componentIndex++)
@@ -209,7 +210,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        private double EvalPLACohesion(PLArchitecture pla)
+        public double EvalPLACohesion(PLArchitecture pla)
         {
             // Get component count
             double componentIsRealizingFeature_Count = 0;
@@ -285,7 +286,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        private double EvalConventionalCohesion(PLArchitecture pla)
+        public double EvalConventionalCohesion(PLArchitecture pla)
         {
             // List of operation dependensy count
             List<double> operationNormalizedCohesionList = new List<double> { };
@@ -337,18 +338,22 @@ namespace MyPLAOptimization
         private double MathChooseProbability(int k_select, int n_total)
         {
             return Factoriel(n_total) / (Factoriel(k_select) * Factoriel(n_total - k_select));
-         }
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        private double EvalReusability(PLArchitecture pla)
+        public double EvalReusability(PLArchitecture pla)
         {
             //-----------------------------------------------------------------------
             // Calculation reusibility in time = PLACohesion / Coupling
             //-----------------------------------------------------------------------
-            double inTime = -fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
+            double inTime = 0;
+            if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0)
+                inTime = -fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
+            else
+                inTime = -EvalPLACohesion(pla) / EvalCoupling(pla);
             //-----------------------------------------------------------------------
             // Calculation reusability in space = average of interface probability use in products (configurations).
             //-----------------------------------------------------------------------
@@ -410,11 +415,11 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        private double EvalConfigurability(PLArchitecture pla)
+        public double EvalConfigurability(PLArchitecture pla)
         {
             double k_interfaceCount = pla.InterfaceCount;
             // Checking the property named "isOptional", which was set in the Reusability calculation step.
-            double optionalInterfaceCount = pla.Components.Select(c => c.Interfaces.Where(i=> Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
+            double optionalInterfaceCount = pla.Components.Select(c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
             return optionalInterfaceCount / Math.Pow(2, k_interfaceCount); // 2^k is if all interfaces was optional.
         }
     }

@@ -74,23 +74,40 @@ namespace MyPLAOptimization
 
         private bool showOutput(string info)
         {
-            rtbOutput.AppendText(info + "\n");
+            //rtbOutput.AppendText(info + "\n");
             return true;
         }
 
 
         private void btnRunAlgorithm_Click(object sender, EventArgs e)
         {
-            MyOptimization.Configuration(GotArchitecture, featureModel, featureRelationshipMatrix, (int)nudMaximumEvaluation.Value, xmiConv.GetOperatorCount());
+            MyOptimization.MaxEvaluation = (int)nudMaximumEvaluation.Value;
             MyOptimization.StartAsync();
             btnRunAlgorithm.Enabled = false;
             nudMaximumEvaluation.Enabled = false;
         }
         private bool GetFinishedOptimization()
         {
-            btnExportOutput.Enabled = true;
+            btnExportPLA.Enabled = true;
             btnRunAlgorithm.Enabled = true;
             nudMaximumEvaluation.Enabled = true;
+            // calc functions
+            double coupling = MyOptimization.problem.EvalCoupling(MyOptimization.BestPLA);
+            double convetionalCohesion = MyOptimization.problem.EvalConventionalCohesion(MyOptimization.BestPLA);
+            double plaCohesion = MyOptimization.problem.EvalPLACohesion(MyOptimization.BestPLA);
+            double reusability = MyOptimization.problem.EvalReusability(MyOptimization.BestPLA);
+            double configurability = MyOptimization.problem.EvalConfigurability(MyOptimization.BestPLA);
+            // show in labels
+            lblOutputConCohesion.Text = Math.Round(convetionalCohesion, 2).ToString();
+            lblOutputPLACOhesion.Text = Math.Round(plaCohesion, 2).ToString();
+            lblOutputReusability.Text = Math.Round(reusability, 2).ToString();
+            lblOutputConfigurability.Text = Math.Round(configurability, 4).ToString();
+            lblOutputCoupling.Text = Math.Round(coupling, 2).ToString();
+            // PLA info
+            lblOutputComponentCount.Text = MyOptimization.BestPLA.ComponentCount.ToString();
+            lblOutputInterfaceCount.Text = MyOptimization.BestPLA.InterfaceCount.ToString();
+            lblOutputOperationCount.Text = MyOptimization.BestPLA.OperatorCount.ToString();
+
             return true;
         }
         private void btnExportOutput_Click(object sender, EventArgs e)
@@ -113,9 +130,9 @@ namespace MyPLAOptimization
                 }
                 string[] addressParts = dialog.FileName.Split('\\');
                 if (addressParts.Length > 2)
-                    tbExportFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+                    tbExportPLAFileAddr.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
                 else
-                    tbExportFileAddress.Text = string.Join("/", addressParts);
+                    tbExportPLAFileAddr.Text = string.Join("/", addressParts);
                 PLArchitecture optimizedPLA = MyOptimization.BestPLA;
                 exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
             }
@@ -247,6 +264,20 @@ namespace MyPLAOptimization
                     tbFMRelFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
                 else
                     tbFMRelFileAddress.Text = string.Join("/", addressParts);
+                // config My Optimization
+                MyOptimization.Configuration(GotArchitecture, featureModel, featureRelationshipMatrix, (int)nudMaximumEvaluation.Value, GotArchitecture.OperatorCount);
+                // calc functions
+                double coupling = MyOptimization.problem.EvalCoupling(GotArchitecture);
+                double convetionalCohesion = MyOptimization.problem.EvalConventionalCohesion(GotArchitecture);
+                double plaCohesion = MyOptimization.problem.EvalPLACohesion(GotArchitecture);
+                double reusability = MyOptimization.problem.EvalReusability(GotArchitecture);
+                double configurability = MyOptimization.problem.EvalConfigurability(GotArchitecture);
+                // show in labels
+                lblInputConCohesion.Text = Math.Round(convetionalCohesion,2).ToString();
+                lblInputPLACOhesion.Text = Math.Round(plaCohesion, 2).ToString();
+                lblInputReusability.Text = Math.Round(reusability, 2).ToString();
+                lblInputConfigurability.Text = Math.Round(configurability,4).ToString();
+                lblInputCoupling.Text = Math.Round(coupling,2).ToString();
             }
         }
     }

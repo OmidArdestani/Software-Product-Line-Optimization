@@ -113,8 +113,11 @@ namespace MyPLAOptimization
                     comp.DependedInterfaces.Add(intf);
                 }
             }
-
-            return new PLArchitecture(componentList);
+            var returnPLA = new PLArchitecture(componentList);
+            returnPLA.InterfaceCount = InterfaceCount;
+            returnPLA.OperatorCount = OperatorCount;
+            returnPLA.ComponentCount = ComponentCount;
+            return returnPLA;
         }
 
         public void ExportFile(string filePath, List<PLAComponent> components)
@@ -244,7 +247,11 @@ namespace MyPLAOptimization
                     }
                 }
             }
-            return new PLArchitecture(componentList);
+            var returnPLA = new PLArchitecture(componentList);
+            returnPLA.InterfaceCount = InterfaceCount;
+            returnPLA.OperatorCount = OperatorCount;
+            returnPLA.ComponentCount = ComponentCount;
+            return returnPLA;
         }
         #region Project info for XML header
         private XElement ProjectInfo()

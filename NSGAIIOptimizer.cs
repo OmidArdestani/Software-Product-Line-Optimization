@@ -25,13 +25,18 @@ namespace MyPLAOptimization
     {
         public event Func<bool> OptimizationFinished;
         public event Func<string, bool> AlgorithmOutput;
+        public MyProblem problem; // The problem to solve
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
-        private int MaxEvaluation = 10;
+        public int MaxEvaluation { get; set; }
         private FeatureModel featureModel;
         private List<FeatureRelationship> featureRelationshipMatrix;
         public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageOperationsRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
+        public NSGAIIOptimizer()
+        {
+            MaxEvaluation = 10;
+        }
         /// <summary>
         /// Set the architecture that need optimization
         /// </summary>
@@ -65,7 +70,6 @@ namespace MyPLAOptimization
             await Task.Run(() =>
             {
                 Thread.Sleep(1000);
-                MyProblem problem; // The problem to solve
                 Algorithm algorithm; // The algorithm to use
                 Operator crossover; // Crossover operator
                 Operator mutation; // Mutation operator
@@ -74,7 +78,6 @@ namespace MyPLAOptimization
                 AlgorithmOutput("Optimization is running...");
                 Dictionary<string, object> parameters; // Operator parameters
 
-                problem = new MyProblem(this.Architecture, UsageOperationsRelationship, featureModel, featureRelationshipMatrix);
                 //problem = new Kursawe("Real", 3);
 
                 // contruct algorithm
@@ -141,7 +144,7 @@ namespace MyPLAOptimization
                             {
                                 var firstRow = ((ArrayReal)(s.Variable[0])).Array[i];
                                 var secondRow = ((ArrayReal)(s.Variable[1])).Array[i];
-                                outFile.Write(string.Format("({0},{1})",firstRow,secondRow));
+                                outFile.Write(string.Format("({0},{1})", firstRow, secondRow));
                             }
                             outFile.Write("\r\n");
                         }
@@ -167,6 +170,8 @@ namespace MyPLAOptimization
             this.MaxEvaluation = maxEvaluations;
             this.featureModel = featureModel;
             this.SetArchitecture(architecture);
+
+            problem = new MyProblem(this.Architecture, UsageOperationsRelationship, featureModel, featureRelationshipMatrix);
         }
     }
 }
