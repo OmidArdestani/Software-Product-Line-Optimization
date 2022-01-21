@@ -188,7 +188,8 @@ namespace MyPLAOptimization
                 for (int i = 0; i < depInterfaces.Count(); i++)
                 {
                     // find the component dependency from the PLA
-                    var depComponent = pla.Components.Where(comp => comp.Interfaces.Find(dpInt => dpInt.Id == depInterfaces[i].Id) != null).SingleOrDefault();
+                    var depComponent = pla.Components.Where(comp =>
+                                                comp.Interfaces.Find(dpInt => dpInt.Id == depInterfaces[i].Id) != null).SingleOrDefault();
                     // if the component was not in list, append that
                     if (depComponents.Find(comp => comp.Id == depComponent.Id) == null)
                     {
@@ -314,7 +315,8 @@ namespace MyPLAOptimization
                     }
                 }
                 // number of all dependensies for 
-                double normalizationValue = operationDependencies.Where(x => x.Key.Select(y => y == operationA.Id).Count() > 0).Select(z => z.Key.Count()).Sum();
+                double normalizationValue = operationDependencies.Where(x => x.Key.Select(y => 
+                                                y == operationA.Id).Count() > 0).Select(z => z.Key.Count()).Sum();
                 operationNormalizedCohesionList.Add(operationADependensies / normalizationValue);
             }
             return -1 * operationNormalizedCohesionList.Average();
@@ -350,6 +352,7 @@ namespace MyPLAOptimization
             // Calculation reusibility in time = PLACohesion / Coupling
             //-----------------------------------------------------------------------
             double inTime = 0;
+            // if coupling and cohesion was calc, use of them, else calc both of them
             if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0)
                 inTime = -fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] / fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
             else

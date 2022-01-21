@@ -44,8 +44,15 @@ namespace MyPLAOptimization
             this.nudMaximumEvaluation = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.tbExportFuncFileAddr = new System.Windows.Forms.TextBox();
+            this.btnExportFuncFIle = new System.Windows.Forms.Button();
+            this.tbExportVarFileAddr = new System.Windows.Forms.TextBox();
+            this.btnExportVarFile = new System.Windows.Forms.Button();
+            this.label31 = new System.Windows.Forms.Label();
             this.tbExportPLAFileAddr = new System.Windows.Forms.TextBox();
+            this.label30 = new System.Windows.Forms.Label();
             this.btnExportPLA = new System.Windows.Forms.Button();
+            this.label29 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.btnSelectFeatureRelationship = new System.Windows.Forms.Button();
             this.btnSelectFeatureModel = new System.Windows.Forms.Button();
@@ -53,16 +60,16 @@ namespace MyPLAOptimization
             this.tbFMRelFileAddress = new System.Windows.Forms.TextBox();
             this.tbFMFileAddress = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.lblInputConfigurability = new System.Windows.Forms.Label();
             this.lblInputReusability = new System.Windows.Forms.Label();
             this.lblInputCoupling = new System.Windows.Forms.Label();
             this.lblInputPLACOhesion = new System.Windows.Forms.Label();
             this.lblInputConCohesion = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.lblInputConfigurability = new System.Windows.Forms.Label();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.lblOutputOperationCount = new System.Windows.Forms.Label();
             this.lblOutputInterfaceCount = new System.Windows.Forms.Label();
@@ -81,14 +88,9 @@ namespace MyPLAOptimization
             this.label26 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
-            this.label29 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
-            this.btnExportVarFile = new System.Windows.Forms.Button();
-            this.tbExportVarFileAddr = new System.Windows.Forms.TextBox();
-            this.label31 = new System.Windows.Forms.Label();
-            this.btnExportFuncFIle = new System.Windows.Forms.Button();
-            this.tbExportFuncFileAddr = new System.Windows.Forms.TextBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.btnOpenFuncFile = new System.Windows.Forms.Button();
+            this.btnOpenVarFile = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaximumEvaluation)).BeginInit();
@@ -255,6 +257,8 @@ namespace MyPLAOptimization
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.btnOpenFuncFile);
+            this.groupBox3.Controls.Add(this.btnOpenVarFile);
             this.groupBox3.Controls.Add(this.tbExportFuncFileAddr);
             this.groupBox3.Controls.Add(this.btnExportFuncFIle);
             this.groupBox3.Controls.Add(this.tbExportVarFileAddr);
@@ -264,6 +268,7 @@ namespace MyPLAOptimization
             this.groupBox3.Controls.Add(this.label30);
             this.groupBox3.Controls.Add(this.btnExportPLA);
             this.groupBox3.Controls.Add(this.label29);
+            this.groupBox3.Enabled = false;
             this.groupBox3.Location = new System.Drawing.Point(541, 12);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(358, 168);
@@ -271,24 +276,87 @@ namespace MyPLAOptimization
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Output";
             // 
+            // tbExportFuncFileAddr
+            // 
+            this.tbExportFuncFileAddr.Enabled = false;
+            this.tbExportFuncFileAddr.Location = new System.Drawing.Point(6, 41);
+            this.tbExportFuncFileAddr.Name = "tbExportFuncFileAddr";
+            this.tbExportFuncFileAddr.Size = new System.Drawing.Size(228, 20);
+            this.tbExportFuncFileAddr.TabIndex = 3;
+            // 
+            // btnExportFuncFIle
+            // 
+            this.btnExportFuncFIle.Location = new System.Drawing.Point(240, 39);
+            this.btnExportFuncFIle.Name = "btnExportFuncFIle";
+            this.btnExportFuncFIle.Size = new System.Drawing.Size(66, 23);
+            this.btnExportFuncFIle.TabIndex = 2;
+            this.btnExportFuncFIle.Text = "Export";
+            this.btnExportFuncFIle.UseVisualStyleBackColor = true;
+            this.btnExportFuncFIle.Click += new System.EventHandler(this.BtnExportFuncFIle_Click);
+            // 
+            // tbExportVarFileAddr
+            // 
+            this.tbExportVarFileAddr.Enabled = false;
+            this.tbExportVarFileAddr.Location = new System.Drawing.Point(6, 88);
+            this.tbExportVarFileAddr.Name = "tbExportVarFileAddr";
+            this.tbExportVarFileAddr.Size = new System.Drawing.Size(228, 20);
+            this.tbExportVarFileAddr.TabIndex = 3;
+            // 
+            // btnExportVarFile
+            // 
+            this.btnExportVarFile.Location = new System.Drawing.Point(240, 88);
+            this.btnExportVarFile.Name = "btnExportVarFile";
+            this.btnExportVarFile.Size = new System.Drawing.Size(66, 23);
+            this.btnExportVarFile.TabIndex = 2;
+            this.btnExportVarFile.Text = "Export";
+            this.btnExportVarFile.UseVisualStyleBackColor = true;
+            this.btnExportVarFile.Click += new System.EventHandler(this.BtnExportVarFile_Click);
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(6, 21);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(55, 13);
+            this.label31.TabIndex = 4;
+            this.label31.Text = "FUNC File";
+            // 
             // tbExportPLAFileAddr
             // 
             this.tbExportPLAFileAddr.Enabled = false;
             this.tbExportPLAFileAddr.Location = new System.Drawing.Point(6, 138);
             this.tbExportPLAFileAddr.Name = "tbExportPLAFileAddr";
-            this.tbExportPLAFileAddr.Size = new System.Drawing.Size(274, 20);
+            this.tbExportPLAFileAddr.Size = new System.Drawing.Size(276, 20);
             this.tbExportPLAFileAddr.TabIndex = 3;
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(6, 72);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(48, 13);
+            this.label30.TabIndex = 4;
+            this.label30.Text = "VAR File";
             // 
             // btnExportPLA
             // 
             this.btnExportPLA.Enabled = false;
-            this.btnExportPLA.Location = new System.Drawing.Point(286, 136);
+            this.btnExportPLA.Location = new System.Drawing.Point(288, 136);
             this.btnExportPLA.Name = "btnExportPLA";
             this.btnExportPLA.Size = new System.Drawing.Size(66, 23);
             this.btnExportPLA.TabIndex = 2;
             this.btnExportPLA.Text = "Export";
             this.btnExportPLA.UseVisualStyleBackColor = true;
             this.btnExportPLA.Click += new System.EventHandler(this.btnExportOutput_Click);
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(6, 119);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(52, 13);
+            this.label29.TabIndex = 4;
+            this.label29.Text = "Final PLA";
             // 
             // groupBox4
             // 
@@ -370,6 +438,15 @@ namespace MyPLAOptimization
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Input Evaluation";
             // 
+            // lblInputConfigurability
+            // 
+            this.lblInputConfigurability.AutoSize = true;
+            this.lblInputConfigurability.Location = new System.Drawing.Point(132, 148);
+            this.lblInputConfigurability.Name = "lblInputConfigurability";
+            this.lblInputConfigurability.Size = new System.Drawing.Size(22, 13);
+            this.lblInputConfigurability.TabIndex = 4;
+            this.lblInputConfigurability.Text = "-----";
+            // 
             // lblInputReusability
             // 
             this.lblInputReusability.AutoSize = true;
@@ -406,6 +483,15 @@ namespace MyPLAOptimization
             this.lblInputConCohesion.TabIndex = 4;
             this.lblInputConCohesion.Text = "-----";
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(9, 148);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(75, 13);
+            this.label14.TabIndex = 4;
+            this.label14.Text = "Configurability:";
+            // 
             // label10
             // 
             this.label10.AutoSize = true;
@@ -441,24 +527,6 @@ namespace MyPLAOptimization
             this.label13.Size = new System.Drawing.Size(119, 13);
             this.label13.TabIndex = 4;
             this.label13.Text = "Conventional Cohesion:";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(9, 148);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(75, 13);
-            this.label14.TabIndex = 4;
-            this.label14.Text = "Configurability:";
-            // 
-            // lblInputConfigurability
-            // 
-            this.lblInputConfigurability.AutoSize = true;
-            this.lblInputConfigurability.Location = new System.Drawing.Point(132, 148);
-            this.lblInputConfigurability.Name = "lblInputConfigurability";
-            this.lblInputConfigurability.Size = new System.Drawing.Size(22, 13);
-            this.lblInputConfigurability.TabIndex = 4;
-            this.lblInputConfigurability.Text = "-----";
             // 
             // groupBox6
             // 
@@ -638,77 +706,32 @@ namespace MyPLAOptimization
             this.label28.TabIndex = 4;
             this.label28.Text = "Conventional Cohesion:";
             // 
-            // label29
-            // 
-            this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(6, 119);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(52, 13);
-            this.label29.TabIndex = 4;
-            this.label29.Text = "Final PLA";
-            // 
-            // label30
-            // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(6, 72);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(48, 13);
-            this.label30.TabIndex = 4;
-            this.label30.Text = "VAR File";
-            // 
-            // btnExportVarFile
-            // 
-            this.btnExportVarFile.Enabled = false;
-            this.btnExportVarFile.Location = new System.Drawing.Point(286, 88);
-            this.btnExportVarFile.Name = "btnExportVarFile";
-            this.btnExportVarFile.Size = new System.Drawing.Size(66, 23);
-            this.btnExportVarFile.TabIndex = 2;
-            this.btnExportVarFile.Text = "Export";
-            this.btnExportVarFile.UseVisualStyleBackColor = true;
-            this.btnExportVarFile.Click += new System.EventHandler(this.btnExportOutput_Click);
-            // 
-            // tbExportVarFileAddr
-            // 
-            this.tbExportVarFileAddr.Enabled = false;
-            this.tbExportVarFileAddr.Location = new System.Drawing.Point(6, 88);
-            this.tbExportVarFileAddr.Name = "tbExportVarFileAddr";
-            this.tbExportVarFileAddr.Size = new System.Drawing.Size(274, 20);
-            this.tbExportVarFileAddr.TabIndex = 3;
-            // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(6, 21);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(55, 13);
-            this.label31.TabIndex = 4;
-            this.label31.Text = "FUNC File";
-            // 
-            // btnExportFuncFIle
-            // 
-            this.btnExportFuncFIle.Enabled = false;
-            this.btnExportFuncFIle.Location = new System.Drawing.Point(286, 39);
-            this.btnExportFuncFIle.Name = "btnExportFuncFIle";
-            this.btnExportFuncFIle.Size = new System.Drawing.Size(66, 23);
-            this.btnExportFuncFIle.TabIndex = 2;
-            this.btnExportFuncFIle.Text = "Export";
-            this.btnExportFuncFIle.UseVisualStyleBackColor = true;
-            this.btnExportFuncFIle.Click += new System.EventHandler(this.btnExportOutput_Click);
-            // 
-            // tbExportFuncFileAddr
-            // 
-            this.tbExportFuncFileAddr.Enabled = false;
-            this.tbExportFuncFileAddr.Location = new System.Drawing.Point(6, 41);
-            this.tbExportFuncFileAddr.Name = "tbExportFuncFileAddr";
-            this.tbExportFuncFileAddr.Size = new System.Drawing.Size(274, 20);
-            this.tbExportFuncFileAddr.TabIndex = 3;
-            // 
             // progressBar1
             // 
             this.progressBar1.Location = new System.Drawing.Point(9, 361);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(890, 8);
             this.progressBar1.TabIndex = 7;
+            // 
+            // btnOpenFuncFile
+            // 
+            this.btnOpenFuncFile.Location = new System.Drawing.Point(309, 39);
+            this.btnOpenFuncFile.Name = "btnOpenFuncFile";
+            this.btnOpenFuncFile.Size = new System.Drawing.Size(45, 23);
+            this.btnOpenFuncFile.TabIndex = 5;
+            this.btnOpenFuncFile.Text = "Open";
+            this.btnOpenFuncFile.UseVisualStyleBackColor = true;
+            this.btnOpenFuncFile.Click += new System.EventHandler(this.BtnOpenFuncFile_Click);
+            // 
+            // btnOpenVarFile
+            // 
+            this.btnOpenVarFile.Location = new System.Drawing.Point(309, 88);
+            this.btnOpenVarFile.Name = "btnOpenVarFile";
+            this.btnOpenVarFile.Size = new System.Drawing.Size(45, 23);
+            this.btnOpenVarFile.TabIndex = 6;
+            this.btnOpenVarFile.Text = "Open";
+            this.btnOpenVarFile.UseVisualStyleBackColor = true;
+            this.btnOpenVarFile.Click += new System.EventHandler(this.BtnOpenVarFile_Click);
             // 
             // Form1
             // 
@@ -807,6 +830,8 @@ namespace MyPLAOptimization
         private System.Windows.Forms.Label label30;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button btnOpenFuncFile;
+        private System.Windows.Forms.Button btnOpenVarFile;
     }
 }
 

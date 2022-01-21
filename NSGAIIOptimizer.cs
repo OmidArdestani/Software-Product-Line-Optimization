@@ -28,6 +28,7 @@ namespace MyPLAOptimization
         public MyProblem problem; // The problem to solve
         private PLArchitecture Architecture = null;
         private int PopulationSize = 100;
+        private SolutionSet population = null;
         public int MaxEvaluation { get; set; }
         private FeatureModel featureModel;
         private List<FeatureRelationship> featureRelationshipMatrix;
@@ -110,26 +111,34 @@ namespace MyPLAOptimization
 
                 // Execute the Algorithm
                 long initTime = Environment.TickCount;
-                SolutionSet population = algorithm.Execute();
+                population = algorithm.Execute();
                 long estimatedTime = Environment.TickCount - initTime;
                 IComparer<Solution> comp = new MyComparator();
                 BestPLA = problem.GenerateArchitecture(population.Best(comp));
                 // Result messages 
-                AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
-                AlgorithmOutput("Variables values have been writen to file VAR");
-                PrintVariablesToFile("VAR", population);
-                AlgorithmOutput("Objectives values have been writen to file FUN\n");
-                population.PrintObjectivesToFile("FUN");
+                //AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
+                //AlgorithmOutput("Variables values have been writen to file VAR");
+                //PrintVariablesToFile("VAR", population);
+                //AlgorithmOutput("Objectives values have been writen to file FUN\n");
+                //population.PrintObjectivesToFile("FUN");
                 // output
-                AlgorithmOutput("Best PLA has:");
-                AlgorithmOutput("Components : " + BestPLA.ComponentCount);
-                AlgorithmOutput("Interfaces : " + BestPLA.InterfaceCount);
-                AlgorithmOutput("Operators : " + BestPLA.OperatorCount);
+                //AlgorithmOutput("Best PLA has:");
+                //AlgorithmOutput("Components : " + BestPLA.ComponentCount);
+                //AlgorithmOutput("Interfaces : " + BestPLA.InterfaceCount);
+                //AlgorithmOutput("Operators : " + BestPLA.OperatorCount);
                 OptimizationFinished();
             });
         }
 
-        public void PrintVariablesToFile(string path, SolutionSet solutionSet)
+        public void ExportVarData(string fileAddress)
+        {
+            PrintVariablesToFile(fileAddress, population);
+        }
+        public void ExportFuncData(string fileAddress)
+        {
+            population.PrintObjectivesToFile(fileAddress);
+        }
+        private void PrintVariablesToFile(string path, SolutionSet solutionSet)
         {
             try
             {

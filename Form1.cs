@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -101,12 +102,14 @@ namespace MyPLAOptimization
             lblOutputConCohesion.Text = Math.Round(convetionalCohesion, 2).ToString();
             lblOutputPLACOhesion.Text = Math.Round(plaCohesion, 2).ToString();
             lblOutputReusability.Text = Math.Round(reusability, 2).ToString();
-            lblOutputConfigurability.Text = Math.Round(configurability, 4).ToString();
+            lblOutputConfigurability.Text = Math.Round(configurability, 5).ToString();
             lblOutputCoupling.Text = Math.Round(coupling, 2).ToString();
             // PLA info
             lblOutputComponentCount.Text = MyOptimization.BestPLA.ComponentCount.ToString();
             lblOutputInterfaceCount.Text = MyOptimization.BestPLA.InterfaceCount.ToString();
             lblOutputOperationCount.Text = MyOptimization.BestPLA.OperatorCount.ToString();
+
+            groupBox3.Enabled = true;
 
             return true;
         }
@@ -136,10 +139,6 @@ namespace MyPLAOptimization
                 PLArchitecture optimizedPLA = MyOptimization.BestPLA;
                 exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
             }
-        }
-        private void GenerateFeatureModelAndComponentsRelationshipMatrix()
-        {
-
         }
         /// <summary>
         /// 
@@ -206,7 +205,6 @@ namespace MyPLAOptimization
                     lblFeatureModelValid.Text = "Valid";
                     lblFeatureModelValid.ForeColor = Color.DarkGreen;
                     FeaturModelLoaded = true;
-                    GenerateFeatureModelAndComponentsRelationshipMatrix();
                     if (FeaturModelLoaded && DiagramLoaded)
                     {
                         nudMaximumEvaluation.Enabled = true;
@@ -273,12 +271,72 @@ namespace MyPLAOptimization
                 double reusability = MyOptimization.problem.EvalReusability(GotArchitecture);
                 double configurability = MyOptimization.problem.EvalConfigurability(GotArchitecture);
                 // show in labels
-                lblInputConCohesion.Text = Math.Round(convetionalCohesion,2).ToString();
+                lblInputConCohesion.Text = Math.Round(convetionalCohesion, 2).ToString();
                 lblInputPLACOhesion.Text = Math.Round(plaCohesion, 2).ToString();
                 lblInputReusability.Text = Math.Round(reusability, 2).ToString();
-                lblInputConfigurability.Text = Math.Round(configurability,4).ToString();
-                lblInputCoupling.Text = Math.Round(coupling,2).ToString();
+                lblInputConfigurability.Text = Math.Round(configurability, 5).ToString();
+                lblInputCoupling.Text = Math.Round(coupling, 2).ToString();
             }
+        }
+
+        private void BtnExportVarFile_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.FileName = "VAR.txt";
+            dialog.Filter = "TEXT (*.txt)|*.txt";
+            dialog.ShowDialog();
+            if (dialog.FileName != "")
+            {
+                string[] addressParts = dialog.FileName.Split('\\');
+                tbExportVarFileAddr.Text = string.Join("/", addressParts);
+                MyOptimization.ExportVarData(dialog.FileName);
+            }
+        }
+
+        private void BtnExportFuncFIle_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.FileName = "FUNC.txt";
+            dialog.Filter = "TEXT (*.txt)|*.txt";
+            dialog.ShowDialog();
+            if (dialog.FileName != "")
+            {
+                string[] addressParts = dialog.FileName.Split('\\');
+                tbExportFuncFileAddr.Text = string.Join("/", addressParts);
+                MyOptimization.ExportFuncData(dialog.FileName);
+            }
+        }
+
+        private void BtnOpenFuncFile_Click(object sender, EventArgs e)
+        {
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + tbExportFuncFileAddr.Text);
+
+            // The following commands are needed to redirect the standard output.
+            // This means that it will be redirected to the Process.StandardOutput StreamReader.
+            procStartInfo.RedirectStandardOutput = true;
+            procStartInfo.UseShellExecute = false;
+            // Do not create the black window.
+            procStartInfo.CreateNoWindow = true;
+            // Now we create a process, assign its ProcessStartInfo and start it
+            Process proc = new Process();
+            proc.StartInfo = procStartInfo;
+            proc.Start();
+        }
+
+        private void BtnOpenVarFile_Click(object sender, EventArgs e)
+        {
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + tbExportVarFileAddr.Text);
+
+            // The following commands are needed to redirect the standard output.
+            // This means that it will be redirected to the Process.StandardOutput StreamReader.
+            procStartInfo.RedirectStandardOutput = true;
+            procStartInfo.UseShellExecute = false;
+            // Do not create the black window.
+            procStartInfo.CreateNoWindow = true;
+            // Now we create a process, assign its ProcessStartInfo and start it
+            Process proc = new Process();
+            proc.StartInfo = procStartInfo;
+            proc.Start();
         }
     }
 }
