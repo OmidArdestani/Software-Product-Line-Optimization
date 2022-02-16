@@ -521,9 +521,30 @@ namespace MyPLAOptimization
                         classElement.SetAttributeValue("Name", "Class" + i);
                         XElement Stereotypes = new XElement("Stereotypes");
                         XElement Stereotype_ = new XElement("Stereotype");
+                        XElement StereotypePLA_ = new XElement("Stereotype");
                         Stereotype_.SetAttributeValue("Idref", "ig9wjN6GAqA0AQan");
                         Stereotype_.SetAttributeValue("Name", "Interface");
+                        try
+                        {
+                            if ((bool)interface_.Propertie("isOptional"))
+                            {
+                                StereotypePLA_.SetAttributeValue("Idref", "ig9wjN6GAqA0AOan");
+                                StereotypePLA_.SetAttributeValue("Name", "Optional");
+                            }
+                            else
+                            {
+                                StereotypePLA_.SetAttributeValue("Idref", "ig9wjN6GAqA0AAan");
+                                StereotypePLA_.SetAttributeValue("Name", "Mandatory");
+                            }
+                        }
+                        catch
+                        {
+
+                            StereotypePLA_.SetAttributeValue("Idref", "ig9wjN6GAqA0AAan");
+                            StereotypePLA_.SetAttributeValue("Name", "Mandatory");
+                        }
                         Stereotypes.Add(Stereotype_);
+                        Stereotypes.Add(StereotypePLA_);
                         classElement.Add(Stereotypes);
                         //
                         List<XElement> operatorElements = new List<XElement> { };
@@ -586,9 +607,48 @@ namespace MyPLAOptimization
             Stereotype.SetAttributeValue("UserIDLastNumericValue", "0");
             Stereotype.SetAttributeValue("UserID_IsNull", "true");
 
+            XElement StereotypeOp = new XElement("Stereotype");
+            StereotypeOp.SetAttributeValue("Abstract", "false");
+            StereotypeOp.SetAttributeValue("BacklogActivityId", "0");
+            StereotypeOp.SetAttributeValue("BaseType", "Class");
+            StereotypeOp.SetAttributeValue("Documentation_plain", "");
+            StereotypeOp.SetAttributeValue("IconPath", "");
+            StereotypeOp.SetAttributeValue("Id", "ig9wjN6GAqA0AOan");
+            StereotypeOp.SetAttributeValue("Leaf", "false");
+            StereotypeOp.SetAttributeValue("Name", "Optional");
+            StereotypeOp.SetAttributeValue("PmAuthor", "OmidHome");
+            StereotypeOp.SetAttributeValue("PmCreateDateTime", "2021-08-10T21:39:22.387");
+            StereotypeOp.SetAttributeValue("PmLastModified", "2021-08-10T21:44:28.387");
+            StereotypeOp.SetAttributeValue("QualityReason_IsNull", "true");
+            StereotypeOp.SetAttributeValue("QualityScore", "-1");
+            StereotypeOp.SetAttributeValue("Root", "false");
+            StereotypeOp.SetAttributeValue("UserIDLastNumericValue", "0");
+            StereotypeOp.SetAttributeValue("UserID_IsNull", "true");
+
+
+            XElement StereotypeMan = new XElement("Stereotype");
+            StereotypeMan.SetAttributeValue("Abstract", "false");
+            StereotypeMan.SetAttributeValue("BacklogActivityId", "0");
+            StereotypeMan.SetAttributeValue("BaseType", "Class");
+            StereotypeMan.SetAttributeValue("Documentation_plain", "");
+            StereotypeMan.SetAttributeValue("IconPath", "");
+            StereotypeMan.SetAttributeValue("Id", "ig9wjN6GAqA0AAan");
+            StereotypeMan.SetAttributeValue("Leaf", "false");
+            StereotypeMan.SetAttributeValue("Name", "Mandatory");
+            StereotypeMan.SetAttributeValue("PmAuthor", "OmidHome");
+            StereotypeMan.SetAttributeValue("PmCreateDateTime", "2021-08-10T21:39:22.387");
+            StereotypeMan.SetAttributeValue("PmLastModified", "2021-08-10T21:44:28.387");
+            StereotypeMan.SetAttributeValue("QualityReason_IsNull", "true");
+            StereotypeMan.SetAttributeValue("QualityScore", "-1");
+            StereotypeMan.SetAttributeValue("Root", "false");
+            StereotypeMan.SetAttributeValue("UserIDLastNumericValue", "0");
+            StereotypeMan.SetAttributeValue("UserID_IsNull", "true");
+
             ModelChildrenModelModels.Add(ModelChildrenModelComponent);
             ModelChildrenModelModels.Add(ModelChildrenModelClass);
             ModelChildrenModelModels.Add(Stereotype);
+            ModelChildrenModelModels.Add(StereotypeMan);
+            ModelChildrenModelModels.Add(StereotypeOp);
             //
             XElement ModelChildrenModelModelRelationshipDep = new XElement("ModelRelationshipContainer");
             XElement ModelChildrenModelModelRelationshipReal = new XElement("ModelRelationshipContainer");
