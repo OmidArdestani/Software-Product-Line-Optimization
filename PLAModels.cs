@@ -12,8 +12,17 @@ namespace MyPLAOptimization
         public string Id { get; set; }
         public string Name { get; set; }
 
-        private Dictionary<string, ValueType> propertie=new Dictionary<string, ValueType>();
+        private Dictionary<string, ValueType> propertie = new Dictionary<string, ValueType>();
+        public PLAItems()
+        {
 
+        }
+        public PLAItems(PLAItems cp)
+        {
+            Id = cp.Id;
+            Name = cp.Name;
+            propertie = cp.propertie;
+        }
         public ValueType Propertie(string key)
         {
             if (propertie.ContainsKey(key))
@@ -53,6 +62,14 @@ namespace MyPLAOptimization
     }
     public class PLAOperation : PLAItems
     {
+        public PLAOperation()
+        {
+
+        }
+        public PLAOperation(PLAOperation cp) : base(cp)
+        {
+            Arguments = cp.Arguments;
+        }
         public List<Object> Arguments { get; set; }
         public PLAInterface OwnerInterface { get; set; }
     }

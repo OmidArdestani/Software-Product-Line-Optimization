@@ -35,6 +35,11 @@ namespace MyPLAOptimization
             public double Completeness;
             public double Reusability;
             public double Configurability;
+            // info
+            public int NumberOfOptionalInterfaces;
+            public int NumberOfMandatoryInterfaces;
+            public int NumberOfOptionalOperations;
+            public int NumberOfMandatoryOperations;
         }
         private PLAEvaluationValue inputEvaluationValue;
         private PLAEvaluationValue outputEvaluationValue;
@@ -77,10 +82,10 @@ namespace MyPLAOptimization
             outputEvaluationValue.Completeness = MyOptimization.problem.EvalCompleteness(MyOptimization.BestPLA);
             outputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularity(MyOptimization.BestPLA);
             // show in labels
-            lblOutputConCohesion.Text = Math.Round(-outputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
-            lblOutputPLACOhesion.Text = Math.Round(-outputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
-            lblOutputReusability.Text = Math.Round(-outputEvaluationValue.Reusability * 100, 2).ToString() + "%";
-            lblOutputConfigurability.Text = Math.Round(-outputEvaluationValue.Configurability * 100, 3).ToString() + "%";
+            lblOutputConCohesion.Text = Math.Round(outputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
+            lblOutputPLACOhesion.Text = Math.Round(outputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
+            lblOutputReusability.Text = Math.Round(outputEvaluationValue.Reusability * 100, 2).ToString() + "%";
+            lblOutputConfigurability.Text = Math.Round(outputEvaluationValue.Configurability * 100, 3).ToString() + "%";
             lblOutputCoupling.Text = Math.Round(outputEvaluationValue.Coupling * 100, 2).ToString() + "%";
             lblOutputCommonality.Text = Math.Round(outputEvaluationValue.Commonality * 100, 1).ToString() + "%";
             lblOutputCompleteness.Text = Math.Round(outputEvaluationValue.Completeness * 100, 1) + "%";
@@ -90,26 +95,20 @@ namespace MyPLAOptimization
             lblOutputInterfaceCount.Text = MyOptimization.BestPLA.InterfaceCount.ToString();
             lblOutputOperationCount.Text = MyOptimization.BestPLA.OperatorCount.ToString();
             // Check mandatory and optional count for interfaces and operations
-            int optionalOperationCountInput = MyOptimization.BestPLA.Components.Select(
+            outputEvaluationValue.NumberOfOptionalOperations = MyOptimization.BestPLA.Components.Select(
                 c => c.Interfaces.Select(
                     i => i.Operations.Where(
                         o => (o.Propertie("isOptional") != null ?
                 (bool)o.Propertie("isOptional") : false) == true).Count()).Sum()).Sum();
 
-            int optionalOperationCount = MyOptimization.BestPLA.Components.Select(
-                c => c.Interfaces.Select(
-                    i => i.Operations.Where(
-                        o => (o.Propertie("isOptional") != null ?
-                (bool)o.Propertie("isOptional") : false) == true).Count()).Sum()).Sum();
-
-            int optionalInterfaceCount = MyOptimization.BestPLA.Components.Select(
+            outputEvaluationValue.NumberOfOptionalInterfaces = MyOptimization.BestPLA.Components.Select(
                 c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
 
-            int mandatoryOperations = MyOptimization.BestPLA.OperatorCount - optionalOperationCount;
-            int mandatoryInterfaces = MyOptimization.BestPLA.InterfaceCount - optionalInterfaceCount;
+            outputEvaluationValue.NumberOfMandatoryOperations = MyOptimization.BestPLA.OperatorCount - outputEvaluationValue.NumberOfOptionalOperations;
+            outputEvaluationValue.NumberOfMandatoryInterfaces = MyOptimization.BestPLA.InterfaceCount - outputEvaluationValue.NumberOfOptionalInterfaces;
 
-            lblOutputOperationMandOptionalCount.Text = mandatoryOperations + "/" + optionalOperationCount;
-            lblOutputInterfaceMandOptionalCount.Text = mandatoryInterfaces + "/" + optionalInterfaceCount;
+            lblOutputOperationMandOptionalCount.Text = outputEvaluationValue.NumberOfMandatoryOperations + "/" + outputEvaluationValue.NumberOfOptionalOperations;
+            lblOutputInterfaceMandOptionalCount.Text = outputEvaluationValue.NumberOfMandatoryInterfaces + "/" + outputEvaluationValue.NumberOfOptionalInterfaces;
 
             groupBox3.Enabled = true;
             LogResultInFile();
@@ -258,18 +257,18 @@ namespace MyPLAOptimization
                     }
                 }
                 // Check mandatory and optional count for interfaces and operations
-                int optionalOperationCount = GotArchitecture.Components.Select(
+                inputEvaluationValue.NumberOfOptionalOperations = GotArchitecture.Components.Select(
                     c => c.Interfaces.Select(
                         i => i.Operations.Where(
                             o => (o.Propertie("isOptional") != null ?
                     (bool)o.Propertie("isOptional") : false) == true).Count()).Sum()).Sum();
-                int optionalInterfaceCount = GotArchitecture.Components.Select(
+                inputEvaluationValue.NumberOfOptionalInterfaces = GotArchitecture.Components.Select(
                     c => c.Interfaces.Where(
                         i => (i.Propertie("isOptional") != null ? (bool)i.Propertie("isOptional") : false) == true).Count()).Sum();
-                int mandatoryOperations = GotArchitecture.OperatorCount - optionalOperationCount;
-                int mandatoryInterfaces = GotArchitecture.InterfaceCount - optionalInterfaceCount;
-                lblOperationMandOptionalCount.Text = mandatoryOperations + "/" + optionalOperationCount;
-                lblInterfaceMandOptionalCount.Text = mandatoryInterfaces + "/" + optionalInterfaceCount;
+                inputEvaluationValue.NumberOfMandatoryOperations = GotArchitecture.OperatorCount - inputEvaluationValue.NumberOfOptionalOperations;
+                inputEvaluationValue.NumberOfMandatoryInterfaces = GotArchitecture.InterfaceCount - inputEvaluationValue.NumberOfOptionalInterfaces;
+                lblOperationMandOptionalCount.Text = inputEvaluationValue.NumberOfMandatoryOperations + "/" + inputEvaluationValue.NumberOfOptionalOperations;
+                lblInterfaceMandOptionalCount.Text = inputEvaluationValue.NumberOfMandatoryInterfaces + "/" + inputEvaluationValue.NumberOfOptionalInterfaces;
                 // Show file address in text
                 string[] addressParts = dialog.FileName.Split('\\');
                 if (addressParts.Length > 2)
@@ -286,12 +285,13 @@ namespace MyPLAOptimization
                 inputEvaluationValue.Reusability = MyOptimization.problem.EvalReusability(GotArchitecture);
                 inputEvaluationValue.Configurability = MyOptimization.problem.EvalConfigurability(GotArchitecture);
                 inputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularity(GotArchitecture);
+                // info
 
                 // show in labels
-                lblInputConCohesion.Text = Math.Round(-inputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
-                lblInputPLACOhesion.Text = Math.Round(-inputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
-                lblInputReusability.Text = Math.Round(-inputEvaluationValue.Reusability * 100, 2).ToString() + "%";
-                lblInputConfigurability.Text = Math.Round(-inputEvaluationValue.Configurability * 100, 3).ToString() + "%";
+                lblInputConCohesion.Text = Math.Round(inputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
+                lblInputPLACOhesion.Text = Math.Round(inputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
+                lblInputReusability.Text = Math.Round(inputEvaluationValue.Reusability * 100, 2).ToString() + "%";
+                lblInputConfigurability.Text = Math.Round(inputEvaluationValue.Configurability * 100, 3).ToString() + "%";
                 lblInputCoupling.Text = Math.Round(inputEvaluationValue.Coupling * 100, 2).ToString() + "%";
                 lblInputCommonality.Text = Math.Round(inputEvaluationValue.Commonality * 100, 1).ToString() + "%";
                 lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity, 2).ToString();
@@ -345,15 +345,21 @@ namespace MyPLAOptimization
         {
             if (!File.Exists(logFileName))
             {
-                List<string> headers = new List<string> { "Input PLA","Input Feature Model","Input Feature Relationship",
-            "Input Conventional Cohesion","Input PLA-Cohesion","Input Coupling","Input Granularity","Input Commonality","Input Reusability","Input Configurability","Input Completeness",
-            "Output Conventional Cohesion","Output PLA-Cohesion","Output Coupling","Output Granularity","Output Commonality","Output Reusability","Output Configurability","Output Completeness"};
-                File.WriteAllText(logFileName, string.Join(",", headers.ToArray())+"\n");
+                List<string> headers = new List<string> {"DateTime", "Input PLA","Input Feature Model","Input Feature Relationship",
+                    "Input Conventional Cohesion","Input PLA-Cohesion","Input Coupling","Input Granularity","Input Commonality",
+                    "Input Reusability","Input Configurability","Input Completeness","Input Number Of Optional Interfaces",
+                    "Input Number Of Mandatory Interfaces","Input Number Of Optional Operations","Input Number Of Mandatory Operations",
+                    "Output Conventional Cohesion","Output PLA-Cohesion","Output Coupling","Output Granularity","Output Commonality","Output Reusability",
+                    "Output Configurability","Output Completeness","Output Number Of Optional Interfaces","Output Number Of Mandatory Interfaces",
+                    "Output Number Of Optional Operations","Output Number Of Mandatory Operations"
+                };
+                File.WriteAllText(logFileName, string.Join(",", headers.ToArray()) + "\n");
             }
         }
         private void LogResultInFile()
         {
             List<string> parameters = new List<string> { };
+            parameters.Add(DateTime.Now.ToString("yy-MM-dd HH:mm:ss"));
             parameters.Add(tbArchFileAddress.Text);
             parameters.Add(tbFMFileAddress.Text);
             parameters.Add(tbFMRelFileAddress.Text);
@@ -366,6 +372,10 @@ namespace MyPLAOptimization
             parameters.Add(inputEvaluationValue.Reusability.ToString());
             parameters.Add(inputEvaluationValue.Configurability.ToString());
             parameters.Add(inputEvaluationValue.Completeness.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfOptionalInterfaces.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfMandatoryInterfaces.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfOptionalOperations.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfMandatoryOperations.ToString());
             //
             parameters.Add(outputEvaluationValue.ConventionalCohesion.ToString());
             parameters.Add(outputEvaluationValue.PLACohesion.ToString());
@@ -375,6 +385,10 @@ namespace MyPLAOptimization
             parameters.Add(outputEvaluationValue.Reusability.ToString());
             parameters.Add(outputEvaluationValue.Configurability.ToString());
             parameters.Add(outputEvaluationValue.Completeness.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfOptionalInterfaces.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfMandatoryInterfaces.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfOptionalOperations.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfMandatoryOperations.ToString());
             using (StreamWriter sw = File.AppendText(logFileName))
             {
                 sw.WriteLine(string.Join(",", parameters.ToArray()));

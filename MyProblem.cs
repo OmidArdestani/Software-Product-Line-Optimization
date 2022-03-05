@@ -1,4 +1,5 @@
 ﻿using JMetalCSharp.Core;
+using JMetalCSharp.Encoding.SolutionType;
 using JMetalCSharp.Encoding.Variable;
 using read_feature_model;
 using System;
@@ -11,11 +12,11 @@ namespace MyPLAOptimization
 
     enum ObjectivSelection
     {
-        OS_PLACohesion = 0,
-        OS_Coupling = 1,
-        OS_ConventionalCohesion = 2,
-        OS_Commonality = 3,
-        OS_Granularity = 4
+        OS_PLACohesion,
+        OS_Coupling,
+        OS_ConventionalCohesion,
+        OS_Commonality,
+        OS_Granularity
     }
     class MyProblem : Problem
     {
@@ -66,7 +67,7 @@ namespace MyPLAOptimization
             for (int i = 0; i < NumberOfVariables; i++)
             {
                 LowerLimit[i] = 0.0;
-                UpperLimit[i] = 1.0;
+                UpperLimit[i] = 0.2;
             }
 
             SolutionType = new MyReal2DSolutionType(this);
@@ -82,11 +83,11 @@ namespace MyPLAOptimization
             //evaluate Coupling (1)
             fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
             //evaluate Cohesion (2)
-            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = EvalPLACohesion(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = EvalConventionalCohesion(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = -EvalCommonality(currentArchitecture);
             //evaluate Granularity (5)
             fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularity(currentArchitecture);
             // set objectives
@@ -105,7 +106,7 @@ namespace MyPLAOptimization
             for (int o = 0; o < operationCount; o++)
             {
                 double varValue = ((ArrayReal)solution.Variable[0]).Array[o];
-                int currentSolutionIndex = (int)(varValue * operationCount);
+                int currentSolutionIndex = (int)Math.Round(varValue * operationCount,0);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
                 {
@@ -114,7 +115,9 @@ namespace MyPLAOptimization
                     currentInterface.Id = currentSolutionIndex.ToString();
                     interfaces.Add(currentInterface);
                 }
-                currentInterface.Operations.Add(LocalOperations[o]);
+                var newOperation = new PLAOperation(LocalOperations[o]);
+                newOperation.OwnerInterface = currentInterface;
+                currentInterface.Operations.Add(newOperation);
             }
             // create components
             int interfaceCount = interfaces.Count;
@@ -122,7 +125,7 @@ namespace MyPLAOptimization
             for (int i = 0; i < interfaceCount; i++)
             {
                 double varValue = ((ArrayReal)solution.Variable[1]).Array[i];
-                int currentSolutionIndex = (int)(varValue * interfaceCount);
+                int currentSolutionIndex = (int)Math.Round(varValue * interfaceCount,0);
                 PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentComponent == null)
                 {
@@ -132,6 +135,7 @@ namespace MyPLAOptimization
                     currentComponent.Id = currentSolutionIndex.ToString();
                     components.Add(currentComponent);
                 }
+                interfaces[i].OwnerComponent = currentComponent;
                 currentComponent.Interfaces.Add(interfaces[i]);
             }
             // create dependencies
@@ -195,16 +199,35 @@ namespace MyPLAOptimization
                     // Mandatory/Optional Feature
                     if (featureItem is SolitaireFeature)
                     {
-                        interfaceItem.SetPropertie("isOptional", ((SolitaireFeature)featureItem).IsOptional);
                         interfaceItem.SetPropertie("isGroup", false);
                     }
                     // Check the feature parent is a Group (OR items)
                     else if (featureItem.Parent is FeatureGroup)
                     {
-                        interfaceItem.SetPropertie("isOptional", true);
                         interfaceItem.SetPropertie("isGroup", true);
                     }
                 }
+                bool isOptional = true;
+                foreach (var operationItem in interfaceItem.Operations)
+                {
+                    if (operationItem.Propertie("isOptional") != null)
+                    {
+                        if (!Convert.ToBoolean(operationItem.Propertie("isOptional")))
+                        {
+                            interfaceItem.SetPropertie("isOptional", false);
+                            isOptional = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        interfaceItem.SetPropertie("isOptional", false);
+                        isOptional = false;
+                        break;
+                    }
+                }
+                if (isOptional)
+                    interfaceItem.SetPropertie("isOptional", true);
             }
             return returnPla;
         }
@@ -311,7 +334,7 @@ namespace MyPLAOptimization
             // value normalization
             double normalizedPLACohesion = (componentIsRealizingFeature_Count + featureRealizedByComponent_Count) / 2.0;
             // return result
-            return -normalizedPLACohesion;
+            return normalizedPLACohesion;
         }
         public double EvalCommonality(PLArchitecture pla)
         {
@@ -319,6 +342,7 @@ namespace MyPLAOptimization
             double numberOfOptionalInterface = pla.Components.Select(c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
             double commonalityValue = numberOfOptionalInterface / numberOfTotalInterface;
             //double distanceToTypical = Math.Abs(0.5 - commonalityValue);
+            //return -pla.InterfaceCount;
             return commonalityValue;
         }
         /// <summary>
@@ -327,6 +351,16 @@ namespace MyPLAOptimization
         /// <param name="pla"></param>
         /// <returns></returns>
         public double EvalConventionalCohesion(PLArchitecture pla)
+        {
+            // List of operation dependensy count
+            List<double> cohesionList = new List<double> { };
+            foreach (var component in pla.Components)
+            {
+                cohesionList.Add(component.Interfaces.Count);
+            }
+            return cohesionList.Sum() / (pla.InterfaceCount + cohesionList.Count);
+        }
+        public double EvalConventionalCohesion_(PLArchitecture pla)
         {
             // List of operation dependensy count
             List<double> operationNormalizedCohesionList = new List<double> { };
@@ -354,7 +388,7 @@ namespace MyPLAOptimization
                 operationNormalizedCohesionList.Add(operationADependensies / normalizationValue);
             }
             //Debug.WriteLine(operationNormalizedCohesionList.Average());
-            return -operationNormalizedCohesionList.Average();
+            return operationNormalizedCohesionList.Average();
         }
 
         private double Factoriel(int value)
@@ -450,7 +484,7 @@ namespace MyPLAOptimization
                 // Sum of average of probability
                 inSpace += probability / pla.InterfaceCount;
             }
-            double finalReusability = -(inTime + inSpace) / 2.0;
+            double finalReusability = (inTime + inSpace) / 2.0;
             return finalReusability;
         }
         /// <summary>
@@ -460,7 +494,7 @@ namespace MyPLAOptimization
         /// <returns></returns>
         public double EvalConfigurability(PLArchitecture pla)
         {
-            double k_interfaceCount = pla.InterfaceCount/2;
+            double k_interfaceCount = pla.InterfaceCount;
             // Checking the property named "isOptional", which was set in the Reusability calculation step.
             double optionalInterfaceCount = pla.Components.Select(c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
             return -(Math.Pow(2, optionalInterfaceCount) / Math.Pow(2, k_interfaceCount)); // 2^k is if all interfaces was optional.
@@ -493,7 +527,7 @@ namespace MyPLAOptimization
                                                 {
                                                     id = input.Id,
                                                     proprtie = input.Propertie("isOptional") == output.Propertie("isOptional")
-                                                }).Where(x=>!x.proprtie).ToList();
+                                                }).Where(x => !x.proprtie).ToList();
 
             var mandInputInnerJoinOptOutput = mandatoryOperationInput.Join(mandatoryOperationOutput,
                                     input => input.Id,
