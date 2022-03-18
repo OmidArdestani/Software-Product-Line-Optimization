@@ -63,13 +63,11 @@ namespace MyPLAOptimization
             fitnessFunctions = new double[NumberOfObjectives];
             UpperLimit = new double[NumberOfVariables];
             LowerLimit = new double[NumberOfVariables];
-
             for (int i = 0; i < NumberOfVariables; i++)
             {
                 LowerLimit[i] = 0.0;
-                UpperLimit[i] = 0.2;
+                UpperLimit[i] = NumberOfVariables;
             }
-
             SolutionType = new MyReal2DSolutionType(this);
         }
         public override void Evaluate(Solution solution)
@@ -83,13 +81,13 @@ namespace MyPLAOptimization
             //evaluate Coupling (1)
             fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
             //evaluate Cohesion (2)
-            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture) * 2;
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
             fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = -EvalCommonality(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture)) * 100;
             //evaluate Granularity (5)
-            fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularity(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -106,7 +104,8 @@ namespace MyPLAOptimization
             for (int o = 0; o < operationCount; o++)
             {
                 double varValue = ((ArrayReal)solution.Variable[0]).Array[o];
-                int currentSolutionIndex = (int)Math.Round(varValue * operationCount,0);
+                //int currentSolutionIndex = (int)Math.Round(varValue * operationCount, 0);
+                int currentSolutionIndex = (int)Math.Round(varValue, 0);
                 PLAInterface currentInterface = interfaces.Where(_interface => _interface.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentInterface == null)
                 {
@@ -125,7 +124,8 @@ namespace MyPLAOptimization
             for (int i = 0; i < interfaceCount; i++)
             {
                 double varValue = ((ArrayReal)solution.Variable[1]).Array[i];
-                int currentSolutionIndex = (int)Math.Round(varValue * interfaceCount,0);
+                int currentSolutionIndex = (int)Math.Round(varValue * interfaceCount, 0);
+                //int currentSolutionIndex = (int)Math.Round(varValue, 0);
                 PLAComponent currentComponent = components.Where(_component => _component.Id == currentSolutionIndex.ToString()).SingleOrDefault();
                 if (currentComponent == null)
                 {
@@ -144,14 +144,14 @@ namespace MyPLAOptimization
                 // sweep all key and value dependencies
                 for (int idci = 0; idci < operationDependencies[idi].Key.Count; idci++)
                 {
-                    // find the components, that using the current cheking operator is in any interface.
+                    // find the components, that using the current cheking operation is in any interface.
                     var clientComponents = components.Where(
                         c => c.Interfaces.Find(
                             i => i.Operations.Find(
                                 o => o.Id == operationDependencies[idi].Key[idci]) != null) != null).ToList();
                     for (int idsi = 0; idsi < operationDependencies[idi].Value.Count; idsi++)
                     {
-                        // find the suplier interface considering the operator relationship matrix from input architecture
+                        // find the suplier interface considering the operation relationship matrix from input architecture
                         var suplierInterface = components.Where(
                         c => c.Interfaces.Find(
                             i => i.Operations.Find(
@@ -278,7 +278,7 @@ namespace MyPLAOptimization
                 foreach (var operation in allOperationsInTheComponent)
                 {
                     // Find all realationships with the current operation
-                    var allRels = featureRealationshipMatrix.Where(x => x.RelatedOperation == operation);
+                    var allRels = featureRealationshipMatrix.Where(x => x.RelatedOperation.Id == operation.Id);
                     // Sweep in the got relationships
                     foreach (var item in allRels)
                     {
@@ -308,7 +308,7 @@ namespace MyPLAOptimization
                 // Keep current feature.
                 var currentFeature = allFeatures[featureInd];
                 // Get all relationships with the current feature.
-                var allFeatureRels = featureRealationshipMatrix.Where(x => x.RelatedFeature == currentFeature);
+                var allFeatureRels = featureRealationshipMatrix.Where(x => x.RelatedFeature.ID == currentFeature.ID);
                 Dictionary<string, string> mapOfComponentToFeature = new Dictionary<string, string>(); // (Component id as key,Feature id as value)
                 // Sweep in the got relationships
                 foreach (var rel in allFeatureRels)
@@ -339,10 +339,8 @@ namespace MyPLAOptimization
         public double EvalCommonality(PLArchitecture pla)
         {
             double numberOfTotalInterface = pla.InterfaceCount;
-            double numberOfOptionalInterface = pla.Components.Select(c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
-            double commonalityValue = numberOfOptionalInterface / numberOfTotalInterface;
-            //double distanceToTypical = Math.Abs(0.5 - commonalityValue);
-            //return -pla.InterfaceCount;
+            double numberOfMandatoryInterface = pla.Components.Select(c => c.Interfaces.Where(i => !Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
+            double commonalityValue = numberOfMandatoryInterface / numberOfTotalInterface;
             return commonalityValue;
         }
         /// <summary>
@@ -549,7 +547,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        public double EvalGranularity(PLArchitecture pla)
+        public double EvalGranularityDistance(PLArchitecture pla)
         {
             double C = pla.ComponentCount;
             double H = Math.Log((double)pla.OperatorCount) + 0.577;

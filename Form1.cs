@@ -80,14 +80,14 @@ namespace MyPLAOptimization
             outputEvaluationValue.Reusability = MyOptimization.problem.EvalReusability(MyOptimization.BestPLA);
             outputEvaluationValue.Configurability = MyOptimization.problem.EvalConfigurability(MyOptimization.BestPLA);
             outputEvaluationValue.Completeness = MyOptimization.problem.EvalCompleteness(MyOptimization.BestPLA);
-            outputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularity(MyOptimization.BestPLA);
+            outputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularityDistance(MyOptimization.BestPLA);
             // show in labels
             lblOutputConCohesion.Text = Math.Round(outputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
             lblOutputPLACOhesion.Text = Math.Round(outputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
             lblOutputReusability.Text = Math.Round(outputEvaluationValue.Reusability * 100, 2).ToString() + "%";
             lblOutputConfigurability.Text = Math.Round(outputEvaluationValue.Configurability * 100, 3).ToString() + "%";
             lblOutputCoupling.Text = Math.Round(outputEvaluationValue.Coupling * 100, 2).ToString() + "%";
-            lblOutputCommonality.Text = Math.Round(outputEvaluationValue.Commonality * 100, 1).ToString() + "%";
+            lblOutputCommonality.Text = Math.Round(Math.Abs(0.5-outputEvaluationValue.Commonality) * 100, 1).ToString() + "%";
             lblOutputCompleteness.Text = Math.Round(outputEvaluationValue.Completeness * 100, 1) + "%";
             lblOutputGranularity.Text = Math.Round(outputEvaluationValue.Granularity, 2).ToString();
             // PLA info
@@ -284,7 +284,7 @@ namespace MyPLAOptimization
                 inputEvaluationValue.PLACohesion = MyOptimization.problem.EvalPLACohesion(GotArchitecture);
                 inputEvaluationValue.Reusability = MyOptimization.problem.EvalReusability(GotArchitecture);
                 inputEvaluationValue.Configurability = MyOptimization.problem.EvalConfigurability(GotArchitecture);
-                inputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularity(GotArchitecture);
+                inputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularityDistance(GotArchitecture);
                 // info
 
                 // show in labels
@@ -293,7 +293,7 @@ namespace MyPLAOptimization
                 lblInputReusability.Text = Math.Round(inputEvaluationValue.Reusability * 100, 2).ToString() + "%";
                 lblInputConfigurability.Text = Math.Round(inputEvaluationValue.Configurability * 100, 3).ToString() + "%";
                 lblInputCoupling.Text = Math.Round(inputEvaluationValue.Coupling * 100, 2).ToString() + "%";
-                lblInputCommonality.Text = Math.Round(inputEvaluationValue.Commonality * 100, 1).ToString() + "%";
+                lblInputCommonality.Text = Math.Round(Math.Abs(0.5 - inputEvaluationValue.Commonality)*100, 1).ToString() + "%";
                 lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity, 2).ToString();
             }
         }

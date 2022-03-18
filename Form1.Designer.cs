@@ -304,7 +304,7 @@ namespace MyPLAOptimization
             this.nudMaximumEvaluation.Enabled = false;
             this.nudMaximumEvaluation.Location = new System.Drawing.Point(6, 90);
             this.nudMaximumEvaluation.Maximum = new decimal(new int[] {
-            100000,
+            10000000,
             0,
             0,
             0});

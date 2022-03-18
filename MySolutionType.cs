@@ -8,30 +8,32 @@ using JMetalCSharp.Encoding.Variable;
 
 namespace MyPLAOptimization
 {
-	/// <summary>
-	/// Class representing a solution type composed of real variables
-	/// </summary>
-	public class MyReal2DSolutionType : SolutionType
-	{
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		/// <param name="problem">Problem to solve</param>
-		public MyReal2DSolutionType(Problem problem)
-			: base(problem)
-		{
+    /// <summary>
+    /// Class representing a solution type composed of real variables
+    /// </summary>
+    public class MyReal2DSolutionType : SolutionType
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="problem">Problem to solve</param>
+        public MyReal2DSolutionType(Problem problem)
+            : base(problem)
+        {
 
-		}
+        }
 
-		public override Variable[] CreateVariables()
-		{
-			Variable[] variables = new Variable[2];
+        public override Variable[] CreateVariables()
+        {
+            Variable[] variables = new Variable[2];
 
-			for (int i = 0; i < 2; i++)
-			{
-				variables[i] = new ArrayReal(Problem.NumberOfVariables, Problem);
-			}
-			return variables;
-		}
-	}
+            //for (int i = 0; i < 2; i++)
+            //{
+            //	variables[i] = new ArrayReal(Problem.NumberOfVariables, Problem);
+            //}
+            variables[0] = new ArrayReal(Problem.NumberOfVariables, Problem);
+            variables[1] = new ArrayReal(Problem.NumberOfVariables, 0, 1, Problem);
+            return variables;
+        }
+    }
 }
