@@ -182,7 +182,7 @@ namespace MyPLAOptimization
             List<PLAInterface> interfaceList = new List<PLAInterface> { };
             foreach (XmlNode item in xmlInterfaceList)
             {
-                if (item.ChildNodes.Count > 2)
+                if (item.ChildNodes.Count >= 2)
                 {
                     if (item.Attributes.GetNamedItem("Id") != null)
                     {
@@ -552,8 +552,8 @@ namespace MyPLAOptimization
                         {
                             PLAOperation operator_ = component.Interfaces[i].Operations[o];
                             XElement operatorElement = new XElement("Operation");
-                            operatorElement.SetAttributeValue("Id", operator_.Id);
                             operatorElement.SetAttributeValue("Name", operator_.Name);
+                            operatorElement.SetAttributeValue("Id", operator_.Id);
                             operatorElements.Add(operatorElement);
                         }
                         XElement ModelChildren = new XElement("ModelChildren");

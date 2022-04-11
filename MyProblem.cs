@@ -81,13 +81,13 @@ namespace MyPLAOptimization
             //evaluate Coupling (1)
             fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
             //evaluate Cohesion (2)
-            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture) * 2;
+            //fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
+            //fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture)) * 100;
+            //fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
             //evaluate Granularity (5)
-            fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
+            //fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -145,25 +145,22 @@ namespace MyPLAOptimization
                 for (int idci = 0; idci < operationDependencies[idi].Key.Count; idci++)
                 {
                     // find the components, that using the current cheking operation is in any interface.
-                    var clientComponents = components.Where(
+                    var clientComponents = components.Find(
                         c => c.Interfaces.Find(
                             i => i.Operations.Find(
-                                o => o.Id == operationDependencies[idi].Key[idci]) != null) != null).ToList();
+                                o => o.Id == operationDependencies[idi].Key[idci]) != null) != null);
                     for (int idsi = 0; idsi < operationDependencies[idi].Value.Count; idsi++)
                     {
                         // find the suplier interface considering the operation relationship matrix from input architecture
-                        var suplierInterface = components.Where(
-                        c => c.Interfaces.Find(
-                            i => i.Operations.Find(
-                                o => o.Id == operationDependencies[idi].Value[idsi]) != null) != null).Select(x => x.Interfaces).SingleOrDefault();
-                        for (int cci = 0; cci < clientComponents.Count; cci++)
+                        var suplierInterface = interfaces.Find(i => i.Operations.Find(o => o.Id == operationDependencies[idi].Value[idsi]) != null);
+                        //check suplier interface count
+                        if (suplierInterface != null)
                         {
-                            //check suplier interface count
-                            if (suplierInterface.Count > 0)
+                            // add dependency interface to client component, if the dependency interface was not added befor.
+                            if (clientComponents != null)
                             {
-                                // add dependency interface to client component, if the dependency interface was not added befor.
-                                if (clientComponents[cci].DependedInterfaces.Find(l => l.Id == suplierInterface.First().Id) == null)
-                                    clientComponents[cci].DependedInterfaces.Add(suplierInterface.First());
+                                if (clientComponents.DependedInterfaces.Find(l => l.Id == suplierInterface.Id) == null)
+                                    clientComponents.DependedInterfaces.Add(suplierInterface);
                             }
                         }
                     }
@@ -242,16 +239,17 @@ namespace MyPLAOptimization
             List<double> couplings = new List<double> { };
             for (int componentIndex = 0; componentIndex < pla.Components.Count; componentIndex++)
             {
-                // get all dependency interfaces for each component
-                var depInterfaces = pla.Components[componentIndex].DependedInterfaces.ToList();
-
+                Dictionary<PLAComponent, string> componentDependencies = new Dictionary<PLAComponent, string> { };
+                // get all component dependencies for each component
+                // add to a map to count all of them
+                pla.Components[componentIndex].DependedInterfaces.ForEach(i => componentDependencies[i.OwnerComponent] = "1");
                 // add count of dependencies of the component to the coupling list
-                couplings.Add(depInterfaces.Count);
+                couplings.Add(componentDependencies.Count);
             }
             // at the end, we have a list of coupling of each component in the PLA
             // final coupling is, sum of coupling values 
             // for normalizing the coupling value, divide the value to all probability dependencies between components. n(n-1)
-            double n = pla.Components.Select(c => c.DependedInterfaces.Count()).Sum();
+            double n = pla.ComponentCount;
             double allProbability = n * (n - 1);
             return couplings.Sum() / allProbability;
         }
@@ -284,9 +282,9 @@ namespace MyPLAOptimization
                     {
                         var featureRalatedToOperation = item.RelatedFeature;
                         // Insert ther Operation ID in the dictionary, if the feature is not null and also the ID is not added to the dictionory.
-                        if (featureRalatedToOperation != null && !mapOfFeatureAndOperation.ContainsKey(featureRalatedToOperation.ID))
+                        if (featureRalatedToOperation != null)
                         {
-                            mapOfFeatureAndOperation.Add(featureRalatedToOperation.ID, operation.Id);
+                            mapOfFeatureAndOperation[featureRalatedToOperation.ID] = operation.Id;
                         }
                     }
                 }
@@ -317,9 +315,9 @@ namespace MyPLAOptimization
                     foreach (var operation in allOperationsInComponent)
                     {
                         // Insert the owner component ID in the dictionary, if the operation equal rel. operation and also the Component ID was not inserted.
-                        if (operation == rel.RelatedOperation && !mapOfComponentToFeature.ContainsKey(operation.OwnerInterface.OwnerComponent.Id))
+                        if (operation == rel.RelatedOperation)
                         {
-                            mapOfComponentToFeature.Add(operation.OwnerInterface.OwnerComponent.Id, rel.RelatedFeature.ID);
+                            mapOfComponentToFeature[operation.OwnerInterface.OwnerComponent.Id] = rel.RelatedFeature.ID;
                         }
                     }
                 }
@@ -354,10 +352,29 @@ namespace MyPLAOptimization
             List<double> cohesionList = new List<double> { };
             foreach (var component in pla.Components)
             {
-                cohesionList.Add(component.Interfaces.Count);
+                var operationInComponentList = new List<PLAOperation> { };
+                component.Interfaces.ForEach(x => operationInComponentList.AddRange(x.Operations));
+                int numberOfDependedOperations = component.DependedInterfaces.Select(x => x.Operations.Count()).Sum();
+                double sumCo = 0;
+                foreach (var perationItem in operationInComponentList)
+                {
+                    sumCo += operationInComponentList.Count() - 1; // this is same as n(n-1)
+                }
+                if (sumCo + numberOfDependedOperations == 0)
+                    cohesionList.Add(0);
+                else
+                {
+                    double componentCo = sumCo / (sumCo + numberOfDependedOperations);
+                    cohesionList.Add(componentCo);
+                }
             }
-            return cohesionList.Sum() / (pla.InterfaceCount + cohesionList.Count);
+            return cohesionList.Sum() / (pla.ComponentCount);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
         public double EvalConventionalCohesion_(PLArchitecture pla)
         {
             // List of operation dependensy count

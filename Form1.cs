@@ -116,9 +116,11 @@ namespace MyPLAOptimization
         }
         private void btnExportOutput_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml";
-            dialog.FilterIndex = 2;
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml",
+                FilterIndex = 2
+            };
             dialog.ShowDialog();
             IFileConvertor exportFIle = null;
             if (dialog.FileName != "")
@@ -195,7 +197,6 @@ namespace MyPLAOptimization
             {
                 featureModel.LoadFile(dialog.FileName);
                 int childCnt = featureModel.Root.ChildCount();
-                lblInterfaceMandOptionalCount.Text = "Valid";
                 FeaturModelLoaded = true;
                 if (FeaturModelLoaded && DiagramLoaded)
                 {
@@ -208,7 +209,6 @@ namespace MyPLAOptimization
                     tbFMFileAddress.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
                 else
                     tbFMFileAddress.Text = string.Join("/", addressParts);
-
             }
         }
         /// <summary>
