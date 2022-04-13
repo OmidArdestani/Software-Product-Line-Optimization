@@ -12,8 +12,8 @@ namespace MyPLAOptimization
 
     enum ObjectivSelection
     {
-        OS_PLACohesion,
         OS_Coupling,
+        OS_PLACohesion,
         OS_ConventionalCohesion,
         OS_Commonality,
         OS_Granularity
@@ -70,8 +70,13 @@ namespace MyPLAOptimization
             }
             SolutionType = new MyReal2DSolutionType(this);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="solution"></param>
         public override void Evaluate(Solution solution)
         {
+            fitnessFunctions = new double[NumberOfObjectives];
             // Generate new PLA considering new interface chane
             PLArchitecture currentArchitecture = GenerateArchitecture(solution);
             //----------------------------------------------------------
@@ -81,13 +86,13 @@ namespace MyPLAOptimization
             //evaluate Coupling (1)
             fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
             //evaluate Cohesion (2)
-            //fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            //fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            //fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
             //evaluate Granularity (5)
-            //fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
+            fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -98,7 +103,9 @@ namespace MyPLAOptimization
         /// <returns></returns>
         public PLArchitecture GenerateArchitecture(Solution solution)
         {
+            //
             // create interfaces
+            //
             int operationCount = LocalOperations.Count;
             List<PLAInterface> interfaces = new List<PLAInterface> { };
             for (int o = 0; o < operationCount; o++)
@@ -118,7 +125,9 @@ namespace MyPLAOptimization
                 newOperation.OwnerInterface = currentInterface;
                 currentInterface.Operations.Add(newOperation);
             }
+            //
             // create components
+            //
             int interfaceCount = interfaces.Count;
             List<PLAComponent> components = new List<PLAComponent> { };
             for (int i = 0; i < interfaceCount; i++)
@@ -138,13 +147,15 @@ namespace MyPLAOptimization
                 interfaces[i].OwnerComponent = currentComponent;
                 currentComponent.Interfaces.Add(interfaces[i]);
             }
+            //
             // create dependencies
+            //
             for (int idi = 0; idi < operationDependencies.Count; idi++)
             {
                 // sweep all key and value dependencies
                 for (int idci = 0; idci < operationDependencies[idi].Key.Count; idci++)
                 {
-                    // find the components, that using the current cheking operation is in any interface.
+                    // find the components, that using the current cheking operation is in any interfaces.
                     var clientComponents = components.Find(
                         c => c.Interfaces.Find(
                             i => i.Operations.Find(
@@ -170,7 +181,9 @@ namespace MyPLAOptimization
             returnPla.ComponentCount = components.Count();
             returnPla.InterfaceCount = interfaceCount;
             returnPla.OperatorCount = operationCount;
+            //
             // set feature relationships
+            //
             List<PLAInterface> allInterfaces = new List<PLAInterface> { };
             components.ForEach(c => allInterfaces.AddRange(c.Interfaces));
             foreach (var interfaceItem in allInterfaces)
@@ -237,6 +250,9 @@ namespace MyPLAOptimization
         public double EvalCoupling(PLArchitecture pla)
         {
             List<double> couplings = new List<double> { };
+            // for normalizing the coupling value, divide the value to all probability dependencies between components. n(n-1)
+            double n = pla.ComponentCount;
+            double allProbability =  (n - 1);
             for (int componentIndex = 0; componentIndex < pla.Components.Count; componentIndex++)
             {
                 Dictionary<PLAComponent, string> componentDependencies = new Dictionary<PLAComponent, string> { };
@@ -244,14 +260,12 @@ namespace MyPLAOptimization
                 // add to a map to count all of them
                 pla.Components[componentIndex].DependedInterfaces.ForEach(i => componentDependencies[i.OwnerComponent] = "1");
                 // add count of dependencies of the component to the coupling list
-                couplings.Add(componentDependencies.Count);
+                couplings.Add((double)componentDependencies.Count/ allProbability);
             }
             // at the end, we have a list of coupling of each component in the PLA
             // final coupling is, sum of coupling values 
-            // for normalizing the coupling value, divide the value to all probability dependencies between components. n(n-1)
-            double n = pla.ComponentCount;
-            double allProbability = n * (n - 1);
-            return couplings.Sum() / allProbability;
+            
+            return couplings.Sum() / (double)pla.ComponentCount;
         }
         /// <summary>
         /// 
@@ -370,42 +384,6 @@ namespace MyPLAOptimization
             }
             return cohesionList.Sum() / (pla.ComponentCount);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pla"></param>
-        /// <returns></returns>
-        public double EvalConventionalCohesion_(PLArchitecture pla)
-        {
-            // List of operation dependensy count
-            List<double> operationNormalizedCohesionList = new List<double> { };
-            // Get current pla operations
-            List<PLAOperation> operations = new List<PLAOperation> { };
-            pla.Components.ForEach(c => c.Interfaces.ForEach(i => operations.AddRange(i.Operations)));
-            // Check each operation dependensy
-            // Select one operation as operationA
-            foreach (var operationA in operations)
-            {
-                double operationADependensies = 0;
-                // all dependensies 
-                var allDependencyOfOperationA = operationDependencies.Where(x => x.Key.Where(y =>
-                                                y == operationA.Id).Count() > 0).ToList();
-                List<string> operationDependencyIdS = new List<string> { };
-                allDependencyOfOperationA.ForEach(i => operationDependencyIdS.AddRange(i.Value));
-                foreach (var item in operationDependencyIdS)
-                {
-                    var operationB = operations.Where(o => o.Id == item).Single();
-                    if (operationA.OwnerInterface.OwnerComponent.Id == operationB.OwnerInterface.OwnerComponent.Id)
-                        operationADependensies++;
-                }
-                double normalizationValue = allDependencyOfOperationA.Select(x => x.Value.Count()).Sum();
-                normalizationValue = normalizationValue == 0 ? 1 : normalizationValue;
-                operationNormalizedCohesionList.Add(operationADependensies / normalizationValue);
-            }
-            //Debug.WriteLine(operationNormalizedCohesionList.Average());
-            return operationNormalizedCohesionList.Average();
-        }
-
         private double Factoriel(int value)
         {
             int num = value;
@@ -438,7 +416,7 @@ namespace MyPLAOptimization
             // if coupling and cohesion was calc, use of them, else calc both of them
             double coupling = 0;
             double cohesion = 0;
-            if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0)
+            if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0 && fitnessFunctions.Count()==5)
             {
                 cohesion = -fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion];
                 coupling = fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
