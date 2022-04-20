@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MyPLAOptimization
 {
@@ -34,6 +35,7 @@ namespace MyPLAOptimization
         private List<FeatureRelationship> featureRelationshipMatrix;
         public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageOperationsRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
+        public ProgressBar ProccessProgressBar { get; set; }
         public NSGAIIOptimizer()
         {
             MaxEvaluation = 10;
@@ -71,7 +73,9 @@ namespace MyPLAOptimization
             await Task.Run(() =>
             {
                 Thread.Sleep(1000);
-                Algorithm algorithm; // The algorithm to use
+                ProccessProgressBar.Minimum = 0;
+                ProccessProgressBar.Maximum = MaxEvaluation;
+                JMetalCSharp.Metaheuristics.NSGAII.NSGAII algorithm; // The algorithm to use
                 Operator crossover; // Crossover operator
                 Operator mutation; // Mutation operator
                 Operator selection; // Selection operator
@@ -111,6 +115,7 @@ namespace MyPLAOptimization
 
                 // Execute the Algorithm
                 long initTime = Environment.TickCount;
+                algorithm.ProcessProgress += GetProccessProgress;
                 population = algorithm.Execute();
                 long estimatedTime = Environment.TickCount - initTime;
                 IComparer<Solution> comp = new MyComparator();
@@ -165,6 +170,11 @@ namespace MyPLAOptimization
                 Logger.Log.Error("SolutionSet.PrintVariablesToFile", ex);
                 Console.WriteLine(ex.StackTrace);
             }
+        }
+        public bool GetProccessProgress(int value)
+        {
+            ProccessProgressBar.Value = value;
+            return true;
         }
         /// <summary>
         /// Config the Optimization application

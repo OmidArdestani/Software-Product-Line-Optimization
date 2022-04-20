@@ -11,11 +11,11 @@ namespace MyPLAOptimization
     public class MyComparator : IComparer<Solution>
     {
 
-        public int Compare(Solution x, Solution y)
+        public int Compare(Solution bestKnown, Solution candidateSolution)
         {
-            double xScor = x.Objective[0];
-            double yScor = y.Objective[0];
-            return xScor < yScor ? 1 : 0;
+            double maxObjectivSolution1 = bestKnown.Objective.Max();
+            double maxObjectivSolution2 = candidateSolution.Objective.Max();
+            return maxObjectivSolution1 > maxObjectivSolution2 ? 1 : 0;
         }
     }
 }

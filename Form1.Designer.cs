@@ -116,6 +116,7 @@ namespace MyPLAOptimization
             this.label21 = new System.Windows.Forms.Label();
             this.lblOutputCompleteness = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -1085,11 +1086,19 @@ namespace MyPLAOptimization
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Metric Values";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(9, 434);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(986, 8);
+            this.progressBar1.TabIndex = 13;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1001, 435);
+            this.ClientSize = new System.Drawing.Size(1001, 446);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.groupBox9);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.groupBox4);
@@ -1220,6 +1229,7 @@ namespace MyPLAOptimization
         private System.Windows.Forms.Label lblInputGranularity;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label lblOutputGranularity;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

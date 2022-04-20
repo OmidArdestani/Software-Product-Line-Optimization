@@ -51,6 +51,7 @@ namespace MyPLAOptimization
             MyOptimization = new NSGAIIOptimizer();
             MyOptimization.AlgorithmOutput += showOutput;
             MyOptimization.OptimizationFinished += GetFinishedOptimization;
+            MyOptimization.ProccessProgressBar = progressBar1;
             CheckLogFile();
         }
 

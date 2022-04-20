@@ -74,6 +74,7 @@ namespace MyPLAOptimization
         /// 
         /// </summary>
         /// <param name="solution"></param>
+        /// 
         public override void Evaluate(Solution solution)
         {
             fitnessFunctions = new double[NumberOfObjectives];
@@ -83,18 +84,29 @@ namespace MyPLAOptimization
             //  Calculate all the fitness functions.
             // ATTENTION: The calculation sequence is important.
             //----------------------------------------------------------
+            double FM = 0, CM = 0;
             //evaluate Coupling (1)
-            fitnessFunctions[(int)ObjectivSelection.OS_Coupling] = EvalCoupling(currentArchitecture);
+            var coup = EvalCoupling(currentArchitecture) * 100;
             //evaluate Cohesion (2)
-            fitnessFunctions[(int)ObjectivSelection.OS_PLACohesion] = -EvalPLACohesion(currentArchitecture);
+            var plaCOh = EvalPLACohesion(currentArchitecture) * 100;
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion] = -EvalConventionalCohesion(currentArchitecture);
+            var conCoh = EvalConventionalCohesion(currentArchitecture) * 100;
             //evaluate Commonality (4)
-            fitnessFunctions[(int)ObjectivSelection.OS_Commonality] = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
             //evaluate Granularity (5)
-            fitnessFunctions[(int)ObjectivSelection.OS_Granularity] = EvalGranularityDistance(currentArchitecture);
+            var gran = EvalGranularityDistance(currentArchitecture);
+
+            //FM = 1 / plaCOh + common;
+            //CM = coup + 1 / conCoh + gran;
+            //fitnessFunctions[0] = (1 / conCoh) * 100 + coup;
+            fitnessFunctions[0] = (1 / conCoh);
+            fitnessFunctions[1] = coup;
+            fitnessFunctions[2] = 1 / plaCOh;
+            fitnessFunctions[3] = common;
+            fitnessFunctions[4] = gran;
             // set objectives
             solution.Objective = fitnessFunctions;
+            //
         }
         /// <summary>
         /// 
@@ -252,19 +264,20 @@ namespace MyPLAOptimization
             List<double> couplings = new List<double> { };
             // for normalizing the coupling value, divide the value to all probability dependencies between components. n(n-1)
             double n = pla.ComponentCount;
-            double allProbability =  (n - 1);
+            double allProbability = (n - 1);
+            allProbability = allProbability == 0 ? 1 : allProbability;
             for (int componentIndex = 0; componentIndex < pla.Components.Count; componentIndex++)
             {
                 Dictionary<PLAComponent, string> componentDependencies = new Dictionary<PLAComponent, string> { };
                 // get all component dependencies for each component
                 // add to a map to count all of them
                 pla.Components[componentIndex].DependedInterfaces.ForEach(i => componentDependencies[i.OwnerComponent] = "1");
+                componentDependencies.Remove(pla.Components[componentIndex]);
                 // add count of dependencies of the component to the coupling list
-                couplings.Add((double)componentDependencies.Count/ allProbability);
+                couplings.Add((double)componentDependencies.Count / allProbability);
             }
             // at the end, we have a list of coupling of each component in the PLA
             // final coupling is, sum of coupling values 
-            
             return couplings.Sum() / (double)pla.ComponentCount;
         }
         /// <summary>
@@ -277,6 +290,8 @@ namespace MyPLAOptimization
             // Get component count
             double componentIsRealizingFeature_Count = 0;
             double featureRealizedByComponent_Count = 0;
+            // Get all features from feature model
+            var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
             //-----------------------------------------------------------------------
             // Calculation count of features that each component is realizing.
             //-----------------------------------------------------------------------
@@ -304,13 +319,11 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total components
-                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)pla.ComponentCount;
+                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Count();
             }
             //-----------------------------------------------------------------------
             // Calculation count of components that realized each feature.
             //-----------------------------------------------------------------------
-            // Get all features from feature model
-            var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
             // Get all operation in the PLA
             var allOperationsInComponent = new List<PLAOperation> { };
             pla.Components.ForEach(c => c.Interfaces.ForEach(i => allOperationsInComponent.AddRange(i.Operations)));
@@ -337,7 +350,7 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total features
-                featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() / (double)allFeatures.Count();
+                featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() / (double)pla.ComponentCount;
             }
             // -----------------------------------------------------------------------------------------
             // Calculate average of percentages
@@ -416,16 +429,16 @@ namespace MyPLAOptimization
             // if coupling and cohesion was calc, use of them, else calc both of them
             double coupling = 0;
             double cohesion = 0;
-            if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0 && fitnessFunctions.Count()==5)
-            {
-                cohesion = -fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion];
-                coupling = fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
-            }
-            else
-            {
-                cohesion = -EvalConventionalCohesion(pla);
-                coupling = EvalCoupling(pla);
-            }
+            //if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0 && fitnessFunctions.Count() == 5)
+            //{
+            //    cohesion = -fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion];
+            //    coupling = fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
+            //}
+            //else
+            //{
+            cohesion = -EvalConventionalCohesion(pla);
+            coupling = EvalCoupling(pla);
+            //}
             double inTime = (cohesion / Math.Round(coupling, 15)) / 1e15;
             //-----------------------------------------------------------------------
             // Calculation reusability in space = average of interface probability use in products (configurations).
