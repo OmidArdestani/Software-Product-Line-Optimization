@@ -91,10 +91,37 @@ namespace MyPLAOptimization
             // realization
             foreach (XmlNode realizationItem in xmlRealizationList)
             {
-                if (realizationItem.Attributes.GetNamedItem("supplier") != null && realizationItem.Attributes.GetNamedItem("client") != null)
+                bool valueFound = false;
+                string realizeFrom = "";
+                string realizeTo = "";
+                if (realizationItem.Attributes.GetNamedItem("supplier") != null)
                 {
-                    string realizeFrom = realizationItem.Attributes.GetNamedItem("supplier").Value;
-                    string realizeTo = realizationItem.Attributes.GetNamedItem("client").Value;
+                    if (realizationItem.Attributes.GetNamedItem("client") != null)
+                    {
+                        realizeFrom = realizationItem.Attributes.GetNamedItem("supplier").Value;
+                        realizeTo = realizationItem.Attributes.GetNamedItem("client").Value;
+                        valueFound = true;
+                    }
+                }
+                else
+                {
+                    foreach (XmlNode node in realizationItem.ChildNodes)
+                    {
+                        if (node.Name == "UMLDependency.client")
+                        {
+                            realizeTo = node.ChildNodes.Item(0).Attributes.GetNamedItem("xmi.idref").Value;
+                            valueFound = true;
+                            continue;
+                        }
+                        else if (node.Name == "UMLDependency.supplier")
+                        {
+                            realizeFrom = node.ChildNodes.Item(0).Attributes.GetNamedItem("xmi.idref").Value;
+                            continue;
+                        }
+                    }
+                }
+                if (valueFound)
+                {
                     PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
                     PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
                     intf.OwnerComponent = comp;
@@ -104,10 +131,37 @@ namespace MyPLAOptimization
             // dependecies
             foreach (XmlNode dependecieItem in xmlDependencieList)
             {
-                if (dependecieItem.Attributes.GetNamedItem("supplier") != null && dependecieItem.Attributes.GetNamedItem("client") != null)
+                bool valueFound = false;
+                string realizeFrom = "";
+                string realizeTo = "";
+
+                if (dependecieItem.Attributes.GetNamedItem("supplier") != null)
                 {
-                    string realizeFrom = dependecieItem.Attributes.GetNamedItem("supplier").Value;
-                    string realizeTo = dependecieItem.Attributes.GetNamedItem("client").Value;
+                    if (dependecieItem.Attributes.GetNamedItem("client") != null)
+                    {
+                        realizeFrom = dependecieItem.Attributes.GetNamedItem("supplier").Value;
+                        realizeTo = dependecieItem.Attributes.GetNamedItem("client").Value;
+                    }
+                }
+                else
+                {
+                    foreach (XmlNode node in dependecieItem.ChildNodes)
+                    {
+                        if (node.Name == "UMLDependency.client")
+                        {
+                            realizeTo = node.ChildNodes.Item(0).Attributes.GetNamedItem("xmi.idref").Value;
+                            valueFound = true;
+                            continue;
+                        }
+                        else if (node.Name == "UMLDependency.supplier")
+                        {
+                            realizeFrom = node.ChildNodes.Item(0).Attributes.GetNamedItem("xmi.idref").Value;
+                            continue;
+                        }
+                    }
+                }
+                if (valueFound)
+                {
                     PLAInterface intf = interfaceList.Where(x => x.Id == realizeFrom).SingleOrDefault();
                     PLAComponent comp = componentList.Where(x => x.Id == realizeTo).SingleOrDefault();
                     comp.DependedInterfaces.Add(intf);

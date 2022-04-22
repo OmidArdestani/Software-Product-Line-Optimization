@@ -173,7 +173,8 @@ namespace MyPLAOptimization
         }
         public bool GetProccessProgress(int value)
         {
-            ProccessProgressBar.Value = value;
+            if (value < ProccessProgressBar.Maximum)
+                ProccessProgressBar.Value = value;
             return true;
         }
         /// <summary>

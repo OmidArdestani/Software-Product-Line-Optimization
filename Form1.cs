@@ -88,7 +88,7 @@ namespace MyPLAOptimization
             lblOutputReusability.Text = Math.Round(outputEvaluationValue.Reusability * 100, 2).ToString() + "%";
             lblOutputConfigurability.Text = Math.Round(outputEvaluationValue.Configurability * 100, 3).ToString() + "%";
             lblOutputCoupling.Text = Math.Round(outputEvaluationValue.Coupling * 100, 2).ToString() + "%";
-            lblOutputCommonality.Text = Math.Round(Math.Abs(0.5-outputEvaluationValue.Commonality) * 100, 1).ToString() + "%";
+            lblOutputCommonality.Text = Math.Round(Math.Abs(0.5 - outputEvaluationValue.Commonality) * 100, 1).ToString() + "%";
             lblOutputCompleteness.Text = Math.Round(outputEvaluationValue.Completeness * 100, 1) + "%";
             lblOutputGranularity.Text = Math.Round(outputEvaluationValue.Granularity, 2).ToString();
             // PLA info
@@ -154,6 +154,7 @@ namespace MyPLAOptimization
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Filter = "Architercture Project (*.XMI)|*.xmi|Architercture Project (*.XML)|*.xml";
+            dialog.FilterIndex = 2;
             dialog.ShowDialog();
             if (dialog.FileName != "")
             {
@@ -177,6 +178,11 @@ namespace MyPLAOptimization
                 lblInterfaceCnt.Text = xmiConv.GetInterfaceCount().ToString();
                 lblOperatorCnt.Text = xmiConv.GetOperatorCount().ToString();
                 DiagramLoaded = true;
+                if (GotArchitecture.OperatorCount % 2 != 0)
+                {
+                    GotArchitecture.Components[0].Interfaces[0].Operations.Add(new PLAOperation { Id = "null", Name = "null" });
+                    GotArchitecture.OperatorCount++;
+                }
                 if (FeaturModelLoaded && DiagramLoaded)
                 {
                     nudMaximumEvaluation.Enabled = true;
@@ -250,7 +256,8 @@ namespace MyPLAOptimization
                                 if (rel.RelatedFeature is SolitaireFeature)
                                 {
                                     item.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
-                                    item.OwnerInterface.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
+                                    if (item.OwnerInterface != null)
+                                        item.OwnerInterface.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
                                 }
                                 featureRelationshipMatrix.Add(rel);
                             }
@@ -294,7 +301,7 @@ namespace MyPLAOptimization
                 lblInputReusability.Text = Math.Round(inputEvaluationValue.Reusability * 100, 2).ToString() + "%";
                 lblInputConfigurability.Text = Math.Round(inputEvaluationValue.Configurability * 100, 3).ToString() + "%";
                 lblInputCoupling.Text = Math.Round(inputEvaluationValue.Coupling * 100, 2).ToString() + "%";
-                lblInputCommonality.Text = Math.Round(Math.Abs(0.5 - inputEvaluationValue.Commonality)*100, 1).ToString() + "%";
+                lblInputCommonality.Text = Math.Round(Math.Abs(0.5 - inputEvaluationValue.Commonality) * 100, 1).ToString() + "%";
                 lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity, 2).ToString();
             }
         }

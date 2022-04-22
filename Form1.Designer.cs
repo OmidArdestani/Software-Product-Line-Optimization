@@ -318,7 +318,7 @@ namespace MyPLAOptimization
             this.nudMaximumEvaluation.Size = new System.Drawing.Size(148, 20);
             this.nudMaximumEvaluation.TabIndex = 3;
             this.nudMaximumEvaluation.Value = new decimal(new int[] {
-            55000,
+            100000,
             0,
             0,
             0});

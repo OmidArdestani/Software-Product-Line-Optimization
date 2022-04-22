@@ -344,7 +344,8 @@ namespace MyPLAOptimization
                         // Insert the owner component ID in the dictionary, if the operation equal rel. operation and also the Component ID was not inserted.
                         if (operation == rel.RelatedOperation)
                         {
-                            mapOfComponentToFeature[operation.OwnerInterface.OwnerComponent.Id] = rel.RelatedFeature.ID;
+                            if (operation.OwnerInterface != null)
+                                mapOfComponentToFeature[operation.OwnerInterface.OwnerComponent.Id] = rel.RelatedFeature.ID;
                         }
                     }
                 }
