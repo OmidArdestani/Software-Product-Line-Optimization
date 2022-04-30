@@ -57,7 +57,7 @@ namespace MyPLAOptimization
              * 4- Feature-Scattering
              * 5- Feature-Interaction
              *-----------------------*/
-            NumberOfObjectives = 1;
+            NumberOfObjectives = 5;
             NumberOfConstraints = 0;
             ProblemName = "MyProblem";
             fitnessFunctions = new double[NumberOfObjectives];
@@ -91,16 +91,16 @@ namespace MyPLAOptimization
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
             var conCoh = EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            //var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
-            var common = EvalCommonality(currentArchitecture);
+            var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            //var common = EvalCommonality(currentArchitecture);
             //evaluate Granularity (5)
             var gran = EvalGranularityObjective(currentArchitecture);
             //
-            //fitnessFunctions[0] = 1 / conCoh;
-            //fitnessFunctions[1] = coup;
-            fitnessFunctions[0] = (1 / plaCoh);
-            //fitnessFunctions[0] = common;
-            //fitnessFunctions[0] = gran;
+            fitnessFunctions[0] = 1 / conCoh;
+            fitnessFunctions[1] = coup;
+            fitnessFunctions[2] = 1 / plaCoh;
+            fitnessFunctions[3] = common;
+            fitnessFunctions[4] = gran;
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -316,7 +316,7 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total components
-                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Count();
+                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Where(x=>!(x is FeatureGroup)).Count();
             }
             //-----------------------------------------------------------------------
             // Calculation count of components that realized each feature.
@@ -339,7 +339,7 @@ namespace MyPLAOptimization
                     foreach (var operation in allOperationsInComponent)
                     {
                         // Insert the owner component ID in the dictionary, if the operation equal rel. operation and also the Component ID was not inserted.
-                        if (operation == rel.RelatedOperation)
+                        if (operation.Id == rel.RelatedOperation.Id)
                         {
                             if (operation.OwnerInterface != null)
                                 mapOfComponentToFeature[operation.OwnerInterface.OwnerComponent.Id] = rel.RelatedFeature.ID;
@@ -352,7 +352,7 @@ namespace MyPLAOptimization
             }
             // -----------------------------------------------------------------------------------------
             // Calculate average of percentages
-            featureRealizedByComponent_Count = featureRealizedByComponent_Count / (double)allFeatures.Count();
+            featureRealizedByComponent_Count = featureRealizedByComponent_Count / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count();
             componentIsRealizingFeature_Count = componentIsRealizingFeature_Count / (double)pla.ComponentCount;
             // value normalization
             double normalizedPLACohesion = (componentIsRealizingFeature_Count + featureRealizedByComponent_Count) / 2.0;

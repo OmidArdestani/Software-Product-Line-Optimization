@@ -252,7 +252,9 @@ namespace MyPLAOptimization
                                 {
                                     item.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
                                     if (item.OwnerInterface != null)
+                                    {
                                         item.OwnerInterface.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
+                                    }
                                 }
                                 featureRelationshipMatrix.Add(rel);
                             }

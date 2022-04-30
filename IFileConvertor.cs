@@ -141,6 +141,7 @@ namespace MyPLAOptimization
                     {
                         realizeFrom = dependecieItem.Attributes.GetNamedItem("supplier").Value;
                         realizeTo = dependecieItem.Attributes.GetNamedItem("client").Value;
+                        valueFound = true;
                     }
                 }
                 else
