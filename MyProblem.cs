@@ -57,7 +57,7 @@ namespace MyPLAOptimization
              * 4- Feature-Scattering
              * 5- Feature-Interaction
              *-----------------------*/
-            NumberOfObjectives = 5;
+            NumberOfObjectives = 1;
             NumberOfConstraints = 0;
             ProblemName = "MyProblem";
             fitnessFunctions = new double[NumberOfObjectives];
@@ -84,29 +84,25 @@ namespace MyPLAOptimization
             //  Calculate all the fitness functions.
             // ATTENTION: The calculation sequence is important.
             //----------------------------------------------------------
-            double FM = 0, CM = 0;
             //evaluate Coupling (1)
-            var coup = EvalCoupling(currentArchitecture) * 100;
+            var coup = EvalCoupling(currentArchitecture);
             //evaluate Cohesion (2)
-            var plaCOh = EvalPLACohesion(currentArchitecture) * 100;
+            var plaCoh = EvalPLACohesion(currentArchitecture);
             //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            var conCoh = EvalConventionalCohesion(currentArchitecture) * 100;
+            var conCoh = EvalConventionalCohesion(currentArchitecture);
             //evaluate Commonality (4)
-            var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            //var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
+            var common = EvalCommonality(currentArchitecture);
             //evaluate Granularity (5)
-            var gran = EvalGranularityDistance(currentArchitecture);
-
-            //FM = 1 / plaCOh + common;
-            //CM = coup + 1 / conCoh + gran;
-            //fitnessFunctions[0] = (1 / conCoh) * 100 + coup;
-            fitnessFunctions[0] = (1 / conCoh);
-            fitnessFunctions[1] = coup;
-            fitnessFunctions[2] = 1 / plaCOh;
-            fitnessFunctions[3] = common;
-            fitnessFunctions[4] = gran;
+            var gran = EvalGranularityObjective(currentArchitecture);
+            //
+            //fitnessFunctions[0] = 1 / conCoh;
+            //fitnessFunctions[1] = coup;
+            fitnessFunctions[0] = (1 / plaCoh);
+            //fitnessFunctions[0] = common;
+            //fitnessFunctions[0] = gran;
             // set objectives
             solution.Objective = fitnessFunctions;
-            //
         }
         /// <summary>
         /// 
@@ -183,7 +179,8 @@ namespace MyPLAOptimization
                             if (clientComponents != null)
                             {
                                 if (clientComponents.DependedInterfaces.Find(l => l.Id == suplierInterface.Id) == null)
-                                    clientComponents.DependedInterfaces.Add(suplierInterface);
+                                    if (suplierInterface.OwnerComponent != clientComponents)
+                                        clientComponents.DependedInterfaces.Add(suplierInterface);
                             }
                         }
                     }
@@ -380,19 +377,13 @@ namespace MyPLAOptimization
             List<double> cohesionList = new List<double> { };
             foreach (var component in pla.Components)
             {
-                var operationInComponentList = new List<PLAOperation> { };
-                component.Interfaces.ForEach(x => operationInComponentList.AddRange(x.Operations));
-                int numberOfDependedOperations = component.DependedInterfaces.Select(x => x.Operations.Count()).Sum();
-                double sumCo = 0;
-                foreach (var perationItem in operationInComponentList)
-                {
-                    sumCo += operationInComponentList.Count() - 1; // this is same as n(n-1)
-                }
-                if (sumCo + numberOfDependedOperations == 0)
+                double numberOfDependedOperations = component.DependedInterfaces.Select(x => x.Operations.Count()).Sum();
+                double numberOfInternalOperations = component.Interfaces.Select(x => x.Operations.Count()).Sum();
+                if (numberOfInternalOperations + numberOfDependedOperations == 0)
                     cohesionList.Add(0);
                 else
                 {
-                    double componentCo = sumCo / (sumCo + numberOfDependedOperations);
+                    double componentCo = numberOfInternalOperations / (numberOfInternalOperations + numberOfDependedOperations);
                     cohesionList.Add(componentCo);
                 }
             }
@@ -556,18 +547,29 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        public double EvalGranularityDistance(PLArchitecture pla)
+        public double EvalGranularityObjective(PLArchitecture pla)
         {
             double C = pla.ComponentCount;
             double H = Math.Log((double)pla.OperatorCount) + 0.577;
-            List<double> componentOperations = new List<double> { };
+            List<double> componentGranularity = new List<double> { };
             foreach (var component in pla.Components)
             {
                 //Oi: number of operations within component i
                 double O = component.Interfaces.Select(i => i.Operations.Count()).Sum();
-                componentOperations.Add(Math.Abs(O - H));
+                componentGranularity.Add(Math.Abs(O - H));
             }
-            double objGranularity = componentOperations.Sum() / C;
+            double objGranularity = componentGranularity.Sum() / C;
+            return objGranularity;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
+        public double EvalGranularityMetric(PLArchitecture pla)
+        {
+            double C = pla.ComponentCount;
+            double objGranularity = (double)pla.OperatorCount / C;
             return objGranularity;
         }
     }

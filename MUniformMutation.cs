@@ -60,40 +60,25 @@ namespace JMetalCSharp.Operators.Mutation
         {
             for (int var = 0; var < solution.Variable.Length; var++)
             {
-                // first row
-                if (JMetalRandom.NextDouble() < probability)
+                for (int var2 = 0; var2 < ((ArrayReal)solution.Variable[var]).Array.Length; var2++)
                 {
-                    double rand = JMetalRandom.NextDouble();
-                    double tmp = (rand - 0.5) * perturbation.Value;
-                    tmp += ((ArrayReal)solution.Variable[0]).Array[var];
-
-                    if (tmp < ((ArrayReal)solution.Variable[0]).GetLowerBound(var))
-                    {
-                        tmp = ((ArrayReal)solution.Variable[0]).GetLowerBound(var);
-                    }
-                    else if (tmp > ((ArrayReal)solution.Variable[0]).GetUpperBound(var))
-                    {
-                        tmp = ((ArrayReal)solution.Variable[0]).GetUpperBound(var);
-                    }
-                    ((ArrayReal)solution.Variable[0]).Array[var] = tmp;
-                }
-                // second row
-                if (JMetalRandom.NextDouble() < probability)
-                {
-                    double rand = JMetalRandom.NextDouble();
-                    double tmp = (rand - 0.5) * perturbation.Value;
                     // first row
-                    tmp += ((ArrayReal)solution.Variable[1]).Array[var];
+                    if (JMetalRandom.NextDouble() < probability)
+                    {
+                        double rand = JMetalRandom.NextDouble();
+                        double tmp = (rand - 0.5) * perturbation.Value;
+                        tmp += ((ArrayReal)solution.Variable[var]).Array[var2];
 
-                    if (tmp < ((ArrayReal)solution.Variable[1]).GetLowerBound(var))
-                    {
-                        tmp = ((ArrayReal)solution.Variable[1]).GetLowerBound(var);
+                        if (tmp < ((ArrayReal)solution.Variable[var]).GetLowerBound(var2))
+                        {
+                            tmp = ((ArrayReal)solution.Variable[var]).GetLowerBound(var2);
+                        }
+                        else if (tmp > ((ArrayReal)solution.Variable[var]).GetUpperBound(var2))
+                        {
+                            tmp = ((ArrayReal)solution.Variable[var]).GetUpperBound(var2);
+                        }
+                        ((ArrayReal)solution.Variable[var]).Array[var2] = tmp;
                     }
-                    else if (tmp > ((ArrayReal)solution.Variable[1]).GetUpperBound(var))
-                    {
-                        tmp = ((ArrayReal)solution.Variable[1]).GetUpperBound(var);
-                    }
-                    ((ArrayReal)solution.Variable[1]).Array[var] = tmp;
                 }
             }
         }

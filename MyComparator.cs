@@ -15,7 +15,7 @@ namespace MyPLAOptimization
         {
             double maxObjectivSolution1 = bestKnown.Objective.Max();
             double maxObjectivSolution2 = candidateSolution.Objective.Max();
-            return maxObjectivSolution1 > maxObjectivSolution2 ? 1 : 0;
+            return maxObjectivSolution1 > maxObjectivSolution2 ? 1 : -1;
         }
     }
 }
