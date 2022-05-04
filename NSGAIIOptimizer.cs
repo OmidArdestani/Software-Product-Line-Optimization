@@ -8,6 +8,7 @@ using JMetalCSharp.Problems.Kursawe;
 using JMetalCSharp.Problems.ZDT;
 using JMetalCSharp.QualityIndicator;
 using JMetalCSharp.Utils;
+using JMetalCSharp.Utils.Comparators;
 using JMetalCSharp.Utils.Wrapper;
 using read_feature_model;
 using System;
@@ -106,7 +107,7 @@ namespace MyPLAOptimization
 
                 // Selection Operator 
                 parameters = new Dictionary<string, object>();
-                parameters.Add("comparator", new MyComparator());
+                parameters.Add("comparator", new DominanceComparator());
                 selection = SelectionFactory.GetSelectionOperator("BestSolutionSelection", parameters);
 
                 // Add the operators to the algorithm

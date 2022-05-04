@@ -24,7 +24,6 @@ namespace MyPLAOptimization
         private FeatureModel featureModel;
         private List<FeatureRelationship> featureRealationshipMatrix;
         private List<PLAOperation> LocalOperations = new List<PLAOperation> { };
-
         private double[] fitnessFunctions;
         private List<KeyValuePair<List<string>, List<string>>> operationDependencies;
         public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies, FeatureModel featureModel, List<FeatureRelationship> featureRealationshipMatrix)
@@ -94,13 +93,16 @@ namespace MyPLAOptimization
             var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
             //var common = EvalCommonality(currentArchitecture);
             //evaluate Granularity (5)
-            var gran = EvalGranularityObjective(currentArchitecture);
+            var gran = EvalGranularityObjective(currentArchitecture) / (double)currentArchitecture.OperatorCount;
             //
-            fitnessFunctions[0] = 1 / conCoh;
+            fitnessFunctions[0] = 1.0 / (conCoh * 100);
             fitnessFunctions[1] = coup;
-            fitnessFunctions[2] = 1 / plaCoh;
+            fitnessFunctions[2] = 1.0 / (plaCoh * 100);
             fitnessFunctions[3] = common;
             fitnessFunctions[4] = gran;
+            //fitnessFunctions[0] = (1.0 / (plaCoh * 100)) + common;
+            //fitnessFunctions[0] = (1.0 - conCoh ) * 2 + gran * 6 + coup * 2;
+
             // set objectives
             solution.Objective = fitnessFunctions;
         }
@@ -316,7 +318,7 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total components
-                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Where(x=>!(x is FeatureGroup)).Count();
+                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count();
             }
             //-----------------------------------------------------------------------
             // Calculation count of components that realized each feature.

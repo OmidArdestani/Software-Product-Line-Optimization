@@ -58,6 +58,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="MSBXCrossover.cs" />
     <Compile Include="MyComparator.cs" />
     <Compile Include="MyProblem.cs" />
     <Compile Include="MySolutionType.cs" />
