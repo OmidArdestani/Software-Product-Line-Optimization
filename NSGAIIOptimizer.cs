@@ -95,9 +95,11 @@ namespace MyPLAOptimization
 
                 // Mutation and Crossover for Real codification 
                 parameters = new Dictionary<string, object>();
-                parameters.Add("probability", 0.9);
-                parameters.Add("distributionIndex", 20.0);
+                //parameters.Add("probability", 0.9);
+                parameters.Add("probability", 0.99);
+                parameters.Add("distributionIndex", 20);
                 crossover = new MSinglePointCrossover(parameters);
+                //crossover = new MSBXCrossover(parameters);
 
                 parameters = new Dictionary<string, object>();
                 parameters.Add("probability", 1.0 / problem.NumberOfVariables);

@@ -56,7 +56,7 @@ namespace MyPLAOptimization
              * 4- Feature-Scattering
              * 5- Feature-Interaction
              *-----------------------*/
-            NumberOfObjectives = 5;
+            NumberOfObjectives = 3;
             NumberOfConstraints = 0;
             ProblemName = "MyProblem";
             fitnessFunctions = new double[NumberOfObjectives];
@@ -93,13 +93,13 @@ namespace MyPLAOptimization
             var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
             //var common = EvalCommonality(currentArchitecture);
             //evaluate Granularity (5)
-            var gran = EvalGranularityObjective(currentArchitecture) / (double)currentArchitecture.OperatorCount;
+            var gran = EvalGranularityObjective(currentArchitecture /*/ (double)currentArchitecture.OperatorCount*/);
             //
-            fitnessFunctions[0] = 1.0 / (conCoh * 100);
-            fitnessFunctions[1] = coup;
-            fitnessFunctions[2] = 1.0 / (plaCoh * 100);
-            fitnessFunctions[3] = common;
-            fitnessFunctions[4] = gran;
+            //fitnessFunctions[0] = 1.0 / (conCoh * 100);
+            //fitnessFunctions[0] = coup;
+            fitnessFunctions[0] = 1.0 / (plaCoh);
+            fitnessFunctions[1] = common;
+            fitnessFunctions[2] = gran;
             //fitnessFunctions[0] = (1.0 / (plaCoh * 100)) + common;
             //fitnessFunctions[0] = (1.0 - conCoh ) * 2 + gran * 6 + coup * 2;
 
@@ -553,11 +553,12 @@ namespace MyPLAOptimization
         {
             double C = pla.ComponentCount;
             double H = Math.Log((double)pla.OperatorCount) + 0.577;
+            //int H = (int)(Math.Log((double)pla.OperatorCount) + 1);
             List<double> componentGranularity = new List<double> { };
             foreach (var component in pla.Components)
             {
                 //Oi: number of operations within component i
-                double O = component.Interfaces.Select(i => i.Operations.Count()).Sum();
+                int O = component.Interfaces.Select(i => i.Operations.Count()).Sum();
                 componentGranularity.Add(Math.Abs(O - H));
             }
             double objGranularity = componentGranularity.Sum() / C;
