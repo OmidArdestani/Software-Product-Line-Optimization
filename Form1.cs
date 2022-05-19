@@ -27,10 +27,11 @@ namespace MyPLAOptimization
         {
             //Fitness funtions
             public double PLACohesion;
-            public double ConventionalCohesion;
             public double Coupling;
             public double Commonality;
             public double Granularity;
+            public double FM;
+            public double CM;
             // Metrics
             public double Completeness;
             public double Reusability;
@@ -76,14 +77,15 @@ namespace MyPLAOptimization
             // calc functions
             outputEvaluationValue.Coupling = MyOptimization.problem.EvalCoupling(MyOptimization.BestPLA);
             outputEvaluationValue.Commonality = MyOptimization.problem.EvalCommonality(MyOptimization.BestPLA);
-            outputEvaluationValue.ConventionalCohesion = MyOptimization.problem.EvalConventionalCohesion(MyOptimization.BestPLA);
+            //outputEvaluationValue.ConventionalCohesion = MyOptimization.problem.EvalConventionalCohesion(MyOptimization.BestPLA);
             outputEvaluationValue.PLACohesion = MyOptimization.problem.EvalPLACohesion(MyOptimization.BestPLA);
             outputEvaluationValue.Reusability = MyOptimization.problem.EvalReusability(MyOptimization.BestPLA);
             outputEvaluationValue.Configurability = MyOptimization.problem.EvalConfigurability(MyOptimization.BestPLA);
             outputEvaluationValue.Completeness = MyOptimization.problem.EvalCompleteness(MyOptimization.BestPLA);
             outputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularityObjective(MyOptimization.BestPLA);
+            outputEvaluationValue.FM = MyOptimization.problem.EvalFMObjective(MyOptimization.BestPLA);
+            outputEvaluationValue.CM = MyOptimization.problem.EvalCMObjective(MyOptimization.BestPLA);
             // show in labels
-            lblOutputConCohesion.Text = Math.Round(outputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
             lblOutputPLACOhesion.Text = Math.Round(outputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
             lblOutputReusability.Text = Math.Round(outputEvaluationValue.Reusability * 100, 2).ToString() + "%";
             lblOutputConfigurability.Text = Math.Round(outputEvaluationValue.Configurability * 100, 3).ToString() + "%";
@@ -91,6 +93,8 @@ namespace MyPLAOptimization
             lblOutputCommonality.Text = Math.Round( outputEvaluationValue.Commonality * 100, 1).ToString() + "%";
             lblOutputCompleteness.Text = Math.Round(outputEvaluationValue.Completeness * 100, 1) + "%";
             lblOutputGranularity.Text = Math.Round(outputEvaluationValue.Granularity, 2).ToString();
+            lblOutputFM.Text = Math.Round(outputEvaluationValue.FM, 2).ToString();
+            lblOutputCM.Text = Math.Round(outputEvaluationValue.CM, 2).ToString();
             // PLA info
             lblOutputComponentCount.Text = MyOptimization.BestPLA.ComponentCount.ToString();
             lblOutputInterfaceCount.Text = MyOptimization.BestPLA.InterfaceCount.ToString();
@@ -285,21 +289,24 @@ namespace MyPLAOptimization
                 // calc functions
                 inputEvaluationValue.Coupling = MyOptimization.problem.EvalCoupling(GotArchitecture);
                 inputEvaluationValue.Commonality = MyOptimization.problem.EvalCommonality(GotArchitecture);
-                inputEvaluationValue.ConventionalCohesion = MyOptimization.problem.EvalConventionalCohesion(GotArchitecture);
+                //inputEvaluationValue.ConventionalCohesion = MyOptimization.problem.EvalConventionalCohesion(GotArchitecture);
                 inputEvaluationValue.PLACohesion = MyOptimization.problem.EvalPLACohesion(GotArchitecture);
                 inputEvaluationValue.Reusability = MyOptimization.problem.EvalReusability(GotArchitecture);
                 inputEvaluationValue.Configurability = MyOptimization.problem.EvalConfigurability(GotArchitecture);
                 inputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularityObjective(GotArchitecture);
+                inputEvaluationValue.FM = MyOptimization.problem.EvalFMObjective(GotArchitecture);
+                inputEvaluationValue.CM = MyOptimization.problem.EvalCMObjective(GotArchitecture);
                 // info
 
                 // show in labels
-                lblInputConCohesion.Text = Math.Round(inputEvaluationValue.ConventionalCohesion * 100, 2).ToString() + "%";
                 lblInputPLACOhesion.Text = Math.Round(inputEvaluationValue.PLACohesion * 100, 2).ToString() + "%";
                 lblInputReusability.Text = Math.Round(inputEvaluationValue.Reusability * 100, 2).ToString() + "%";
                 lblInputConfigurability.Text = Math.Round(inputEvaluationValue.Configurability * 100, 3).ToString() + "%";
                 lblInputCoupling.Text = Math.Round(inputEvaluationValue.Coupling * 100, 2).ToString() + "%";
                 lblInputCommonality.Text = Math.Round(inputEvaluationValue.Commonality * 100, 1).ToString() + "%";
                 lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity, 2).ToString();
+                lblInputFM.Text = Math.Round(inputEvaluationValue.FM, 2).ToString();
+                lblInputCM.Text = Math.Round(inputEvaluationValue.CM, 2).ToString();
             }
         }
 
@@ -351,12 +358,12 @@ namespace MyPLAOptimization
             if (!File.Exists(logFileName))
             {
                 List<string> headers = new List<string> {"DateTime", "Input PLA","Input Feature Model","Input Feature Relationship",
-                    "Input Conventional Cohesion","Input PLA-Cohesion","Input Coupling","Input Granularity","Input Commonality",
+                    "Input PLA-Cohesion","Input Coupling","Input Granularity","Input Commonality",
                     "Input Reusability","Input Configurability","Input Completeness","Input Number Of Optional Interfaces",
-                    "Input Number Of Mandatory Interfaces","Input Number Of Optional Operations","Input Number Of Mandatory Operations",
-                    "Output Conventional Cohesion","Output PLA-Cohesion","Output Coupling","Output Granularity","Output Commonality","Output Reusability",
+                    "Input Number Of Mandatory Interfaces","Input Number Of Optional Operations","Input Number Of Mandatory Operations","Input FM","Input CM",
+                    "Output PLA-Cohesion","Output Coupling","Output Granularity","Output Commonality","Output Reusability",
                     "Output Configurability","Output Completeness","Output Number Of Optional Interfaces","Output Number Of Mandatory Interfaces",
-                    "Output Number Of Optional Operations","Output Number Of Mandatory Operations"
+                    "Output Number Of Optional Operations","Output Number Of Mandatory Operations","Output FM","Output CM",
                 };
                 File.WriteAllText(logFileName, string.Join(",", headers.ToArray()) + "\n");
             }
@@ -369,7 +376,6 @@ namespace MyPLAOptimization
             parameters.Add(tbFMFileAddress.Text);
             parameters.Add(tbFMRelFileAddress.Text);
             //
-            parameters.Add(inputEvaluationValue.ConventionalCohesion.ToString());
             parameters.Add(inputEvaluationValue.PLACohesion.ToString());
             parameters.Add(inputEvaluationValue.Coupling.ToString());
             parameters.Add(inputEvaluationValue.Granularity.ToString());
@@ -381,8 +387,9 @@ namespace MyPLAOptimization
             parameters.Add(inputEvaluationValue.NumberOfMandatoryInterfaces.ToString());
             parameters.Add(inputEvaluationValue.NumberOfOptionalOperations.ToString());
             parameters.Add(inputEvaluationValue.NumberOfMandatoryOperations.ToString());
+            parameters.Add(inputEvaluationValue.FM.ToString());
+            parameters.Add(inputEvaluationValue.CM.ToString());
             //
-            parameters.Add(outputEvaluationValue.ConventionalCohesion.ToString());
             parameters.Add(outputEvaluationValue.PLACohesion.ToString());
             parameters.Add(outputEvaluationValue.Coupling.ToString());
             parameters.Add(outputEvaluationValue.Granularity.ToString());
@@ -394,6 +401,8 @@ namespace MyPLAOptimization
             parameters.Add(outputEvaluationValue.NumberOfMandatoryInterfaces.ToString());
             parameters.Add(outputEvaluationValue.NumberOfOptionalOperations.ToString());
             parameters.Add(outputEvaluationValue.NumberOfMandatoryOperations.ToString());
+            parameters.Add(outputEvaluationValue.FM.ToString());
+            parameters.Add(outputEvaluationValue.CM.ToString());
             using (StreamWriter sw = File.AppendText(logFileName))
             {
                 sw.WriteLine(string.Join(",", parameters.ToArray()));

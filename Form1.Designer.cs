@@ -66,8 +66,6 @@ namespace MyPLAOptimization
             this.tbFMFileAddress = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.label13 = new System.Windows.Forms.Label();
-            this.lblInputConCohesion = new System.Windows.Forms.Label();
             this.lblInputCoupling = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.lblInputPLACOhesion = new System.Windows.Forms.Label();
@@ -76,6 +74,10 @@ namespace MyPLAOptimization
             this.lblInputCommonality = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.lblInputGranularity = new System.Windows.Forms.Label();
+            this.label33 = new System.Windows.Forms.Label();
+            this.label34 = new System.Windows.Forms.Label();
+            this.lblInputFM = new System.Windows.Forms.Label();
+            this.lblInputCM = new System.Windows.Forms.Label();
             this.lblInputConfigurability = new System.Windows.Forms.Label();
             this.lblInputReusability = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
@@ -94,16 +96,18 @@ namespace MyPLAOptimization
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.label28 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
             this.lblOutputCoupling = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.lblOutputPLACOhesion = new System.Windows.Forms.Label();
-            this.lblOutputConCohesion = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.lblOutputCommonality = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.lblOutputGranularity = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label32 = new System.Windows.Forms.Label();
+            this.lblOutputCM = new System.Windows.Forms.Label();
+            this.lblOutputFM = new System.Windows.Forms.Label();
             this.lblOutputConfigurability = new System.Windows.Forms.Label();
             this.lblOutputReusability = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
@@ -221,9 +225,9 @@ namespace MyPLAOptimization
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(3, 56);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(82, 13);
+            this.label4.Size = new System.Drawing.Size(87, 13);
             this.label4.TabIndex = 4;
-            this.label4.Text = "Operator Count:";
+            this.label4.Text = "Operation Count:";
             // 
             // lblInterfaceCnt
             // 
@@ -547,49 +551,34 @@ namespace MyPLAOptimization
             this.tableLayoutPanel2.ColumnCount = 2;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.27602F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.72398F));
-            this.tableLayoutPanel2.Controls.Add(this.label13, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lblInputConCohesion, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lblInputCoupling, 1, 2);
-            this.tableLayoutPanel2.Controls.Add(this.label12, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.lblInputPLACOhesion, 1, 1);
-            this.tableLayoutPanel2.Controls.Add(this.label11, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.label20, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.lblInputCommonality, 1, 3);
-            this.tableLayoutPanel2.Controls.Add(this.label23, 0, 4);
-            this.tableLayoutPanel2.Controls.Add(this.lblInputGranularity, 1, 4);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputCoupling, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label12, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputPLACOhesion, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.label11, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.label20, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputCommonality, 1, 2);
+            this.tableLayoutPanel2.Controls.Add(this.label23, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputGranularity, 1, 3);
+            this.tableLayoutPanel2.Controls.Add(this.label33, 0, 4);
+            this.tableLayoutPanel2.Controls.Add(this.label34, 0, 5);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputFM, 1, 4);
+            this.tableLayoutPanel2.Controls.Add(this.lblInputCM, 1, 5);
             this.tableLayoutPanel2.Location = new System.Drawing.Point(6, 19);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 5;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.RowCount = 6;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(211, 141);
             this.tableLayoutPanel2.TabIndex = 8;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(3, 0);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(119, 13);
-            this.label13.TabIndex = 4;
-            this.label13.Text = "Conventional Cohesion:";
-            // 
-            // lblInputConCohesion
-            // 
-            this.lblInputConCohesion.AutoSize = true;
-            this.lblInputConCohesion.Location = new System.Drawing.Point(128, 0);
-            this.lblInputConCohesion.Name = "lblInputConCohesion";
-            this.lblInputConCohesion.Size = new System.Drawing.Size(22, 13);
-            this.lblInputConCohesion.TabIndex = 4;
-            this.lblInputConCohesion.Text = "-----";
             // 
             // lblInputCoupling
             // 
             this.lblInputCoupling.AutoSize = true;
-            this.lblInputCoupling.Location = new System.Drawing.Point(128, 60);
+            this.lblInputCoupling.Location = new System.Drawing.Point(128, 23);
             this.lblInputCoupling.Name = "lblInputCoupling";
             this.lblInputCoupling.Size = new System.Drawing.Size(22, 13);
             this.lblInputCoupling.TabIndex = 4;
@@ -598,7 +587,7 @@ namespace MyPLAOptimization
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 30);
+            this.label12.Location = new System.Drawing.Point(3, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(77, 13);
             this.label12.TabIndex = 4;
@@ -607,7 +596,7 @@ namespace MyPLAOptimization
             // lblInputPLACOhesion
             // 
             this.lblInputPLACOhesion.AutoSize = true;
-            this.lblInputPLACOhesion.Location = new System.Drawing.Point(128, 30);
+            this.lblInputPLACOhesion.Location = new System.Drawing.Point(128, 0);
             this.lblInputPLACOhesion.Name = "lblInputPLACOhesion";
             this.lblInputPLACOhesion.Size = new System.Drawing.Size(22, 13);
             this.lblInputPLACOhesion.TabIndex = 4;
@@ -616,7 +605,7 @@ namespace MyPLAOptimization
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 60);
+            this.label11.Location = new System.Drawing.Point(3, 23);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(51, 13);
             this.label11.TabIndex = 4;
@@ -625,7 +614,7 @@ namespace MyPLAOptimization
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(3, 90);
+            this.label20.Location = new System.Drawing.Point(3, 46);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(69, 13);
             this.label20.TabIndex = 4;
@@ -634,7 +623,7 @@ namespace MyPLAOptimization
             // lblInputCommonality
             // 
             this.lblInputCommonality.AutoSize = true;
-            this.lblInputCommonality.Location = new System.Drawing.Point(128, 90);
+            this.lblInputCommonality.Location = new System.Drawing.Point(128, 46);
             this.lblInputCommonality.Name = "lblInputCommonality";
             this.lblInputCommonality.Size = new System.Drawing.Size(22, 13);
             this.lblInputCommonality.TabIndex = 4;
@@ -643,7 +632,7 @@ namespace MyPLAOptimization
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(3, 120);
+            this.label23.Location = new System.Drawing.Point(3, 69);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(102, 13);
             this.label23.TabIndex = 4;
@@ -652,11 +641,47 @@ namespace MyPLAOptimization
             // lblInputGranularity
             // 
             this.lblInputGranularity.AutoSize = true;
-            this.lblInputGranularity.Location = new System.Drawing.Point(128, 120);
+            this.lblInputGranularity.Location = new System.Drawing.Point(128, 69);
             this.lblInputGranularity.Name = "lblInputGranularity";
             this.lblInputGranularity.Size = new System.Drawing.Size(22, 13);
             this.lblInputGranularity.TabIndex = 4;
             this.lblInputGranularity.Text = "-----";
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(3, 92);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(22, 13);
+            this.label33.TabIndex = 4;
+            this.label33.Text = "FM";
+            // 
+            // label34
+            // 
+            this.label34.AutoSize = true;
+            this.label34.Location = new System.Drawing.Point(3, 115);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(23, 13);
+            this.label34.TabIndex = 4;
+            this.label34.Text = "CM";
+            // 
+            // lblInputFM
+            // 
+            this.lblInputFM.AutoSize = true;
+            this.lblInputFM.Location = new System.Drawing.Point(128, 92);
+            this.lblInputFM.Name = "lblInputFM";
+            this.lblInputFM.Size = new System.Drawing.Size(22, 13);
+            this.lblInputFM.TabIndex = 4;
+            this.lblInputFM.Text = "-----";
+            // 
+            // lblInputCM
+            // 
+            this.lblInputCM.AutoSize = true;
+            this.lblInputCM.Location = new System.Drawing.Point(128, 115);
+            this.lblInputCM.Name = "lblInputCM";
+            this.lblInputCM.Size = new System.Drawing.Size(22, 13);
+            this.lblInputCM.TabIndex = 4;
+            this.lblInputCM.Text = "-----";
             // 
             // lblInputConfigurability
             // 
@@ -807,9 +832,9 @@ namespace MyPLAOptimization
             this.label16.AutoSize = true;
             this.label16.Location = new System.Drawing.Point(3, 52);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(82, 13);
+            this.label16.Size = new System.Drawing.Size(87, 13);
             this.label16.TabIndex = 4;
-            this.label16.Text = "Operator Count:";
+            this.label16.Text = "Operation Count:";
             // 
             // label5
             // 
@@ -837,40 +862,34 @@ namespace MyPLAOptimization
             this.tableLayoutPanel5.ColumnCount = 2;
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.55708F));
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.44292F));
-            this.tableLayoutPanel5.Controls.Add(this.label28, 0, 0);
-            this.tableLayoutPanel5.Controls.Add(this.label27, 0, 1);
-            this.tableLayoutPanel5.Controls.Add(this.lblOutputCoupling, 1, 2);
-            this.tableLayoutPanel5.Controls.Add(this.label26, 0, 2);
-            this.tableLayoutPanel5.Controls.Add(this.lblOutputPLACOhesion, 1, 1);
-            this.tableLayoutPanel5.Controls.Add(this.lblOutputConCohesion, 1, 0);
-            this.tableLayoutPanel5.Controls.Add(this.label6, 0, 3);
-            this.tableLayoutPanel5.Controls.Add(this.lblOutputCommonality, 1, 3);
-            this.tableLayoutPanel5.Controls.Add(this.label15, 0, 4);
-            this.tableLayoutPanel5.Controls.Add(this.lblOutputGranularity, 1, 4);
+            this.tableLayoutPanel5.Controls.Add(this.label27, 0, 0);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputCoupling, 1, 1);
+            this.tableLayoutPanel5.Controls.Add(this.label26, 0, 1);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputPLACOhesion, 1, 0);
+            this.tableLayoutPanel5.Controls.Add(this.label6, 0, 2);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputCommonality, 1, 2);
+            this.tableLayoutPanel5.Controls.Add(this.label15, 0, 3);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputGranularity, 1, 3);
+            this.tableLayoutPanel5.Controls.Add(this.label22, 0, 4);
+            this.tableLayoutPanel5.Controls.Add(this.label32, 0, 5);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputCM, 1, 5);
+            this.tableLayoutPanel5.Controls.Add(this.lblOutputFM, 1, 4);
             this.tableLayoutPanel5.Location = new System.Drawing.Point(6, 23);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
-            this.tableLayoutPanel5.RowCount = 5;
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel5.RowCount = 6;
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
             this.tableLayoutPanel5.Size = new System.Drawing.Size(209, 134);
             this.tableLayoutPanel5.TabIndex = 11;
-            // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(3, 0);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(119, 13);
-            this.label28.TabIndex = 4;
-            this.label28.Text = "Conventional Cohesion:";
             // 
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(3, 28);
+            this.label27.Location = new System.Drawing.Point(3, 0);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(77, 13);
             this.label27.TabIndex = 4;
@@ -879,7 +898,7 @@ namespace MyPLAOptimization
             // lblOutputCoupling
             // 
             this.lblOutputCoupling.AutoSize = true;
-            this.lblOutputCoupling.Location = new System.Drawing.Point(133, 56);
+            this.lblOutputCoupling.Location = new System.Drawing.Point(133, 22);
             this.lblOutputCoupling.Name = "lblOutputCoupling";
             this.lblOutputCoupling.Size = new System.Drawing.Size(22, 13);
             this.lblOutputCoupling.TabIndex = 4;
@@ -888,7 +907,7 @@ namespace MyPLAOptimization
             // label26
             // 
             this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(3, 56);
+            this.label26.Location = new System.Drawing.Point(3, 22);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(51, 13);
             this.label26.TabIndex = 4;
@@ -897,25 +916,16 @@ namespace MyPLAOptimization
             // lblOutputPLACOhesion
             // 
             this.lblOutputPLACOhesion.AutoSize = true;
-            this.lblOutputPLACOhesion.Location = new System.Drawing.Point(133, 28);
+            this.lblOutputPLACOhesion.Location = new System.Drawing.Point(133, 0);
             this.lblOutputPLACOhesion.Name = "lblOutputPLACOhesion";
             this.lblOutputPLACOhesion.Size = new System.Drawing.Size(22, 13);
             this.lblOutputPLACOhesion.TabIndex = 4;
             this.lblOutputPLACOhesion.Text = "-----";
             // 
-            // lblOutputConCohesion
-            // 
-            this.lblOutputConCohesion.AutoSize = true;
-            this.lblOutputConCohesion.Location = new System.Drawing.Point(133, 0);
-            this.lblOutputConCohesion.Name = "lblOutputConCohesion";
-            this.lblOutputConCohesion.Size = new System.Drawing.Size(22, 13);
-            this.lblOutputConCohesion.TabIndex = 4;
-            this.lblOutputConCohesion.Text = "-----";
-            // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 84);
+            this.label6.Location = new System.Drawing.Point(3, 44);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(69, 13);
             this.label6.TabIndex = 4;
@@ -924,7 +934,7 @@ namespace MyPLAOptimization
             // lblOutputCommonality
             // 
             this.lblOutputCommonality.AutoSize = true;
-            this.lblOutputCommonality.Location = new System.Drawing.Point(133, 84);
+            this.lblOutputCommonality.Location = new System.Drawing.Point(133, 44);
             this.lblOutputCommonality.Name = "lblOutputCommonality";
             this.lblOutputCommonality.Size = new System.Drawing.Size(22, 13);
             this.lblOutputCommonality.TabIndex = 4;
@@ -933,7 +943,7 @@ namespace MyPLAOptimization
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(3, 112);
+            this.label15.Location = new System.Drawing.Point(3, 66);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(102, 13);
             this.label15.TabIndex = 4;
@@ -942,11 +952,47 @@ namespace MyPLAOptimization
             // lblOutputGranularity
             // 
             this.lblOutputGranularity.AutoSize = true;
-            this.lblOutputGranularity.Location = new System.Drawing.Point(133, 112);
+            this.lblOutputGranularity.Location = new System.Drawing.Point(133, 66);
             this.lblOutputGranularity.Name = "lblOutputGranularity";
             this.lblOutputGranularity.Size = new System.Drawing.Size(22, 13);
             this.lblOutputGranularity.TabIndex = 4;
             this.lblOutputGranularity.Text = "-----";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(3, 88);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(22, 13);
+            this.label22.TabIndex = 4;
+            this.label22.Text = "FM";
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(3, 110);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(23, 13);
+            this.label32.TabIndex = 4;
+            this.label32.Text = "CM";
+            // 
+            // lblOutputCM
+            // 
+            this.lblOutputCM.AutoSize = true;
+            this.lblOutputCM.Location = new System.Drawing.Point(133, 110);
+            this.lblOutputCM.Name = "lblOutputCM";
+            this.lblOutputCM.Size = new System.Drawing.Size(22, 13);
+            this.lblOutputCM.TabIndex = 4;
+            this.lblOutputCM.Text = "-----";
+            // 
+            // lblOutputFM
+            // 
+            this.lblOutputFM.AutoSize = true;
+            this.lblOutputFM.Location = new System.Drawing.Point(133, 88);
+            this.lblOutputFM.Name = "lblOutputFM";
+            this.lblOutputFM.Size = new System.Drawing.Size(22, 13);
+            this.lblOutputFM.TabIndex = 4;
+            this.lblOutputFM.Text = "-----";
             // 
             // lblOutputConfigurability
             // 
@@ -1170,12 +1216,10 @@ namespace MyPLAOptimization
         private System.Windows.Forms.Label lblInputReusability;
         private System.Windows.Forms.Label lblInputCoupling;
         private System.Windows.Forms.Label lblInputPLACOhesion;
-        private System.Windows.Forms.Label lblInputConCohesion;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label13;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.Label lblOutputOperationCount;
         private System.Windows.Forms.Label lblOutputInterfaceCount;
@@ -1188,12 +1232,10 @@ namespace MyPLAOptimization
         private System.Windows.Forms.Label lblOutputReusability;
         private System.Windows.Forms.Label lblOutputCoupling;
         private System.Windows.Forms.Label lblOutputPLACOhesion;
-        private System.Windows.Forms.Label lblOutputConCohesion;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.Label label28;
         private System.Windows.Forms.TextBox tbExportFuncFileAddr;
         private System.Windows.Forms.Button btnExportFuncFIle;
         private System.Windows.Forms.TextBox tbExportVarFileAddr;
@@ -1230,6 +1272,14 @@ namespace MyPLAOptimization
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label lblOutputGranularity;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.Label label34;
+        private System.Windows.Forms.Label lblInputFM;
+        private System.Windows.Forms.Label lblInputCM;
+        private System.Windows.Forms.Label lblOutputCM;
+        private System.Windows.Forms.Label lblOutputFM;
     }
 }
 

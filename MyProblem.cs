@@ -56,7 +56,7 @@ namespace MyPLAOptimization
              * 4- Feature-Scattering
              * 5- Feature-Interaction
              *-----------------------*/
-            NumberOfObjectives = 3;
+            NumberOfObjectives = 2;
             NumberOfConstraints = 0;
             ProblemName = "MyProblem";
             fitnessFunctions = new double[NumberOfObjectives];
@@ -83,25 +83,11 @@ namespace MyPLAOptimization
             //  Calculate all the fitness functions.
             // ATTENTION: The calculation sequence is important.
             //----------------------------------------------------------
-            //evaluate Coupling (1)
-            var coup = EvalCoupling(currentArchitecture);
-            //evaluate Cohesion (2)
-            var plaCoh = EvalPLACohesion(currentArchitecture);
-            //evaluate PLA-Cohesion (Feature-Scattering) (3)
-            var conCoh = EvalConventionalCohesion(currentArchitecture);
-            //evaluate Commonality (4)
-            var common = Math.Abs(0.5 - EvalCommonality(currentArchitecture));
-            //var common = EvalCommonality(currentArchitecture);
-            //evaluate Granularity (5)
-            var gran = EvalGranularityObjective(currentArchitecture /*/ (double)currentArchitecture.OperatorCount*/);
+            var fm = EvalFMObjective(currentArchitecture);
+            var cm = EvalCMObjective(currentArchitecture);
             //
-            //fitnessFunctions[0] = 1.0 / (conCoh * 100);
-            //fitnessFunctions[0] = coup;
-            fitnessFunctions[0] = 1.0 / (plaCoh);
-            fitnessFunctions[1] = common;
-            fitnessFunctions[2] = gran;
-            //fitnessFunctions[0] = (1.0 / (plaCoh * 100)) + common;
-            //fitnessFunctions[0] = (1.0 - conCoh ) * 2 + gran * 6 + coup * 2;
+            fitnessFunctions[0] = fm;
+            fitnessFunctions[1] = cm;
 
             // set objectives
             solution.Objective = fitnessFunctions;
@@ -286,9 +272,9 @@ namespace MyPLAOptimization
         /// <returns></returns>
         public double EvalPLACohesion(PLArchitecture pla)
         {
+            double maxValue = featureModel.Root.ChildCount() * pla.ComponentCount;
             // Get component count
             double componentIsRealizingFeature_Count = 0;
-            double featureRealizedByComponent_Count = 0;
             // Get all features from feature model
             var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
             //-----------------------------------------------------------------------
@@ -325,6 +311,7 @@ namespace MyPLAOptimization
             //-----------------------------------------------------------------------
             // Get all operation in the PLA
             var allOperationsInComponent = new List<PLAOperation> { };
+            double featureRealizedByComponent_Count = 0;
             pla.Components.ForEach(c => c.Interfaces.ForEach(i => allOperationsInComponent.AddRange(i.Operations)));
             // Sweep the feature list
             for (int featureInd = 0; featureInd < allFeatures.Count(); featureInd++)
@@ -352,10 +339,10 @@ namespace MyPLAOptimization
                 // Percentage of total features
                 featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() / (double)pla.ComponentCount;
             }
+            featureRealizedByComponent_Count = featureRealizedByComponent_Count / maxValue;
             // -----------------------------------------------------------------------------------------
             // Calculate average of percentages
-            featureRealizedByComponent_Count = featureRealizedByComponent_Count / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count();
-            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count / (double)pla.ComponentCount;
+            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count / maxValue;
             // value normalization
             double normalizedPLACohesion = (componentIsRealizingFeature_Count + featureRealizedByComponent_Count) / 2.0;
             // return result
@@ -368,12 +355,7 @@ namespace MyPLAOptimization
             double commonalityValue = numberOfMandatoryInterface / numberOfTotalInterface;
             return commonalityValue;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pla"></param>
-        /// <returns></returns>
-        public double EvalConventionalCohesion(PLArchitecture pla)
+        public double EvalConventionalCohesion_(PLArchitecture pla)
         {
             // List of operation dependensy count
             List<double> cohesionList = new List<double> { };
@@ -430,7 +412,7 @@ namespace MyPLAOptimization
             //}
             //else
             //{
-            cohesion = -EvalConventionalCohesion(pla);
+            //cohesion = EvalConventionalCohesion(pla);
             coupling = EvalCoupling(pla);
             //}
             double inTime = (cohesion / Math.Round(coupling, 15)) / 1e15;
@@ -574,6 +556,20 @@ namespace MyPLAOptimization
             double C = pla.ComponentCount;
             double objGranularity = (double)pla.OperatorCount / C;
             return objGranularity;
+        }
+
+        public double EvalFMObjective(PLArchitecture pla)
+        {
+            var plaCoh = EvalPLACohesion(pla) * 100;
+            var comm = Math.Abs(0.5 - EvalCommonality(pla)) * 100;
+            return plaCoh + comm;
+        }
+
+        public double EvalCMObjective(PLArchitecture pla)
+        {
+            var coup = EvalCoupling(pla) * 100;
+            var gran = EvalGranularityObjective(pla);
+            return coup + gran;
         }
     }
 }
