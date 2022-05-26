@@ -37,6 +37,7 @@ namespace MyPLAOptimization
         public PLArchitecture BestPLA { get; set; }
         private List<KeyValuePair<List<string>, List<string>>> UsageOperationsRelationship = new List<KeyValuePair<List<string>, List<string>>> { };
         public ProgressBar ProccessProgressBar { get; set; }
+        public long EstimatedTime { get; set; }
         public NSGAIIOptimizer()
         {
             MaxEvaluation = 10;
@@ -124,6 +125,7 @@ namespace MyPLAOptimization
                 long estimatedTime = Environment.TickCount - initTime;
                 IComparer<Solution> comp = new MyComparator();
                 BestPLA = problem.GenerateArchitecture(population.Best(comp));
+                EstimatedTime = estimatedTime;
                 // Result messages 
                 //AlgorithmOutput("Total execution time: " + estimatedTime + " ms");
                 //AlgorithmOutput("Variables values have been writen to file VAR");

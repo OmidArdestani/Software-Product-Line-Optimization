@@ -270,7 +270,7 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        public double EvalPLACohesion(PLArchitecture pla)
+        public double EvalConventionalCohesion(PLArchitecture pla)
         {
             double maxValue = featureModel.Root.ChildCount() * pla.ComponentCount;
             // Get component count
@@ -304,8 +304,21 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total components
-                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count() / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count();
+                componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count()/* / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count()*/;
             }
+            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count /maxValue;
+            return componentIsRealizingFeature_Count;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
+        public double EvalPLACohesion(PLArchitecture pla)
+        {
+            double maxValue = featureModel.Root.ChildCount() * pla.ComponentCount;
+            // Get all features from feature model
+            var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
             //-----------------------------------------------------------------------
             // Calculation count of components that realized each feature.
             //-----------------------------------------------------------------------
@@ -337,16 +350,13 @@ namespace MyPLAOptimization
                 }
                 // Sum all count of dictionary items
                 // Percentage of total features
-                featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() / (double)pla.ComponentCount;
+                featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() /*/ (double)pla.ComponentCount*/;
             }
-            featureRealizedByComponent_Count = featureRealizedByComponent_Count / maxValue;
+            featureRealizedByComponent_Count = featureRealizedByComponent_Count /maxValue;
             // -----------------------------------------------------------------------------------------
             // Calculate average of percentages
-            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count / maxValue;
-            // value normalization
-            double normalizedPLACohesion = (componentIsRealizingFeature_Count + featureRealizedByComponent_Count) / 2.0;
             // return result
-            return normalizedPLACohesion;
+            return featureRealizedByComponent_Count;
         }
         public double EvalCommonality(PLArchitecture pla)
         {
@@ -354,24 +364,6 @@ namespace MyPLAOptimization
             double numberOfMandatoryInterface = pla.Components.Select(c => c.Interfaces.Where(i => !Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
             double commonalityValue = numberOfMandatoryInterface / numberOfTotalInterface;
             return commonalityValue;
-        }
-        public double EvalConventionalCohesion_(PLArchitecture pla)
-        {
-            // List of operation dependensy count
-            List<double> cohesionList = new List<double> { };
-            foreach (var component in pla.Components)
-            {
-                double numberOfDependedOperations = component.DependedInterfaces.Select(x => x.Operations.Count()).Sum();
-                double numberOfInternalOperations = component.Interfaces.Select(x => x.Operations.Count()).Sum();
-                if (numberOfInternalOperations + numberOfDependedOperations == 0)
-                    cohesionList.Add(0);
-                else
-                {
-                    double componentCo = numberOfInternalOperations / (numberOfInternalOperations + numberOfDependedOperations);
-                    cohesionList.Add(componentCo);
-                }
-            }
-            return cohesionList.Sum() / (pla.ComponentCount);
         }
         private double Factoriel(int value)
         {
@@ -397,25 +389,8 @@ namespace MyPLAOptimization
         /// </summary>
         /// <param name="pla"></param>
         /// <returns></returns>
-        public double EvalReusability(PLArchitecture pla)
+        public double EvalReusabilityInspace(PLArchitecture pla)
         {
-            //-----------------------------------------------------------------------
-            // Calculation reusibility in time = Conventional-Cohesion / Coupling
-            //-----------------------------------------------------------------------
-            // if coupling and cohesion was calc, use of them, else calc both of them
-            double coupling = 0;
-            double cohesion = 0;
-            //if (fitnessFunctions[(int)ObjectivSelection.OS_Coupling] != 0 && fitnessFunctions.Count() == 5)
-            //{
-            //    cohesion = -fitnessFunctions[(int)ObjectivSelection.OS_ConventionalCohesion];
-            //    coupling = fitnessFunctions[(int)ObjectivSelection.OS_Coupling];
-            //}
-            //else
-            //{
-            //cohesion = EvalConventionalCohesion(pla);
-            coupling = EvalCoupling(pla);
-            //}
-            double inTime = (cohesion / Math.Round(coupling, 15)) / 1e15;
             //-----------------------------------------------------------------------
             // Calculation reusability in space = average of interface probability use in products (configurations).
             //-----------------------------------------------------------------------
@@ -429,7 +404,7 @@ namespace MyPLAOptimization
                 // Find related features consider to operations
                 foreach (var operationItem in interfaceItem.Operations)
                 {
-                    var relationships = featureRealationshipMatrix.Where(x => x.RelatedOperation == operationItem);
+                    var relationships = featureRealationshipMatrix.Where(x => x.RelatedOperation.Id == operationItem.Id);
                     foreach (var relItem in relationships)
                     {
                         // Insert into the related list if not inserted befor.
@@ -460,14 +435,27 @@ namespace MyPLAOptimization
                     // Check the feature parent is a Group (OR items)
                     else if (featureItem.Parent is FeatureGroup)
                     {
-                        probability += MathChooseProbability(1, featureItem.Parent.ChildCount());
+                        int n = featureItem.Parent.ChildCount();
+                        probability += MathChooseProbability(1, n) / Math.Pow(2, n);
                     }
                 }
+                if (relatedFeatureList.Count == 0)
+                    probability = 1;
                 // Sum of average of probability
                 inSpace += probability / pla.InterfaceCount;
             }
-            double finalReusability = (inTime + inSpace) / 2.0;
-            return finalReusability;
+            return inSpace;
+        }
+        public double EvalReusabilityIntime(PLArchitecture pla)
+        {
+            //-----------------------------------------------------------------------
+            // Calculation reusibility in time = Conventional-Cohesion / Coupling
+            //-----------------------------------------------------------------------
+            // if coupling and cohesion was calc, use of them, else calc both of them
+            double coupling = EvalCoupling(pla) * 100;
+            double cohesion = EvalConventionalCohesion(pla) * 100;
+            double inTime = cohesion / coupling;
+            return inTime;
         }
         /// <summary>
         /// 
@@ -479,7 +467,9 @@ namespace MyPLAOptimization
             double k_interfaceCount = pla.InterfaceCount;
             // Checking the property named "isOptional", which was set in the Reusability calculation step.
             double optionalInterfaceCount = pla.Components.Select(c => c.Interfaces.Where(i => Convert.ToBoolean(i.Propertie("isOptional"))).Count()).Sum();
-            return -(Math.Pow(2, optionalInterfaceCount) / Math.Pow(2, k_interfaceCount)); // 2^k is if all interfaces was optional.
+            //return (Math.Log10(Math.Pow(2, optionalInterfaceCount)) / Math.Log10(Math.Pow(2, k_interfaceCount))); 
+            double currentValue = (Math.Log10(Math.Pow(2, optionalInterfaceCount)) / Math.Log10(Math.Pow(2, k_interfaceCount)));
+            return Math.Abs(currentValue - 0.5);
         }
         /// <summary>
         /// 
@@ -557,19 +547,28 @@ namespace MyPLAOptimization
             double objGranularity = (double)pla.OperatorCount / C;
             return objGranularity;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
         public double EvalFMObjective(PLArchitecture pla)
         {
             var plaCoh = EvalPLACohesion(pla) * 100;
             var comm = Math.Abs(0.5 - EvalCommonality(pla)) * 100;
-            return plaCoh + comm;
+            return (plaCoh + comm) / 2.0;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pla"></param>
+        /// <returns></returns>
         public double EvalCMObjective(PLArchitecture pla)
         {
             var coup = EvalCoupling(pla) * 100;
             var gran = EvalGranularityObjective(pla);
-            return coup + gran;
+            var conCohesion = EvalConventionalCohesion(pla) * 100;
+            return (coup + gran + conCohesion) / 3.0;
         }
     }
 }
