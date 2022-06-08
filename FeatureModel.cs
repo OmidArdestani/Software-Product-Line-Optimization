@@ -58,6 +58,14 @@ namespace read_feature_model
         {
             return Children;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        public void RemoveChild(FeatureTreeNode node)
+        {
+            Children.Remove(node);
+        }
     }
     /// <summary>
     /// 
@@ -67,6 +75,23 @@ namespace read_feature_model
         public RootNode(string name, string id) : base(name, id)
         {
 
+        }
+        private int NodeClildCount(FeatureTreeNode node)
+        {
+            if(node.ChildCount()>0)
+            {
+                int sum = node.ChildCount();
+                for (int i = 0; i < node.ChildCount(); i++)
+                {
+                    sum += NodeClildCount(node.GetChildAt(i));
+                }
+                return sum;
+            }
+            return 0;
+        }
+        public int AllClildrenCount()
+        {
+            return NodeClildCount(this);
         }
     }
     /// <summary>
@@ -145,6 +170,11 @@ namespace read_feature_model
         public void LoadModel()
         {
 
+        }
+
+        public int NumberOfChildren()
+        {
+            return GetAllChildrenOf(Root).Count();
         }
     }
 
@@ -298,6 +328,86 @@ namespace read_feature_model
                 }
             }
             return null;
+        }
+
+
+        public static void ExportXMLFeatureModel(FeatureModel model, string path)
+        {
+            XmlDocument xdoc = new XmlDocument();
+
+            var feature_model = xdoc.CreateElement("feature_model");
+            var metaNode = xdoc.CreateElement("meta");
+            var creatorDataNode = xdoc.CreateElement("data");
+            var emailDataNode = xdoc.CreateElement("data");
+            var organizationDataNode = xdoc.CreateElement("data");
+            var dateDataNode = xdoc.CreateElement("data");
+            var featureNode = xdoc.CreateElement("feature_tree");
+            var constraintsNode = xdoc.CreateElement("constraints");
+
+            xdoc.AppendChild(feature_model);
+            metaNode.AppendChild(creatorDataNode);
+            metaNode.AppendChild(emailDataNode);
+            metaNode.AppendChild(organizationDataNode);
+            metaNode.AppendChild(dateDataNode);
+            feature_model.AppendChild(metaNode);
+            feature_model.AppendChild(featureNode);
+            feature_model.AppendChild(constraintsNode);
+            //
+            feature_model.SetAttribute("name", "GeneratedFeaturModel");
+
+            creatorDataNode.SetAttribute("name", "creator");
+            creatorDataNode.InnerText = "Omid Ardestani";
+
+            dateDataNode.SetAttribute("name", "date");
+            dateDataNode.InnerText = DateTime.Now.ToString();
+
+            emailDataNode.SetAttribute("name", "email");
+            emailDataNode.InnerText = "o.ardestani@hotmail.com";
+
+            organizationDataNode.SetAttribute("name", "organization");
+            organizationDataNode.InnerText = "Local";
+            //
+
+            string lines = GetNodeXMLString(model.Root, 0);
+            featureNode.InnerText = lines;
+            xdoc.Save(path);
+        }
+
+        private static string GetNodeXMLString(FeatureTreeNode node, int level)
+        {
+            int childCount = node.ChildCount();
+            string str = "";
+            if (node is RootNode)
+            {
+                str = "\n:r " + node.Name + "(" + node.ID + ")\n";
+            }
+            else
+            {
+                if (node is SolitaireFeature)
+                {
+                    if (((SolitaireFeature)node).IsOptional)
+                        str = ":o " + node.Name + "(" + node.ID + ")\n";
+                    else
+                        str = ":m " + node.Name + "(" + node.ID + ")\n";
+                }
+                else if (node is FeatureGroup)
+                {
+                    str = ":g (" + node.ID + ") [" + ((FeatureGroup)node).Min + "," + ((FeatureGroup)node).Max + "]\n";
+                }
+                else
+                {
+                    str = ": " + node.Name + "(" + node.ID + ")\n";
+                }
+                for (int pad = 0; pad < level; pad++)
+                {
+                    str = "\t" + str;
+                }
+            }
+            for (int i = 0; i < childCount; i++)
+            {
+                str += GetNodeXMLString(node.GetChildAt(i), level + 1);
+            }
+            return str;
         }
         /// <summary>
         /// find a node by Id in tree

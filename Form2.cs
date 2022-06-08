@@ -31,6 +31,7 @@ namespace MyPLAOptimization
                 string plaFileName = files.Where(x => x.Contains("pla")).Single();
                 string featureModelFileName = files.Where(x => x.Contains("FM.xml")).Single();
                 string relFileName = files.Where(x => x.Contains("FMR.csv")).Single();
+                string path = relFileName.Replace("FMR.csv", "");
                 form.SetPrimaryPLA<XMLConvertor>(plaFileName);
                 form.SetFeatureModel(featureModelFileName);
                 form.SetRelationshipMetrix(relFileName);
@@ -42,10 +43,22 @@ namespace MyPLAOptimization
                 double diffReusabilityIntime = form.inputEvaluationValue.ReusabilityIntime - form.outputEvaluationValue.ReusabilityIntime;
                 double diffFM = form.inputEvaluationValue.FM - form.outputEvaluationValue.FM;
                 double diffCM = form.inputEvaluationValue.CM - form.outputEvaluationValue.CM;
-                AddEvaluationResult(plaFileName.Split('\\').Last(), diffFM, diffCM, diffReusabilityIntime * 100, diffReusabilityInspace * 100);
+                if (!Directory.Exists(path + "Output"))
+                    Directory.CreateDirectory(path + "Output");
+                form.ExportFuncFile(path + "Output/func.txt");
+                form.ExportVarFile(path + "Output/var.txt");
+                form.ExportOptimizedPLA(path + "Output/optimized PL-A.xml", true);
+                AddEvaluationResult(plaFileName.Split('\\').Last(), 
+                    diffFM,
+                    diffCM,
+                    diffReusabilityIntime * 100,
+                    diffReusabilityInspace * 100,
+                    form.EstimatedTime,
+                    form.outputEvaluationValue.NumberOfInterfaces,
+                    form.outputEvaluationValue.NumberOfComponents);
             }
         }
-        public void AddEvaluationResult(string plaName, double fm, double cm, double configurability, double reusability)
+        public void AddEvaluationResult(string plaName, double fm, double cm, double configurability, double reusability, long estimatedTime,int numberOfComponents,int numberOfInterfaces)
         {
             var index = dataGridView1.Rows.Add();
             var row = dataGridView1.Rows[index];
@@ -54,6 +67,9 @@ namespace MyPLAOptimization
             row.Cells[2].Value = Math.Round(cm, 2);
             row.Cells[3].Value = Math.Round(configurability, 2);
             row.Cells[4].Value = Math.Round(reusability, 2);
+            row.Cells[5].Value = new DateTime().AddMilliseconds(estimatedTime).TimeOfDay.ToString(@"hh\:mm\:ss");
+            row.Cells[6].Value = numberOfInterfaces;
+            row.Cells[7].Value = numberOfComponents;
             //dataGridView1.Rows.Add(row);
         }
 

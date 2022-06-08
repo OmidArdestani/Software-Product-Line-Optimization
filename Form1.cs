@@ -22,6 +22,7 @@ namespace MyPLAOptimization
         private bool FeaturModelLoaded = false;
         private bool DiagramLoaded = false;
         private string logFileName = "OutputLog.csv";
+        public long EstimatedTime { get; set; }
         NSGAIIOptimizer MyOptimization = null;
         XMLFeatureModel featureModel = new XMLFeatureModel();
         List<FeatureRelationship> featureRelationshipMatrix = new List<FeatureRelationship> { };
@@ -44,6 +45,9 @@ namespace MyPLAOptimization
             public int NumberOfMandatoryInterfaces;
             public int NumberOfOptionalOperations;
             public int NumberOfMandatoryOperations;
+            // 
+            public int NumberOfInterfaces;
+            public int NumberOfComponents;
         }
 
         public PLAEvaluationValue inputEvaluationValue;
@@ -102,12 +106,14 @@ namespace MyPLAOptimization
             lblOutputCoupling.Text = Math.Round(outputEvaluationValue.Coupling * 100, 2).ToString() + "%";
             lblOutputCommonality.Text = Math.Round(outputEvaluationValue.Commonality * 100, 1).ToString() + "%";
             lblOutputCompleteness.Text = Math.Round(outputEvaluationValue.Completeness * 100, 1) + "%";
-            lblOutputGranularity.Text = Math.Round(outputEvaluationValue.Granularity, 2).ToString();
+            lblOutputGranularity.Text = Math.Round(outputEvaluationValue.Granularity * 100, 2).ToString();
             lblOutputFM.Text = Math.Round(outputEvaluationValue.FM, 2).ToString();
             lblOutputCM.Text = Math.Round(outputEvaluationValue.CM, 2).ToString();
             // PLA info
-            lblOutputComponentCount.Text = MyOptimization.BestPLA.ComponentCount.ToString();
-            lblOutputInterfaceCount.Text = MyOptimization.BestPLA.InterfaceCount.ToString();
+            outputEvaluationValue.NumberOfInterfaces = MyOptimization.BestPLA.InterfaceCount;
+            outputEvaluationValue.NumberOfComponents = MyOptimization.BestPLA.ComponentCount;
+            lblOutputComponentCount.Text = outputEvaluationValue.NumberOfComponents.ToString();
+            lblOutputInterfaceCount.Text = outputEvaluationValue.NumberOfInterfaces.ToString();
             lblOutputOperationCount.Text = MyOptimization.BestPLA.OperatorCount.ToString();
             // Check mandatory and optional count for interfaces and operations
             outputEvaluationValue.NumberOfOptionalOperations = MyOptimization.BestPLA.Components.Select(
@@ -182,27 +188,31 @@ namespace MyPLAOptimization
                 FilterIndex = 2
             };
             dialog.ShowDialog();
-            IFileConvertor exportFIle = null;
             if (dialog.FileName != "")
             {
-                // Input file is XMI format
-                if (dialog.FilterIndex == 1)
-                {
-                    exportFIle = new XMIConvertor();
-                }
-                // Input file is XML format
-                else if (dialog.FilterIndex == 2)
-                {
-                    exportFIle = new XMLConvertor();
-                }
-                string[] addressParts = dialog.FileName.Split('\\');
-                if (addressParts.Length > 2)
-                    tbExportPLAFileAddr.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
-                else
-                    tbExportPLAFileAddr.Text = string.Join("/", addressParts);
-                PLArchitecture optimizedPLA = MyOptimization.BestPLA;
-                exportFIle.ExportFile(dialog.FileName, optimizedPLA.Components);
+                ExportOptimizedPLA(dialog.FileName, dialog.FilterIndex == 2);
             }
+        }
+        public void ExportOptimizedPLA(string fileName,bool xml)
+        {
+            IFileConvertor exportFIle = null;
+            // Input file is XMI format
+            if (!xml)
+            {
+                exportFIle = new XMIConvertor();
+            }
+            // Input file is XML format
+            else
+            {
+                exportFIle = new XMLConvertor();
+            }
+            string[] addressParts = fileName.Split('\\');
+            if (addressParts.Length > 2)
+                tbExportPLAFileAddr.Text = addressParts[addressParts.Length - 2] + "/" + addressParts[addressParts.Length - 1];
+            else
+                tbExportPLAFileAddr.Text = string.Join("/", addressParts);
+            PLArchitecture optimizedPLA = MyOptimization.BestPLA;
+            exportFIle.ExportFile(fileName, optimizedPLA.Components);
         }
         /// <summary>
         /// 
@@ -333,10 +343,26 @@ namespace MyPLAOptimization
                             rel.RelatedOperation = item;
                             if (rel.RelatedFeature is SolitaireFeature)
                             {
-                                item.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
+                                bool lastProValue = true;
+                                var lastProp = item.Propertie("isOptional");
+                                if (lastProp != null)
+                                    lastProValue = Convert.ToBoolean(lastProp);
+                                item.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional & lastProValue);
                                 if (item.OwnerInterface != null)
                                 {
-                                    item.OwnerInterface.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional);
+                                    item.OwnerInterface.SetPropertie("isOptional", ((SolitaireFeature)rel.RelatedFeature).IsOptional & lastProValue);
+                                }
+                            }
+                            else if (rel.RelatedFeature.Parent is FeatureGroup)
+                            {
+                                bool lastProValue = true;
+                                var lastProp = item.Propertie("isOptional");
+                                if (lastProp != null)
+                                    lastProValue = Convert.ToBoolean(lastProp);
+                                item.SetPropertie("isOptional", true & lastProValue);
+                                if (item.OwnerInterface != null)
+                                {
+                                    item.OwnerInterface.SetPropertie("isOptional", true & lastProValue);
                                 }
                             }
                             featureRelationshipMatrix.Add(rel);
@@ -376,6 +402,8 @@ namespace MyPLAOptimization
             inputEvaluationValue.Granularity = MyOptimization.problem.EvalGranularityObjective(GotArchitecture);
             inputEvaluationValue.FM = MyOptimization.problem.EvalFMObjective(GotArchitecture);
             inputEvaluationValue.CM = MyOptimization.problem.EvalCMObjective(GotArchitecture);
+            inputEvaluationValue.NumberOfInterfaces = GotArchitecture.InterfaceCount;
+            inputEvaluationValue.NumberOfComponents = GotArchitecture.ComponentCount;
             // info
 
             // show in labels
@@ -385,7 +413,7 @@ namespace MyPLAOptimization
             lblInputReusabilityInspace.Text = Math.Round(inputEvaluationValue.ReusabilityInspace * 100, 3).ToString() + "%";
             lblInputCoupling.Text = Math.Round(inputEvaluationValue.Coupling * 100, 2).ToString() + "%";
             lblInputCommonality.Text = Math.Round(inputEvaluationValue.Commonality * 100, 1).ToString() + "%";
-            lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity, 2).ToString();
+            lblInputGranularity.Text = Math.Round(inputEvaluationValue.Granularity * 100, 2).ToString();
             lblInputFM.Text = Math.Round(inputEvaluationValue.FM, 2).ToString();
             lblInputCM.Text = Math.Round(inputEvaluationValue.CM, 2).ToString();
         }
@@ -397,12 +425,15 @@ namespace MyPLAOptimization
             dialog.ShowDialog();
             if (dialog.FileName != "")
             {
-                string[] addressParts = dialog.FileName.Split('\\');
-                tbExportVarFileAddr.Text = string.Join("/", addressParts);
-                MyOptimization.ExportVarData(dialog.FileName);
+                ExportVarFile(dialog.FileName);
             }
         }
-
+        public void ExportVarFile(string fileName)
+        {
+            string[] addressParts = fileName.Split('\\');
+            tbExportVarFileAddr.Text = string.Join("/", addressParts);
+            MyOptimization.ExportVarData(fileName);
+        }
         private void BtnExportFuncFIle_Click(object sender, EventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
@@ -411,12 +442,15 @@ namespace MyPLAOptimization
             dialog.ShowDialog();
             if (dialog.FileName != "")
             {
-                string[] addressParts = dialog.FileName.Split('\\');
-                tbExportFuncFileAddr.Text = string.Join("/", addressParts);
-                MyOptimization.ExportFuncData(dialog.FileName);
+                ExportFuncFile(dialog.FileName);
             }
         }
-
+        public void ExportFuncFile(string fileName)
+        {
+            string[] addressParts = fileName.Split('\\');
+            tbExportFuncFileAddr.Text = string.Join("/", addressParts);
+            MyOptimization.ExportFuncData(fileName);
+        }
         private void BtnOpenFuncFile_Click(object sender, EventArgs e)
         {
             ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + tbExportFuncFileAddr.Text);
@@ -439,10 +473,10 @@ namespace MyPLAOptimization
                 List<string> headers = new List<string> {"DateTime", "Input PLA","Input Feature Model","Input Feature Relationship",
                     "Input PLA-Cohesion","Input Coupling","Input Granularity","Input Commonality",
                     "Input Reusability Inspace","Input Reusability Intime","Input Completeness","Input Number Of Optional Interfaces",
-                    "Input Number Of Mandatory Interfaces","Input Number Of Optional Operations","Input Number Of Mandatory Operations","Input FM","Input CM",
+                    "Input Number Of Mandatory Interfaces","Input Number Of Optional Operations","Input Number Of Mandatory Operations","Input FM","Input CM","Input Interface Count","Input Component Count",
                     "Output PLA-Cohesion","Output Coupling","Output Granularity","Output Commonality","Output Reusability Inspace",
                     "Output Reusability Intime","Output Completeness","Output Number Of Optional Interfaces","Output Number Of Mandatory Interfaces",
-                    "Output Number Of Optional Operations","Output Number Of Mandatory Operations","Output FM","Output CM","EstimatedTime[ms]"
+                    "Output Number Of Optional Operations","Output Number Of Mandatory Operations","Output FM","Output CM","Output Interface Count","Output Component Count","EstimatedTime[ms]"
                 };
                 File.WriteAllText(logFileName, string.Join(",", headers.ToArray()) + "\n");
             }
@@ -468,6 +502,8 @@ namespace MyPLAOptimization
             parameters.Add(inputEvaluationValue.NumberOfMandatoryOperations.ToString());
             parameters.Add(inputEvaluationValue.FM.ToString());
             parameters.Add(inputEvaluationValue.CM.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfInterfaces.ToString());
+            parameters.Add(inputEvaluationValue.NumberOfComponents.ToString());
             //
             parameters.Add(outputEvaluationValue.PLACohesion.ToString());
             parameters.Add(outputEvaluationValue.Coupling.ToString());
@@ -482,8 +518,11 @@ namespace MyPLAOptimization
             parameters.Add(outputEvaluationValue.NumberOfMandatoryOperations.ToString());
             parameters.Add(outputEvaluationValue.FM.ToString());
             parameters.Add(outputEvaluationValue.CM.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfInterfaces.ToString());
+            parameters.Add(outputEvaluationValue.NumberOfComponents.ToString());
             // 
             parameters.Add(MyOptimization.EstimatedTime.ToString());
+            this.EstimatedTime = MyOptimization.EstimatedTime;
             using (StreamWriter sw = File.AppendText(logFileName))
             {
                 sw.WriteLine(string.Join(",", parameters.ToArray()));

@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace MyPLAOptimization
 {
-    interface IFileConvertor
+    public interface IFileConvertor
     {
         int GetComponentCount();
         int GetInterfaceCount();
@@ -18,7 +18,7 @@ namespace MyPLAOptimization
         PLArchitecture ReadFile(string filePath);
         void ExportFile(string filePath, List<PLAComponent> components);
     }
-    class XMIConvertor : IFileConvertor
+    public class XMIConvertor : IFileConvertor
     {
         private int ComponentCount = 0;
         private int InterfaceCount = 0;
@@ -195,7 +195,7 @@ namespace MyPLAOptimization
         }
     }
 
-    class XMLConvertor : IFileConvertor
+    public class XMLConvertor : IFileConvertor
     {
         private int ComponentCount = 0;
         private int InterfaceCount = 0;
@@ -563,7 +563,7 @@ namespace MyPLAOptimization
                 PLAComponent component = components[c];
                 XElement componentElement = new XElement("Component");
                 componentElement.SetAttributeValue("Id", "Component_" + component.Id);
-                componentElement.SetAttributeValue("Name", "Component" + c);
+                componentElement.SetAttributeValue("Name",  component.Name);
                 componentElements.Add(componentElement);
                 for (int i = 0; i < component.Interfaces.Count; i++)
                 {
@@ -573,7 +573,7 @@ namespace MyPLAOptimization
                     {
                         XElement classElement = new XElement("Class");
                         classElement.SetAttributeValue("Id", "Interface_" + interface_.Id);
-                        classElement.SetAttributeValue("Name", "Class" + i);
+                        classElement.SetAttributeValue("Name",  interface_.Name);
                         XElement Stereotypes = new XElement("Stereotypes");
                         XElement Stereotype_ = new XElement("Stereotype");
                         XElement StereotypePLA_ = new XElement("Stereotype");

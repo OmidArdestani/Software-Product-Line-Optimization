@@ -18,7 +18,7 @@ namespace MyPLAOptimization
         OS_Commonality,
         OS_Granularity
     }
-    class MyProblem : Problem
+    public class MyProblem : Problem
     {
         private PLArchitecture primaryArchitecture;
         private FeatureModel featureModel;
@@ -26,6 +26,10 @@ namespace MyPLAOptimization
         private List<PLAOperation> LocalOperations = new List<PLAOperation> { };
         private double[] fitnessFunctions;
         private List<KeyValuePair<List<string>, List<string>>> operationDependencies;
+        public MyProblem()
+        {
+
+        }
         public MyProblem(PLArchitecture architecture, List<KeyValuePair<List<string>, List<string>>> operatorDependencies, FeatureModel featureModel, List<FeatureRelationship> featureRealationshipMatrix)
         {
             this.primaryArchitecture = architecture;
@@ -115,6 +119,7 @@ namespace MyPLAOptimization
                     currentInterface = new PLAInterface();
                     currentInterface.Operations = new List<PLAOperation> { };
                     currentInterface.Id = currentSolutionIndex.ToString();
+                    currentInterface.Name = "Interface_" + currentInterface.Id;
                     interfaces.Add(currentInterface);
                 }
                 var newOperation = new PLAOperation(LocalOperations[o]);
@@ -138,6 +143,7 @@ namespace MyPLAOptimization
                     currentComponent.Interfaces = new List<PLAInterface> { };
                     currentComponent.DependedInterfaces = new List<PLAInterface> { };
                     currentComponent.Id = currentSolutionIndex.ToString();
+                    currentComponent.Name = "Component_" + currentComponent.Id;
                     components.Add(currentComponent);
                 }
                 interfaces[i].OwnerComponent = currentComponent;
@@ -272,7 +278,7 @@ namespace MyPLAOptimization
         /// <returns></returns>
         public double EvalConventionalCohesion(PLArchitecture pla)
         {
-            double maxValue = featureModel.Root.ChildCount() * pla.ComponentCount;
+            double maxValue = featureModel.Root.AllClildrenCount() * pla.ComponentCount;
             // Get component count
             double componentIsRealizingFeature_Count = 0;
             // Get all features from feature model
@@ -306,7 +312,7 @@ namespace MyPLAOptimization
                 // Percentage of total components
                 componentIsRealizingFeature_Count += (double)mapOfFeatureAndOperation.Count()/* / (double)allFeatures.Where(x => !(x is FeatureGroup)).Count()*/;
             }
-            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count /maxValue;
+            componentIsRealizingFeature_Count = componentIsRealizingFeature_Count / maxValue;
             return componentIsRealizingFeature_Count;
         }
         /// <summary>
@@ -316,7 +322,7 @@ namespace MyPLAOptimization
         /// <returns></returns>
         public double EvalPLACohesion(PLArchitecture pla)
         {
-            double maxValue = featureModel.Root.ChildCount() * pla.ComponentCount;
+            double maxValue = featureModel.Root.AllClildrenCount() * pla.ComponentCount;
             // Get all features from feature model
             var allFeatures = featureModel.GetAllChildrenOf(featureModel.Root);
             //-----------------------------------------------------------------------
@@ -352,7 +358,7 @@ namespace MyPLAOptimization
                 // Percentage of total features
                 featureRealizedByComponent_Count += (double)mapOfComponentToFeature.Count() /*/ (double)pla.ComponentCount*/;
             }
-            featureRealizedByComponent_Count = featureRealizedByComponent_Count /maxValue;
+            featureRealizedByComponent_Count = featureRealizedByComponent_Count / maxValue;
             // -----------------------------------------------------------------------------------------
             // Calculate average of percentages
             // return result
@@ -429,14 +435,14 @@ namespace MyPLAOptimization
                         }
                         else
                         {
-                            probability += 0.5;
+                            probability = 0.5;
                         }
                     }
                     // Check the feature parent is a Group (OR items)
                     else if (featureItem.Parent is FeatureGroup)
                     {
                         int n = featureItem.Parent.ChildCount();
-                        probability += MathChooseProbability(1, n) / Math.Pow(2, n);
+                        probability = MathChooseProbability(1, n) / Math.Pow(2, n);
                     }
                 }
                 if (relatedFeatureList.Count == 0)
@@ -525,7 +531,6 @@ namespace MyPLAOptimization
         {
             double C = pla.ComponentCount;
             double H = Math.Log((double)pla.OperatorCount) + 0.577;
-            //int H = (int)(Math.Log((double)pla.OperatorCount) + 1);
             List<double> componentGranularity = new List<double> { };
             foreach (var component in pla.Components)
             {
@@ -534,7 +539,8 @@ namespace MyPLAOptimization
                 componentGranularity.Add(Math.Abs(O - H));
             }
             double objGranularity = componentGranularity.Sum() / C;
-            return objGranularity;
+            double normalValue = objGranularity / Math.Abs(pla.OperatorCount - H);
+            return normalValue;
         }
         /// <summary>
         /// 
@@ -556,7 +562,8 @@ namespace MyPLAOptimization
         {
             var plaCoh = EvalPLACohesion(pla) * 100;
             var comm = Math.Abs(0.5 - EvalCommonality(pla)) * 100;
-            return (plaCoh + comm) / 2.0;
+            //return (plaCoh + comm) / 2.0;
+            return plaCoh * comm;
         }
         /// <summary>
         /// 
@@ -566,9 +573,9 @@ namespace MyPLAOptimization
         public double EvalCMObjective(PLArchitecture pla)
         {
             var coup = EvalCoupling(pla) * 100;
-            var gran = EvalGranularityObjective(pla);
-            var conCohesion = EvalConventionalCohesion(pla) * 100;
-            return (coup + gran + conCohesion) / 3.0;
+            var gran = EvalGranularityObjective(pla) * 100;
+            //return (coup + gran) / 2.0;
+            return coup * gran;
         }
     }
 }
