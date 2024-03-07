@@ -1,11 +1,11 @@
-# Software Product Line Architecture Optimization with NSGA-II Algorithm
+# Software Product Line Architecture(PLA) Optimization with NSGA-II Algorithm
 
 ## Overview
-This project implements a software product line optimization framework using the NSGA-II (Non-dominated Sorting Genetic Algorithm II) algorithm. It aims to optimize various software metrics within a software product line context, such as Cohesion, Coupling, Feature-Scattering, and Granularity.
+This project implements a software product line Architecture(PLA) optimization framework using the NSGA-II (Non-dominated Sorting Genetic Algorithm II) algorithm. It aims to optimize various software metrics within a software product line context, such as Cohesion, Coupling, Feature-Scattering, and Granularity.
 
 ## Features
 - **NSGA-II Algorithm:** Utilizes the NSGA-II algorithm for multi-objective optimization.
-- **Metrics Optimization:** Optimizes software metrics including Cohesion, Coupling, Feature-Scattering, and Granularity.
+- **Metrics Optimization:** Optimizes software architecture and  metrics including PLA-Cohesion, Coupling, and Feature-Scattering.
 - **Evaluation:** Evaluates the optimized product line in terms of configurability, reusability, and commonality.
 
 ## Inputs and Outputs
@@ -17,18 +17,19 @@ This project implements a software product line optimization framework using the
 - **Output File:**
     - **Optimized PLA Component Diagram (UML Standard):** The optimized component diagram representing the software product line after applying the NSGA-II algorithm.
 
-## Metrics
-### Cohesion
-Cohesion measures the degree of relatedness among the elements within a module or component. High cohesion indicates that elements within the module are closely related and work together to perform a single, well-defined task.
+## Software Production Line Metrics
+This repository contains metrics definitions for assessing Software Production Line Architecture (PLA). These metrics help in evaluating the cohesion, commonality, and coupling within a PLA.
 
-### Coupling
-Coupling measures the inter-dependencies between modules or components within a system. Low coupling indicates that modules are relatively independent and can be modified or replaced without affecting other parts of the system.
+### Metrics Definitions
+#### 1. PLA-Cohesion
+PLA-Cohesion measures the degree of coherence or unity within the architecture by assessing how well each architectural component fulfills multiple features of the feature model, ensuring a cohesive family of software products.
 
-### Feature-Scattering
-Feature-Scattering evaluates the distribution of features across the modules or components of a software product line. Low feature-scattering indicates that features are concentrated within specific modules, promoting modularization and reusability.
+#### 2. Commonality
+Commonality controls the balance of shared and unique interfaces within a Software Production Line Architecture (PLA). It ensures that the PLA has an appropriate mix of common (mandatory) and non-common (optional) interfaces to maintain diversity in products while leveraging shared assets.
 
-### Granularity
-Granularity assesses the level of detail or abstraction within modules or components. Fine-grained modules have a higher level of detail and are more specialized, while coarse-grained modules are more general-purpose and encompass broader functionality.
+#### 3. Coupling
+Coupling in Software Production Line Architecture (PLA) quantifies the level of interdependence between architectural components. It evaluates the extent to which components rely on interfaces from other components to fulfill their requirements, with lower values indicating a more modular and loosely coupled architecture.
+
 
 ## Requirements
 - .NET Framework or .NET Core
