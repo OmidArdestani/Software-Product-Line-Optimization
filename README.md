@@ -1,4 +1,4 @@
-# Software Product Line Optimization with NSGA-II Algorithm
+# Software Product Line Architecture Optimization with NSGA-II Algorithm
 
 ## Overview
 This project implements a software product line optimization framework using the NSGA-II (Non-dominated Sorting Genetic Algorithm II) algorithm. It aims to optimize various software metrics within a software product line context, such as Cohesion, Coupling, Feature-Scattering, and Granularity.
